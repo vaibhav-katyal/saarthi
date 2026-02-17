@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
+import DocumentViewer from "@/components/DocumentViewer";
 import {
   Plus, Link as LinkIcon, Code2, FileText, Trash2, ExternalLink,
   Search, Copy, Check, Upload, File, Download, FolderOpen, X,
 } from "lucide-react";
 
-type ResourceType = "link" | "code" | "document";
+type ResourceType = "link" | "code" | "document" | "idea";
 
 interface Resource {
   id: string;
@@ -26,6 +27,7 @@ const tabs: { type: ResourceType; label: string; icon: React.ElementType }[] = [
   { type: "link", label: "Links", icon: LinkIcon },
   { type: "code", label: "Code", icon: Code2 },
   { type: "document", label: "Documents", icon: FileText },
+  { type: "idea", label: "Ideas", icon: FileText },
 ];
 
 const formatFileSize = (bytes: number) => {
@@ -44,6 +46,8 @@ const Resources = () => {
   const [description, setDescription] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; data: string } | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Resource | null>(null);
+  const [documentFileData, setDocumentFileData] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -73,8 +77,7 @@ const Resources = () => {
 
   const addResource = () => {
     if (!title.trim()) return;
-    if (activeTab !== "document" && !content.trim()) return;
-    if (activeTab === "document" && !content.trim() && !uploadedFile) return;
+    if (!content.trim() && !uploadedFile) return;
 
     const id = crypto.randomUUID();
     if (uploadedFile) {
@@ -128,6 +131,20 @@ const Resources = () => {
     setTimeout(() => setCopiedId(null), 1500);
   };
 
+  const openDocument = (resource: Resource) => {
+    if (resource.type === "document" && resource.fileName) {
+      try {
+        const files = JSON.parse(localStorage.getItem(FILES_STORAGE_KEY) || "{}");
+        const fileData = files[resource.id];
+        setDocumentFileData(fileData);
+        setSelectedDocument(resource);
+      } catch {
+        setSelectedDocument(resource);
+        setDocumentFileData(null);
+      }
+    }
+  };
+
   const filtered = resources
     .filter((r) => r.type === activeTab)
     .filter((r) => !search || r.title.toLowerCase().includes(search.toLowerCase()) || r.content.toLowerCase().includes(search.toLowerCase()));
@@ -136,6 +153,7 @@ const Resources = () => {
     link: resources.filter((r) => r.type === "link").length,
     code: resources.filter((r) => r.type === "code").length,
     document: resources.filter((r) => r.type === "document").length,
+    idea: resources.filter((r) => r.type === "idea").length,
   };
 
   return (
@@ -192,40 +210,40 @@ const Resources = () => {
           <GlassCard className="space-y-4">
             <h3 className="font-semibold text-sm flex items-center gap-2">
               <Plus className="h-4 w-4 text-primary" />
-              Add new {activeTab === "link" ? "link" : activeTab === "code" ? "code snippet" : "document"}
+              Add new {activeTab === "link" ? "link" : activeTab === "code" ? "code snippet" : activeTab === "document" ? "document" : "idea"}
             </h3>
             <input
               type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)}
               className="w-full glass-input rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20"
             />
-            {activeTab === "document" && (
-              <div className="space-y-3">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="glass-input rounded-xl p-8 text-center cursor-pointer hover:bg-primary/5 transition-colors border-2 border-dashed border-border/60"
-                >
-                  {uploadedFile ? (
-                    <div className="flex items-center justify-center gap-3">
-                      <File className="h-6 w-6 text-primary" />
-                      <div className="text-left">
-                        <p className="text-sm font-medium">{uploadedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(uploadedFile.size)}</p>
-                      </div>
+            <div className="space-y-3">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="glass-input rounded-xl p-8 text-center cursor-pointer hover:bg-primary/5 transition-colors border-2 border-dashed border-border/60"
+              >
+                {uploadedFile ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <File className="h-6 w-6 text-primary" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium">{uploadedFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(uploadedFile.size)}</p>
                     </div>
-                  ) : (
-                    <>
-                      <Upload className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm font-medium text-muted-foreground">Click to upload a document</p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">PDF, DOCX, TXT — Max 2MB</p>
-                    </>
-                  )}
-                  <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.ppt,.pptx,.xls,.xlsx" onChange={handleFileUpload} className="hidden" />
-                </div>
-                <p className="text-xs text-muted-foreground text-center">— or paste notes below —</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-muted-foreground">Click to upload a file (optional)</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">PDF, DOCX, TXT, Images — Max 2MB</p>
+                  </>
+                )}
+                <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.md,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif" onChange={handleFileUpload} className="hidden" />
               </div>
-            )}
+              {uploadedFile && (
+                <p className="text-xs text-muted-foreground text-center">— or paste content below (optional) —</p>
+              )}
+            </div>
             <textarea
-              placeholder={activeTab === "link" ? "Paste URL here..." : activeTab === "code" ? "Paste code here..." : "Paste content or notes (optional if file uploaded)..."}
+              placeholder={activeTab === "link" ? "Paste URL here..." : activeTab === "code" ? "Paste code here..." : "Paste content or notes..."}
               value={content} onChange={(e) => setContent(e.target.value)}
               rows={activeTab === "code" ? 6 : 3}
               className={`w-full glass-input rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none ${activeTab === "code" ? "font-mono text-xs" : ""}`}
@@ -255,7 +273,11 @@ const Resources = () => {
         ) : (
           filtered.map((resource, i) => (
             <motion.div key={resource.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-              <GlassCard variant="subtle" className="p-5">
+              <div
+                onClick={() => resource.type === "document" && resource.fileName && openDocument(resource)}
+                className={resource.type === "document" && resource.fileName ? "cursor-pointer" : ""}
+              >
+                <GlassCard variant="subtle" className={`p-5 ${resource.type === "document" && resource.fileName ? "hover:ring-2 hover:ring-primary/30 transition-all" : ""}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm">{resource.title}</h3>
@@ -268,7 +290,7 @@ const Resources = () => {
                       </div>
                     )}
                     {resource.type === "code" ? (
-                      <pre className="mt-3 text-xs font-mono bg-foreground/5 rounded-xl p-4 overflow-x-auto border border-border/30">{resource.content}</pre>
+                      <pre className="mt-3 text-xs font-mono bg-foreground/5 rounded-xl p-4 overflow-x-auto border border-border/30">{resource.content.replace(/^\[Uploaded:.*?\]\n?/, "")}</pre>
                     ) : resource.type === "link" ? (
                       <a href={resource.content} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline mt-2 flex items-center gap-1 truncate">
                         {resource.content} <ExternalLink className="h-3 w-3 shrink-0" />
@@ -289,10 +311,14 @@ const Resources = () => {
                   </div>
                 </div>
               </GlassCard>
+              </div>
             </motion.div>
           ))
         )}
       </div>
+
+      {/* Document Viewer Modal */}
+      {selectedDocument && <DocumentViewer document={selectedDocument} fileData={documentFileData} onClose={() => { setSelectedDocument(null); setDocumentFileData(null); }} />}
     </div>
   );
 };

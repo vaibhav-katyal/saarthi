@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 228 20% 8%;
+    --foreground: 220 15% 85%;
+
+    --card: 226 18% 11%;
+    --card-foreground: 220 15% 85%;
+
+    --popover: 226 18% 11%;
+    --popover-foreground: 220 15% 85%;
+
+    --primary: 185 70% 48%;
+    --primary-foreground: 228 20% 8%;
+
+    --secondary: 226 14% 15%;
+    --secondary-foreground: 220 12% 70%;
+
+    --muted: 226 14% 13%;
+    --muted-foreground: 220 8% 45%;
+
+    --accent: 280 45% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 60% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 226 12% 16%;
+    --input: 226 12% 16%;
+    --ring: 185 70% 48%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 226 18% 9%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 185 70% 48%;
+    --sidebar-primary-foreground: 228 20% 8%;
+    --sidebar-accent: 226 14% 15%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 226 12% 14%;
+    --sidebar-ring: 185 70% 48%;
+
+    --success: 152 55% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 75% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 185 70% 48%;
+    --info-foreground: 228 20% 8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-xl border border-border bg-card;
+  }
+
+  .glass-panel-hover {
+    @apply glass-panel transition-colors duration-200;
+  }
+
+  .glass-panel-hover:hover {
+    border-color: hsl(var(--border));
+    background: hsl(226 14% 13%);
+  }
+
+  .page-bg {
+    background: hsl(var(--background));
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+
+  .btn-ghost {
+    @apply rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-150;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .btn-ghost:hover {
+    background: hsl(var(--secondary));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+}

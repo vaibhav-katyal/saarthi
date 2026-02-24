@@ -28,6 +28,9 @@ interface VaultItem {
   date: string;
   url?: string;
   preview?: string;
+  fileName?: string;
+  fileSize?: number;
+  fileData?: string;
 }
 
 const initialItems: VaultItem[] = [
@@ -121,7 +124,7 @@ export default function KnowledgeVault() {
 
   // Add modal state
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newItem, setNewItem] = useState({ type: "link" as ItemType, title: "", description: "", url: "", tags: "", preview: "" });
+  const [newItem, setNewItem] = useState({ type: "link" as ItemType, title: "", description: "", url: "", tags: "", preview: "", file: null as File | null });
 
   // Summarize modal state
   const [showSummary, setShowSummary] = useState(false);
@@ -140,20 +143,51 @@ export default function KnowledgeVault() {
       toast({ title: "Title is required", variant: "destructive" });
       return;
     }
-    const item: VaultItem = {
-      id: Date.now().toString(),
-      type: newItem.type,
-      title: newItem.title,
-      description: newItem.description,
-      tags: newItem.tags.split(",").map((t) => t.trim()).filter(Boolean),
-      date: "Just now",
-      url: newItem.type === "link" ? newItem.url : undefined,
-      preview: newItem.type === "snippet" ? newItem.preview : undefined,
-    };
-    setItems((prev) => [item, ...prev]);
-    setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "" });
-    setShowAddModal(false);
-    toast({ title: "Item added to vault!" });
+    if (newItem.type === "pdf" && !newItem.file) {
+      toast({ title: "PDF file is required", variant: "destructive" });
+      return;
+    }
+
+    // Convert file to data URL if it's a PDF
+    if (newItem.type === "pdf" && newItem.file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const fileData = e.target?.result as string;
+        const item: VaultItem = {
+          id: Date.now().toString(),
+          type: newItem.type,
+          title: newItem.title,
+          description: newItem.description,
+          tags: newItem.tags.split(",").map((t) => t.trim()).filter(Boolean),
+          date: "Just now",
+          url: newItem.type === "link" ? newItem.url : undefined,
+          preview: newItem.type === "snippet" ? newItem.preview : undefined,
+          fileName: newItem.type === "pdf" && newItem.file ? newItem.file.name : undefined,
+          fileSize: newItem.type === "pdf" && newItem.file ? newItem.file.size : undefined,
+          fileData: fileData,
+        };
+        setItems((prev) => [item, ...prev]);
+        setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null });
+        setShowAddModal(false);
+        toast({ title: "Item added to vault!" });
+      };
+      reader.readAsDataURL(newItem.file);
+    } else {
+      const item: VaultItem = {
+        id: Date.now().toString(),
+        type: newItem.type,
+        title: newItem.title,
+        description: newItem.description,
+        tags: newItem.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        date: "Just now",
+        url: newItem.type === "link" ? newItem.url : undefined,
+        preview: newItem.type === "snippet" ? newItem.preview : undefined,
+      };
+      setItems((prev) => [item, ...prev]);
+      setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null });
+      setShowAddModal(false);
+      toast({ title: "Item added to vault!" });
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -183,6 +217,14 @@ export default function KnowledgeVault() {
 
   const handleOpenLink = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleOpenPDF = (fileData: string, fileName: string) => {
+    const link = document.createElement("a");
+    link.href = fileData;
+    link.target = "_blank";
+    link.download = fileName;
+    link.click();
   };
 
   return (
@@ -291,6 +333,19 @@ export default function KnowledgeVault() {
                   {item.preview}
                 </pre>
               )}
+              {item.fileName && (
+                <div 
+                  onClick={() => item.fileData && handleOpenPDF(item.fileData, item.fileName || "document.pdf")}
+                  className="mb-3 rounded-md bg-secondary p-2.5 cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <p className="text-xs font-medium text-foreground mb-1">
+                    📄 {item.fileName}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {item.fileSize ? `${(item.fileSize / 1024).toFixed(2)} KB` : "PDF"}
+                  </p>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   {item.tags.map((tag) => (
@@ -350,6 +405,29 @@ export default function KnowledgeVault() {
                 onChange={(e) => setNewItem((p) => ({ ...p, description: e.target.value }))}
                 className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/40 transition-colors"
               />
+              {newItem.type === "pdf" && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-medium text-foreground">PDF File *</label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => setNewItem((p) => ({ ...p, file: e.target.files?.[0] || null }))}
+                      className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/40 transition-colors cursor-pointer"
+                    />
+                    {newItem.file && (
+                      <div className="mt-2 rounded-lg bg-secondary p-2.5">
+                        <p className="text-xs font-medium text-foreground">
+                          📄 {newItem.file.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(newItem.file.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               {newItem.type === "link" && (
                 <input
                   type="url"

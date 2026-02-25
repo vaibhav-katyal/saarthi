@@ -231,7 +231,8 @@ export default function KnowledgeVault() {
     <PageWrapper title="Knowledge Vault" subtitle="Your curated library of links, code & documents">
       {/* Toolbar */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-c
+        enter gap-1.5">
           {filterOptions.map((opt) => (
             <button
               key={opt.value}

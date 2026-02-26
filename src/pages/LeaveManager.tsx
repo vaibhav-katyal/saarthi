@@ -1,116 +1,191 @@
 import { useState, useMemo } from "react";
-import { Calculator, TrendingDown, AlertTriangle, Info } from "lucide-react";
-import { PageWrapper } from "@/components/PageWrapper";
-import { GlassCard } from "@/components/GlassCard";
+import { Calculator, TrendingDown, TrendingUp, AlertTriangle, BookOpen, PartyPopper, CalendarCheck } from "lucide-react";
 
 export default function LeaveManager() {
-  const [currentAttendance, setCurrentAttendance] = useState(78);
-  const [targetAttendance, setTargetAttendance] = useState(75);
-  const [totalClasses, setTotalClasses] = useState(120);
+  const [totalClasses, setTotalClasses] = useState<number | string>(120);
+  const [attendedClasses, setAttendedClasses] = useState<number | string>(115);
+  const [requiredPercentage, setRequiredPercentage] = useState<number | string>(75);
 
-  const result = useMemo(() => {
-    const attended = Math.round((currentAttendance / 100) * totalClasses);
-    const required = Math.ceil((targetAttendance / 100) * totalClasses);
-    const canSkip = attended - required;
+  const [calcTotal, setCalcTotal] = useState(120);
+  const [calcAttended, setCalcAttended] = useState(115);
+  const [calcRequired, setCalcRequired] = useState(75);
+
+  const handleCalculate = () => {
+    setCalcTotal(Number(totalClasses) || 0);
+    setCalcAttended(Number(attendedClasses) || 0);
+    setCalcRequired(Number(requiredPercentage) || 0);
+  };
+
+  const stats = useMemo(() => {
+    const currentPercent = calcTotal === 0 ? 0 : (calcAttended / calcTotal) * 100;
+    const isSafe = currentPercent >= calcRequired;
+    
+    let skip = 0;
+    let recover = 0;
+
+    if (calcRequired > 0 && calcTotal > 0) {
+      if (isSafe) {
+        const skipRaw = (100 * calcAttended - calcRequired * calcTotal) / calcRequired;
+        skip = Math.floor(Math.max(0, skipRaw));
+      } else {
+        const recoverRaw = (calcRequired * calcTotal - 100 * calcAttended) / (100 - calcRequired);
+        recover = Math.ceil(Math.max(0, recoverRaw));
+      }
+    }
 
     return {
-      attended,
-      canSkip: Math.max(0, canSkip),
-      safe: canSkip > 0,
-      message:
-        canSkip > 0
-          ? `You can safely skip ${canSkip} more lectures.`
-          : canSkip === 0
-          ? "You're at the edge — don't skip any."
-          : `You need to attend ${Math.abs(canSkip)} more lectures.`,
+      currentPercent,
+      isSafe,
+      skip,
+      recover,
+      formattedPercent: currentPercent.toFixed(1)
     };
-  }, [currentAttendance, targetAttendance, totalClasses]);
+  }, [calcTotal, calcAttended, calcRequired]);
 
   return (
-    <PageWrapper title="Leave Manager" subtitle="Calculate how many lectures you can safely skip">
-      <div className="mx-auto max-w-md space-y-4">
-        {/* Calculator Card */}
-        <GlassCard>
-          <div className="flex items-center gap-2 mb-5">
-            <Calculator className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Attendance Calculator</h2>
+    <div className="flex-1 overflow-y-auto bg-[#0a0e17] min-h-screen text-white font-sans relative">
+      {/* Background radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1a233a] via-[#0a0e17] to-[#0a0e17] opacity-50 pointer-events-none"></div>
+
+      <div className="max-w-[700px] mx-auto px-6 py-12 space-y-12 relative z-10">
+        
+        {/* Header */}
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight mb-2 text-white">Leave Manager</h1>
+          <p className="text-[#8ba3b8] text-[15px]">Calculate how many lectures you can safely skip.</p>
+        </div>
+
+        {/* Calculator Section */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 text-white font-semibold">
+            <CalendarCheck className="w-[18px] h-[18px] text-[#e2e8f0]" />
+            <span className="text-[15px]">Attendance Calculator</span>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-[13px] font-medium text-[#8ba3b8]">Total Lectures</label>
+              <input 
+                type="number" 
+                value={totalClasses} 
+                onChange={e => setTotalClasses(e.target.value)}
+                className="w-full bg-[#353434] text-white border-0 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all font-medium placeholder-gray-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[13px] font-medium text-[#8ba3b8]">Attended</label>
+              <input 
+                type="number" 
+                value={attendedClasses} 
+                onChange={e => setAttendedClasses(e.target.value)}
+                className="w-full bg-[#353434] text-white border-0 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all font-medium placeholder-gray-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[13px] font-medium text-[#8ba3b8]">Required %</label>
+              <input 
+                type="number" 
+                value={requiredPercentage} 
+                onChange={e => setRequiredPercentage(e.target.value)}
+                className="w-full bg-[#353434] text-white border-0 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all font-medium placeholder-gray-500"
+              />
+            </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Current Attendance</label>
-                <span className="text-xs font-semibold text-foreground">{currentAttendance}%</span>
+          <button 
+            onClick={handleCalculate}
+            className="w-full bg-[#ffffff] hover:bg-[#f0f0f0] text-black font-semibold rounded-xl py-3.5 flex items-center justify-center gap-2.5 transition-colors shadow-sm"
+          >
+            <Calculator className="w-[18px] h-[18px]" />
+            Calculate
+          </button>
+        </div>
+        
+        {/* Result Area */}
+        <div className="pt-8">
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex items-center gap-5">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stats.isSafe ? 'bg-[#1c2230]' : 'bg-[#2a1315]'}`}>
+                {stats.isSafe ? (
+                  <PartyPopper className="w-7 h-7 text-white" />
+                ) : (
+                  <AlertTriangle className="w-7 h-7 text-[#e53e3e]" />
+                )}
               </div>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={currentAttendance}
-                onChange={(e) => setCurrentAttendance(Number(e.target.value))}
-                className="w-full h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Target Attendance</label>
-                <span className="text-xs font-semibold text-foreground">{targetAttendance}%</span>
+              <div className="flex flex-col justify-center">
+                <h3 className={`text-[22px] font-bold tracking-tight mb-1 ${stats.isSafe ? 'text-white' : 'text-[#e53e3e]'}`}>
+                  {stats.isSafe ? "You're safe! 🎉" : "Attendance too low!"}
+                </h3>
+                <p className="text-[#8ba3b8] text-[15px]">
+                  {stats.isSafe ? "You have room to take breaks." : "You need to attend more lectures."}
+                </p>
               </div>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={targetAttendance}
-                onChange={(e) => setTargetAttendance(Number(e.target.value))}
-                className="w-full h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
-              />
             </div>
 
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Total Classes</label>
-              <input
-                type="number"
-                value={totalClasses}
-                onChange={(e) => setTotalClasses(Number(e.target.value) || 0)}
-                className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/40 transition-colors"
-              />
+            <div className="text-right flex flex-col justify-center">
+              <div className="text-[32px] font-bold text-white tracking-tight leading-none mb-1.5">{stats.formattedPercent}%</div>
+              <div className="text-[#8ba3b8] text-[11px] font-medium lowercase">current attendance</div>
             </div>
           </div>
-        </GlassCard>
 
-        {/* Result Card */}
-        <GlassCard>
-          <div className="text-center py-2">
-            <div className="mb-3">
-              {result.safe ? (
-                <TrendingDown className="h-5 w-5 text-success mx-auto mb-2" />
-              ) : (
-                <AlertTriangle className="h-5 w-5 text-warning mx-auto mb-2" />
-              )}
-              <span className={`text-4xl font-bold ${result.safe ? "text-success" : "text-warning"}`}>
-                {result.canSkip}
-              </span>
-              <p className="text-xs text-muted-foreground mt-1">lectures you can skip</p>
+          {/* Progress Bar */}
+          <div className="mb-4 relative">
+            <div className="w-full h-3.5 bg-[#1c2230] rounded-full overflow-hidden flex items-center relative">
+              <div 
+                className={`absolute left-0 top-0 bottom-0 transition-all duration-1000 ease-out rounded-full ${stats.isSafe ? 'bg-white' : 'bg-[#ab2424]'}`} 
+                style={{ width: `${Math.min(100, stats.currentPercent)}%` }} 
+              />
             </div>
-            <p className="text-sm text-foreground">{result.message}</p>
-            <p className="mt-3 text-[11px] text-muted-foreground flex items-center justify-center gap-1">
-              <Info className="h-3 w-3" />
-              Attended {result.attended} of {totalClasses} classes
-            </p>
+            {/* Required Marker (visually splitting the bar slightly) */}
+            <div 
+              className="absolute top-0 bottom-0 w-[3px] bg-[#0a0e17]" 
+              style={{ left: `${stats.calcRequired}%`, transform: 'translateX(-50%)' }}
+            />
           </div>
-        </GlassCard>
 
-        {/* Tips */}
-        <GlassCard>
-          <h3 className="text-xs font-medium text-foreground mb-2">Quick Tips</h3>
-          <ul className="space-y-1.5 text-xs text-muted-foreground">
-            <li>• Most colleges require 75% minimum for exam eligibility</li>
-            <li>• Plan leaves early when your percentage is high</li>
-            <li>• Medical leaves are usually separate — check your policy</li>
-          </ul>
-        </GlassCard>
+          {/* Legend */}
+          <div className="flex justify-between items-center text-[11px] text-[#5c6e84] font-medium relative h-5">
+            <span className="absolute left-0">0%</span>
+            <span className="absolute" style={{ left: `${stats.calcRequired}%`, transform: 'translateX(-50%)' }}>
+              {stats.calcRequired}% required
+            </span>
+            <span className="absolute right-0">100%</span>
+          </div>
+
+          {/* Stats Boxes */}
+          <div className="grid grid-cols-2 gap-8 mt-16">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="w-14 h-14 bg-[#1c2230] rounded-2xl flex items-center justify-center mb-5 shadow-lg">
+                <TrendingDown className="w-[22px] h-[22px] text-white" />
+              </div>
+              <div className="text-[38px] leading-none font-bold text-white mb-2.5 tracking-tight">{stats.skip}</div>
+              <div className="text-[14px] text-[#8ba3b8]">lectures you can skip</div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="w-14 h-14 bg-[#1c2230] rounded-2xl flex items-center justify-center mb-5 shadow-lg">
+                <TrendingUp className="w-[22px] h-[22px] text-white" />
+              </div>
+              <div className="text-[38px] leading-none font-bold text-white mb-2.5 tracking-tight">{stats.recover}</div>
+              <div className="text-[14px] text-[#8ba3b8]">
+                {stats.isSafe ? "no extra needed" : "must attend to recover"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* How it works */}
+        <div className="pt-10 mb-8 border-t border-white/5">
+          <div className="flex items-center gap-2 text-white font-semibold mb-3">
+            <BookOpen className="w-[18px] h-[18px] text-[#e2e8f0]" />
+            <span className="text-[15px]">How it works</span>
+          </div>
+          <p className="text-[13.5px] leading-[1.8] text-[#8ba3b8]">
+            We calculate based on the formula: <code className="text-[#a1b8c7] font-mono text-[13px] mx-1">X = (100×A - R×T) ÷ R</code> where A = attended, T = total, R = required %. The "must attend" count assumes all future lectures are attended consecutively.
+          </p>
+        </div>
+
       </div>
-    </PageWrapper>
+    </div>
   );
 }

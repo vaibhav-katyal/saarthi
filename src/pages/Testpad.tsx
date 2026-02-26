@@ -20,6 +20,11 @@ import Editor from "@monaco-editor/react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
 import { toast } from "@/hooks/use-toast";
+import {
+  extractUserCode,
+  buildFinalCode,
+  normalizeOutput,
+} from "@/lib/codeExecution";
 
 interface TestCase {
   id: number;
@@ -36,9 +41,8 @@ interface Problem {
   description: string;
   constraints: string[];
   examples: { input: string; output: string }[];
-  code: string;
   testCases: TestCase[];
-  functionName: string;
+  fullTemplate: string;
   language: string;
 }
 
@@ -67,12 +71,63 @@ export default function Testpad() {
   const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<"tests" | "custom">("tests");
   const [showFullCode, setShowFullCode] = useState(false);
-  const [boilerplate, setBoilerplate] = useState("");
+  
+  // Resizable panels state
+  const [leftWidth, setLeftWidth] = useState(30);
+  const [rightWidth, setRightWidth] = useState(25);
+  const [isDraggingLeft, setIsDraggingLeft] = useState(false);
+  const [isDraggingRight, setIsDraggingRight] = useState(false);
 
   // Load API key from localStorage on mount
   useEffect(() => {
     loadApiKey();
   }, []);
+
+  // Handle left divider resize
+  useEffect(() => {
+    if (!isDraggingLeft) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = (e.clientX / window.innerWidth) * 100;
+      if (newWidth > 15 && newWidth < 50) {
+        setLeftWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingLeft(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDraggingLeft]);
+
+  // Handle right divider resize
+  useEffect(() => {
+    if (!isDraggingRight) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
+      if (newWidth > 15 && newWidth < 50) {
+        setRightWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingRight(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDraggingRight]);
 
   const callGroqAPI = async (prompt: string) => {
     if (!apiKey.trim()) {
@@ -136,7 +191,9 @@ export default function Testpad() {
 
     setGenerating(true);
     const prompt = `Generate a Java coding problem for: "${topic}"
-    
+
+IMPORTANT: Generate a COMPLETE Java program template with USER_CODE markers. Do not generate just a function.
+
 Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
 {
   "title": "Problem Title",
@@ -152,10 +209,19 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
     {"input": "test input 2", "expected": "expected output 2"},
     {"input": "test input 3", "expected": "expected output 3"}
   ],
-  "functionName": "solution",
   "language": "java",
-  "prewrittenCode": "public static String solution(String input) {\\n    // Parse input and implement solution\\n    // Return result as String\\n    return \\\"\\\";\\n}"
-}`;
+  "fullTemplate": "import java.util.*;\\nimport java.io.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public static String solution(String input) {\\n        // Parse input and implement solution\\n        // Return result as String\\n        return \\\"\\\";\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        try {\\n            Scanner sc = new Scanner(System.in);\\n            StringBuilder input = new StringBuilder();\\n            while (sc.hasNextLine()) {\\n                input.append(sc.nextLine()).append(\\\"\\\\n\\\");\\n            }\\n            String result = solution(input.toString().trim());\\n            System.out.print(result);\\n        } catch (Exception e) {\\n            e.printStackTrace();\\n        }\\n    }\\n}"
+}
+
+REQUIREMENTS for fullTemplate:
+1. Include all necessary imports (java.util.*, java.io.*)
+2. Wrap only the editable method/section between USER_CODE_START and USER_CODE_END markers
+3. Include main method that reads ALL input using Scanner
+4. main must call the editable method and pass input
+5. Output must be printed without extra newlines (use System.out.print, not println)
+6. Template must be fully compilable and executable
+7. Input handling should use Scanner to read full input as string
+8. Properly escape the template string for JSON`;
 
     const response = await callGroqAPI(prompt);
 
@@ -179,9 +245,8 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
         description: problemData.description,
         constraints: problemData.constraints,
         examples: problemData.examples,
-        functionName: problemData.functionName,
         language: problemData.language || "java",
-        code: problemData.prewrittenCode,
+        fullTemplate: problemData.fullTemplate,
         testCases: problemData.testCases.map((tc: any, i: number) => ({
           id: i + 1,
           input: tc.input,
@@ -189,31 +254,10 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
         })),
       };
 
-      // Create boilerplate with main function
-      const boilerplateCode = `public class Main {
-    // USER_CODE_HERE
-
-    public static void main(String[] args) {
-        // Function call with test input
-        String input = args.length > 0 ? args[0] : "";
-        System.out.println(solution(input));
-    }
-}`;
-
-      // Extract just the function body (remove class wrappers if present)
-      let justFunction = problemData.prewrittenCode.trim();
-      
-      // Remove outer class wrapper if it exists
-      if (justFunction.includes('public class')) {
-        const match = justFunction.match(/public\s+static\s+\w+\s+\w+\s*\([^)]*\)\s*\{[\s\S]*\}/);
-        if (match) {
-          justFunction = match[0];
-        }
-      }
-
       setProblem(newProblem);
-      setCode(justFunction);
-      setBoilerplate(boilerplateCode);
+      // Extract the user-editable code from the template
+      const userCode = extractUserCode(newProblem.fullTemplate);
+      setCode(userCode);
       setTestCases(newProblem.testCases);
       setCustomInput("");
       setShowFullCode(false);
@@ -231,26 +275,22 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
     }
   };
 
-  const constructFullCode = (userCode: string, boilerplateCode: string): string => {
-    // Combine user code with boilerplate
-    return boilerplateCode.replace("    // USER_CODE_HERE", userCode);
-  };
-
   const executeCode = async (
     code: string,
-    input: string,
-    functionName: string = "solution",
-    boilerplateCode?: string
+    input: string
   ): Promise<{ output: string; error?: string }> => {
+    if (!problem) {
+      return {
+        output: "",
+        error: "No problem loaded",
+      };
+    }
+
     try {
-      // Combine user code with boilerplate
-      const fullCode = boilerplateCode 
-        ? boilerplateCode.replace("    // USER_CODE_HERE", code)
-        : code;
+      // Build final code using template system
+      const finalCode = buildFinalCode(problem.fullTemplate, code);
 
       // Use Judge0 API for code execution
-      // Alternative: set up local backend for Java runner
-
       const JUDGE0_API_URL = "https://judge0-ce.p.rapidapi.com";
       const LANGUAGE_ID = 62; // Java
 
@@ -265,7 +305,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
           },
           body: JSON.stringify({
             language_id: LANGUAGE_ID,
-            source_code: fullCode,
+            source_code: finalCode,
             stdin: input || "",
           }),
         }
@@ -288,7 +328,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
       }
 
       return {
-        output: result.stdout?.trim() || "",
+        output: normalizeOutput(result.stdout || ""),
       };
     } catch (error) {
       return {
@@ -321,10 +361,11 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
       const results: TestCase[] = [];
 
       for (const testCase of testCases) {
-        const execution = await executeCode(code, testCase.input, problem.functionName, boilerplate);
+        const execution = await executeCode(code, testCase.input);
 
         const passed =
-          !execution.error && execution.output === testCase.expected.trim();
+          !execution.error &&
+          normalizeOutput(execution.output) === normalizeOutput(testCase.expected);
 
         results.push({
           ...testCase,
@@ -379,7 +420,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
     setRunning(true);
 
     try {
-      const execution = await executeCode(code, customInput, problem.functionName, boilerplate);
+      const execution = await executeCode(code, customInput);
 
       if (execution.error) {
         setCustomOutput(`Error: ${execution.error}`);
@@ -607,74 +648,29 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
   }
 
   return (
-    <PageWrapper title="Testpad" subtitle={`Solving: ${problem.title}`}>
-      {/* API Settings Modal */}
-      {showApiSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <GlassCard className="w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                Groq API Configuration
-              </h2>
-              <button
-                onClick={() => setShowApiSettings(false)}
-                className="p-1 hover:bg-muted rounded-md transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  Groq API Key
-                </label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="gsk_..."
-                  className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/40 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowApiSettings(false)}
-                className="flex-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveApiKey}
-                className="flex-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
-              >
-                Save
-              </button>
-            </div>
-          </GlassCard>
-        </div>
-      )}
-
+    <div className="w-full h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <GlassCard className="mb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              {problem.title}
-              <span
-                className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                  difficultyBg[problem.difficulty] || ""
-                } ${difficultyColor[problem.difficulty] || ""}`}
-              >
-                {problem.difficulty}
-              </span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Language: <span className="font-mono">{problem.language}</span>
-            </p>
+      <div className="bg-muted/50 border-b border-border/50 px-6 py-4 flex items-center justify-between z-40">
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold text-foreground">{problem.title}</h1>
+            <p className="text-xs text-muted-foreground">Competitive Programming</p>
           </div>
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded ${difficultyBg[problem.difficulty] || ""} ${difficultyColor[problem.difficulty] || ""}`}
+          >
+            {problem.difficulty}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowApiSettings(true)}
+            title="API Settings"
+            className="p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
           <button
             onClick={() => {
               setProblem(null);
@@ -682,88 +678,178 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
               setTestCases([]);
               setTopic("");
             }}
-            className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded text-xs font-medium transition-colors"
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-3 w-3" />
             New Problem
           </button>
         </div>
-      </GlassCard>
+      </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left - Problem Description */}
-        <GlassCard className="lg:col-span-1 overflow-y-auto max-h-[calc(100vh-200px)]">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Description</h3>
-
-          <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-            {problem.description}
-          </p>
-
-          {problem.constraints.length > 0 && (
-            <div className="mb-4">
-              <h4 className="text-xs font-semibold text-foreground mb-2">Constraints</h4>
-              <ul className="space-y-1">
-                {problem.constraints.map((c, i) => (
-                  <li key={i} className="text-xs text-muted-foreground font-mono">
-                    • {c}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {problem.examples.length > 0 && (
-            <div>
-              <h4 className="text-xs font-semibold text-foreground mb-2">Examples</h4>
-              <div className="space-y-2">
-                {problem.examples.map((ex, i) => (
-                  <div
-                    key={i}
-                    className="rounded-md bg-muted/50 border border-border/50 p-2.5"
-                  >
-                    <p className="text-xs font-mono text-muted-foreground mb-1">
-                      <span className="text-foreground">Input:</span>
-                    </p>
-                    <p className="text-xs font-mono text-foreground ml-2 mb-2">
-                      {ex.input}
-                    </p>
-                    <p className="text-xs font-mono text-muted-foreground mb-1">
-                      <span className="text-foreground">Output:</span>
-                    </p>
-                    <p className="text-xs font-mono text-foreground ml-2">
-                      {ex.output}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </GlassCard>
-
-        {/* Right - Editor and Tests */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          {/* Code Editor */}
-          <GlassCard className="flex-1 p-0 overflow-hidden flex flex-col max-h-[calc(100vh-400px)]">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Code2 className="h-4 w-4 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {problem.language.toUpperCase()}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
+      {/* Main Content - Three Column Layout */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* API Settings Modal */}
+        {showApiSettings && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-background border border-border rounded-lg shadow-lg">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-sm font-semibold text-foreground">
+                  Groq API Configuration
+                </h2>
                 <button
-                  onClick={() => setShowFullCode(!showFullCode)}
-                  className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  onClick={() => setShowApiSettings(false)}
+                  className="p-1 hover:bg-muted rounded-md transition-colors"
                 >
-                  <FileText className="h-3 w-3" />
-                  {showFullCode ? "Hide" : "View"} Code
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-4 space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-foreground mb-2 block">
+                    Groq API Key
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="gsk_..."
+                    className="w-full rounded border border-border bg-muted px-3 py-2 text-xs outline-none focus:border-primary/40 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 p-4 border-t border-border">
+                <button
+                  onClick={() => setShowApiSettings(false)}
+                  className="flex-1 rounded border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  Cancel
                 </button>
                 <button
-                  onClick={runTests}
-                  disabled={running}
-                  className="flex items-center gap-1.5 rounded-md bg-primary/90 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary transition-colors disabled:opacity-50"
+                  onClick={saveApiKey}
+                  className="flex-1 rounded bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LEFT PANEL - Problem Description */}
+        <div
+          className="bg-background border-r border-border/50 overflow-y-auto"
+          style={{ width: `${leftWidth}%` }}
+        >
+          <div className="p-5 space-y-5 text-sm">
+            {/* Problem Title */}
+            <div>
+              <h3 className="text-xs font-bold text-primary mb-2 uppercase tracking-widest">
+                Problem
+              </h3>
+              <p className="text-xs text-foreground leading-relaxed">
+                {problem.description}
+              </p>
+            </div>
+
+            {/* Constraints */}
+            {problem.constraints.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-primary mb-2 uppercase tracking-widest">
+                  Constraints
+                </h4>
+                <ul className="space-y-1">
+                  {problem.constraints.map((c, i) => (
+                    <li
+                      key={i}
+                      className="text-xs text-muted-foreground font-mono bg-muted/40 px-2 py-1 rounded"
+                    >
+                      • {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Input Format */}
+            <div>
+              <h4 className="text-xs font-bold text-primary mb-2 uppercase tracking-widest">
+                Input Format
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                Input is read from standard input (stdin). See examples below.
+              </p>
+            </div>
+
+            {/* Output Format */}
+            <div>
+              <h4 className="text-xs font-bold text-primary mb-2 uppercase tracking-wideset">
+                Output Format
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                Output should be printed to standard output (stdout).
+              </p>
+            </div>
+
+            {/* Examples */}
+            {problem.examples.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold text-primary mb-2 uppercase tracking-widest">
+                  Examples
+                </h4>
+                <div className="space-y-2">
+                  {problem.examples.map((ex, i) => (
+                    <div key={i} className="bg-muted/50 rounded border border-border/50 p-2.5">
+                      <p className="text-xs font-mono text-primary mb-1">
+                        Input:
+                      </p>
+                      <p className="text-xs font-mono text-foreground ml-2 mb-2 bg-black/20 p-1 rounded font-semibold">
+                        {ex.input}
+                      </p>
+                      <p className="text-xs font-mono text-primary mb-1">
+                        Output:
+                      </p>
+                      <p className="text-xs font-mono text-foreground ml-2 bg-black/20 p-1 rounded font-semibold">
+                        {ex.output}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* LEFT DIVIDER */}
+        <div
+          className="w-1 bg-border/50 hover:bg-primary/50 cursor-col-resize transition-colors"
+          onMouseDown={() => setIsDraggingLeft(true)}
+        />
+
+        {/* MIDDLE PANEL - Code Editor */}
+        <div className="flex-1 flex flex-col bg-background overflow-hidden">
+          {/* Editor Header */}
+          <div className="bg-muted/40 border-b border-border/50 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Code2 className="h-4 w-4 text-primary" />
+              <span className="text-xs font-mono font-bold text-foreground">
+                {problem.language.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFullCode(!showFullCode)}
+                title={showFullCode ? "Hide full code" : "View full code"}
+                className="text-xs px-2.5 py-1.5 rounded border border-border/50 bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium flex items-center gap-1.5"
+              >
+                <FileText className="h-3 w-3" />
+                {showFullCode ? "Hide" : "View"} Full
+              </button>
+              <button
+                onClick={runTests}
+                disabled={running}
+                className="text-xs px-2.5 py-1.5 rounded bg-primary hover:bg-primary/90 text-primary-foreground transition-colors font-medium flex items-center gap-1.5 disabled:opacity-50"
               >
                 {running ? (
                   <>
@@ -777,22 +863,29 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
                   </>
                 )}
               </button>
-              </div>
             </div>
-            {!showFullCode && (
-              <div className="px-4 py-2 bg-muted/50 text-xs text-muted-foreground border-b border-border/50">
-                ✎ Write your solution function. Click "View Code" to see the complete program structure with main function.
-              </div>
-            )}
-            {showFullCode && (
-              <div className="px-4 py-2 bg-blue-500/10 text-xs text-blue-400 border-b border-blue-500/20">
-                📖 Viewing complete program structure (read-only). Click "Hide Code" to edit your solution.
-              </div>
-            )}
+          </div>
+
+          {/* Info Message */}
+          {!showFullCode && (
+            <div className="px-4 py-2 bg-blue-500/10 text-xs text-blue-400 border-b border-border/50 flex items-center gap-2">
+              <Circle className="h-1.5 w-1.5 fill-blue-400" />
+              Edit only your solution. Click "View Full" to see the complete code structure.
+            </div>
+          )}
+          {showFullCode && (
+            <div className="px-4 py-2 bg-green-500/10 text-xs text-green-400 border-b border-border/50 flex items-center gap-2">
+              <Circle className="h-1.5 w-1.5 fill-green-400" />
+              Read-only view. Edit within USER_CODE markers only.
+            </div>
+          )}
+
+          {/* Editor */}
+          <div className="flex-1 overflow-hidden">
             <Editor
               height="100%"
               defaultLanguage={problem.language}
-              value={showFullCode ? boilerplate.replace("    // USER_CODE_HERE", code) : code}
+              value={showFullCode ? buildFinalCode(problem.fullTemplate, code) : code}
               onChange={(v) => {
                 if (!showFullCode) {
                   setCode(v || "");
@@ -801,8 +894,8 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
               theme="vs-dark"
               options={{
                 minimap: { enabled: false },
-                fontSize: 12,
-                padding: { top: 12 },
+                fontSize: 11,
+                padding: { top: 12, bottom: 12 },
                 lineNumbers: "on",
                 scrollBeyondLastLine: false,
                 smoothScrolling: true,
@@ -812,101 +905,154 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
                 readOnly: showFullCode,
               }}
             />
-          </GlassCard>
+          </div>
+        </div>
 
-          {/* Test Results & Custom Input */}
-          <GlassCard className="max-h-64 overflow-hidden flex flex-col">
-            <div className="flex items-center gap-2 border-b border-border/50 mb-3">
-              <button
-                onClick={() => setActiveTab("tests")}
-                className={`px-3 py-2 text-xs font-medium rounded-t-md transition-colors ${
-                  activeTab === "tests"
-                    ? "text-foreground bg-muted/50"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Test Cases ({testCases.filter((t) => t.status === "pass").length}/
-                {testCases.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("custom")}
-                className={`px-3 py-2 text-xs font-medium rounded-t-md transition-colors ${
-                  activeTab === "custom"
-                    ? "text-foreground bg-muted/50"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Custom Input
-              </button>
-            </div>
+        {/* RIGHT DIVIDER */}
+        <div
+          className="w-1 bg-border/50 hover:bg-primary/50 cursor-col-resize transition-colors"
+          onMouseDown={() => setIsDraggingRight(true)}
+        />
 
-            <div className="flex-1 overflow-y-auto">
-              {activeTab === "tests" ? (
-                <div className="space-y-1.5 px-3 py-2">
-                  {testCases.length === 0 ? (
-                    <p className="text-xs text-muted-foreground py-4 text-center">
-                      No test cases yet
-                    </p>
-                  ) : (
-                    testCases.map((tc) => (
-                      <div
-                        key={tc.id}
-                        className="flex items-center justify-between rounded-md bg-muted/50 px-2.5 py-2 border border-border/50 hover:border-border/80 transition-colors"
-                      >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          {tc.status === "pass" ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
-                          ) : tc.status === "fail" ? (
-                            <XCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                          ) : tc.status === "running" ? (
-                            <Clock className="h-4 w-4 text-yellow-400 animate-spin flex-shrink-0" />
-                          ) : (
-                            <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-mono text-muted-foreground truncate">
-                              Input: {tc.input}
-                            </p>
-                            {tc.actual && (
-                              <p className="text-xs font-mono text-muted-foreground truncate">
-                                Expected: {tc.expected}
-                              </p>
-                            )}
-                          </div>
-                        </div>
+        {/* RIGHT PANEL - Test Console */}
+        <div
+          className="bg-background border-l border-border/50 flex flex-col overflow-hidden"
+          style={{ width: `${rightWidth}%` }}
+        >
+          {/* Tabs */}
+          <div className="flex items-center border-b border-border/50 bg-muted/30">
+            <button
+              onClick={() => setActiveTab("tests")}
+              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${
+                activeTab === "tests"
+                  ? "text-primary border-primary"
+                  : "text-muted-foreground border-transparent hover:text-foreground"
+              }`}
+            >
+              Tests ({testCases.filter((t) => t.status === "pass").length}/{testCases.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("custom")}
+              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${
+                activeTab === "custom"
+                  ? "text-primary border-primary"
+                  : "text-muted-foreground border-transparent hover:text-foreground"
+              }`}
+            >
+              <Terminal className="h-3 w-3 inline mr-1" />
+              Console
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-3">
+            {activeTab === "tests" ? (
+              <div className="space-y-2">
+                {testCases.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    No test cases available
+                  </p>
+                ) : (
+                  testCases.map((tc) => (
+                    <div
+                      key={tc.id}
+                      className="bg-muted/50 border border-border/50 rounded p-2.5 hover:border-border/80 transition-colors text-xs"
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        {tc.status === "pass" ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-400 flex-shrink-0" />
+                        ) : tc.status === "fail" ? (
+                          <XCircle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+                        ) : tc.status === "running" ? (
+                          <Clock className="h-3.5 w-3.5 text-yellow-400 animate-spin flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        )}
+                        <span className="font-mono text-foreground font-semibold">
+                          Test {tc.id}
+                        </span>
+                        {tc.status && (
+                          <span
+                            className={`ml-auto text-xs font-bold ${
+                              tc.status === "pass"
+                                ? "text-green-400"
+                                : tc.status === "fail"
+                                  ? "text-red-400"
+                                  : "text-muted-foreground"
+                            }`}
+                          >
+                            {tc.status === "pass"
+                              ? "PASS"
+                              : tc.status === "fail"
+                                ? "FAIL"
+                                : tc.status === "running"
+                                  ? "RUN"
+                                  : ""}
+                          </span>
+                        )}
                       </div>
-                    ))
-                  )}
-                </div>
-              ) : (
-                <div className="p-3 space-y-2">
-                  <input
-                    type="text"
+                      <div className="space-y-1 text-muted-foreground">
+                        <p className="font-mono text-xs">
+                          <span className="text-muted-foreground">Input:</span> {tc.input}
+                        </p>
+                        <p className="font-mono text-xs">
+                          <span className="text-muted-foreground">Expected:</span> {tc.expected}
+                        </p>
+                        {tc.output && (
+                          <p className="font-mono text-xs">
+                            <span className="text-muted-foreground">Output:</span>{" "}
+                            <span
+                              className={
+                                tc.status === "pass" ? "text-green-400" : "text-red-400"
+                              }
+                            >
+                              {tc.output}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div>
+                  <label className="text-xs font-semibold text-foreground mb-1.5 block">
+                    Custom Input
+                  </label>
+                  <textarea
                     value={customInput}
                     onChange={(e) => setCustomInput(e.target.value)}
-                    placeholder="Enter custom input"
-                    className="w-full rounded-md border border-border bg-muted px-2.5 py-1.5 text-xs outline-none focus:border-primary/40 transition-colors"
+                    placeholder="Enter test input..."
+                    className="w-full h-20 rounded border border-border/50 bg-muted px-2 py-1.5 text-xs font-mono outline-none focus:border-primary/40 transition-colors resize-none"
                   />
-                  <button
-                    onClick={runCustom}
-                    disabled={running}
-                    className="w-full flex items-center justify-center gap-1.5 rounded-md bg-primary/90 px-2.5 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary transition-colors disabled:opacity-50"
-                  >
-                    <Play className="h-3 w-3" />
-                    Run
-                  </button>
-                  {customOutput && (
-                    <div className="rounded-md bg-muted/50 p-2 mt-2">
-                      <p className="text-xs text-muted-foreground mb-1">Output:</p>
-                      <p className="text-xs font-mono text-foreground">{customOutput}</p>
-                    </div>
-                  )}
                 </div>
-              )}
-            </div>
-          </GlassCard>
+                <button
+                  onClick={runCustom}
+                  disabled={running}
+                  className="w-full text-xs px-2.5 py-1.5 rounded bg-primary hover:bg-primary/90 text-primary-foreground transition-colors font-medium flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <Play className="h-3 w-3" />
+                  {running ? "Running..." : "Run"}
+                </button>
+                {customOutput && (
+                  <div>
+                    <label className="text-xs font-semibold text-foreground mb-1.5 block">
+                      Output
+                    </label>
+                    <div className="rounded border border-border/50 bg-black/30 p-2 max-h-32 overflow-y-auto">
+                      <p className="text-xs font-mono text-green-400 break-words">
+                        {customOutput}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </PageWrapper>
+    </div>
   );
 }

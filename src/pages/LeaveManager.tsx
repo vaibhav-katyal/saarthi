@@ -139,15 +139,15 @@ export default function LeaveManager() {
             {/* Required Marker (visually splitting the bar slightly) */}
             <div 
               className="absolute top-0 bottom-0 w-[3px] bg-[#0a0e17]" 
-              style={{ left: `${stats.calcRequired}%`, transform: 'translateX(-50%)' }}
+              style={{ left: `${calcRequired}%`, transform: 'translateX(-50%)' }}
             />
           </div>
 
           {/* Legend */}
           <div className="flex justify-between items-center text-[11px] text-[#5c6e84] font-medium relative h-5">
             <span className="absolute left-0">0%</span>
-            <span className="absolute" style={{ left: `${stats.calcRequired}%`, transform: 'translateX(-50%)' }}>
-              {stats.calcRequired}% required
+            <span className="absolute" style={{ left: `${calcRequired}%`, transform: 'translateX(-50%)' }}>
+              {calcRequired}% required
             </span>
             <span className="absolute right-0">100%</span>
           </div>

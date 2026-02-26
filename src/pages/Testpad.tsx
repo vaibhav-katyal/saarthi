@@ -192,9 +192,17 @@ export default function Testpad() {
     setGenerating(true);
     const prompt = `Generate a Java coding problem for: "${topic}"
 
-IMPORTANT: Generate a COMPLETE Java program template with USER_CODE markers. Do not generate just a function.
+CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
+1. Class name MUST be Main
+2. The user-editable method must have EMPTY BODY - only signature, NO implementation
+3. Never use static methods - methods must be instance methods
+4. Never use solution(String input) pattern
+5. Method body MUST be completely empty with just closing brace
+6. Main method must instantiate Solution class and call the method
+7. Pass individual parameters, NOT String input
+8. Print result using System.out.println()
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
+Return ONLY a valid JSON object (no markdown, no extra text):
 {
   "title": "Problem Title",
   "difficulty": "Easy/Medium/Hard",
@@ -210,18 +218,37 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
     {"input": "test input 3", "expected": "expected output 3"}
   ],
   "language": "java",
-  "fullTemplate": "import java.util.*;\\nimport java.io.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public static String solution(String input) {\\n        // Parse input and implement solution\\n        // Return result as String\\n        return \\\"\\\";\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        try {\\n            Scanner sc = new Scanner(System.in);\\n            StringBuilder input = new StringBuilder();\\n            while (sc.hasNextLine()) {\\n                input.append(sc.nextLine()).append(\\\"\\\\n\\\");\\n            }\\n            String result = solution(input.toString().trim());\\n            System.out.print(result);\\n        } catch (Exception e) {\\n            e.printStackTrace();\\n        }\\n    }\\n}"
+  "fullTemplate": "import java.util.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public long sumTwoNumbers(int a, int b) {\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        Solution sol = new Solution();\\n        long result = sol.sumTwoNumbers(a, b);\\n        System.out.println(result);\\n    }\\n}"
 }
 
-REQUIREMENTS for fullTemplate:
-1. Include all necessary imports (java.util.*, java.io.*)
-2. Wrap only the editable method/section between USER_CODE_START and USER_CODE_END markers
-3. Include main method that reads ALL input using Scanner
-4. main must call the editable method and pass input
-5. Output must be printed without extra newlines (use System.out.print, not println)
-6. Template must be fully compilable and executable
-7. Input handling should use Scanner to read full input as string
-8. Properly escape the template string for JSON`;
+SKELETON TEMPLATE STRUCTURE:
+import java.util.*;
+
+public class Main {
+    // USER_CODE_START
+    public RETURN_TYPE methodName(PARAM_TYPES params) {
+    }
+    // USER_CODE_END
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Read inputs
+        Solution sol = new Solution();
+        RETURN_TYPE result = sol.methodName(params);
+        System.out.println(result);
+    }
+}
+
+ENFORCED RULES:
+- Method between markers must have EMPTY BODY (no implementation, no return statement)
+- Main method reads input using Scanner
+- Main creates Solution instance and calls the empty method
+- Result is printed with System.out.println()
+- Template must be fully compilable (even with empty method)
+- NEVER generate solution(String input)
+- NEVER use static for user method
+- Wrap method EXACTLY between // USER_CODE_START and // USER_CODE_END markers
+- Properly escape template string for JSON`;
 
     const response = await callGroqAPI(prompt);
 

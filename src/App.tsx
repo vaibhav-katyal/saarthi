@@ -23,7 +23,7 @@ function AppLayout() {
   }
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
       <AppSidebar />
       <Routes>
         <Route path="/vault" element={<KnowledgeVault />} />

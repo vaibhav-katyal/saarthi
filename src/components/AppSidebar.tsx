@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Link } from "react-router-dom";
 import {
   BookOpen,
   Map,
@@ -31,7 +31,10 @@ export function AppSidebar() {
       className="relative flex h-screen flex-col border-r border-border bg-sidebar transition-[width] duration-200"
     >
       {/* Logo */}
-      <div className="flex h-14 items-center gap-2.5 px-4 border-b border-border">
+      <Link
+        to="/"
+        className="flex h-14 items-center gap-2.5 px-4 border-b border-border cursor-pointer hover:bg-secondary/30 transition-colors duration-150"
+      >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <GraduationCap className="h-4 w-4 text-primary" />
         </div>
@@ -40,7 +43,7 @@ export function AppSidebar() {
             Saarthi
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Nav items */}
       <nav className="flex-1 py-2 px-2 overflow-y-auto scrollbar-thin">

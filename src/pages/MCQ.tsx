@@ -9,6 +9,10 @@ import {
     XCircle,
     ArrowRight,
     RotateCcw,
+    Settings,
+    Zap,
+    BarChart3,
+    ChevronRight,
 } from "lucide-react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
@@ -47,7 +51,7 @@ export default function MCQ() {
     const [topic, setTopic] = useState("");
     const [subtopic, setSubtopic] = useState("");
     const [numQuestions, setNumQuestions] = useState(5);
-    const [difficulty, setDifficulty] = useState("Medium");
+    const [difficulty, setDifficulty] = useState("Intermediate");
 
   // Quiz state
     const [questions, setQuestions] = useState<MCQQuestion[]>([]);
@@ -258,7 +262,7 @@ Make sure:
     setTopic("");
     setSubtopic("");
     setNumQuestions(5);
-    setDifficulty("Medium");
+    setDifficulty("Intermediate");
     setQuestions([]);
     setUserAnswers({});
     setCurrentQuestion(0);
@@ -271,304 +275,499 @@ Make sure:
     return (
       <PageWrapper
         title="MCQ Generator"
-        subtitle="Generate and practice multiple choice questions powered by AI"
+        subtitle="Create personalized quizzes powered by advanced AI"
       >
-        <div className="max-w-2xl mx-auto">
-          <GlassCard className="space-y-6">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Header Section */}
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/15 via-transparent to-transparent p-8">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/20 backdrop-blur-sm">
+                <Brain className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Quiz Builder</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Customize your learning experience with AI-generated questions
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Form Card */}
+          <GlassCard className="space-y-8 border border-border/50">
+            {/* API Settings Panel */}
             {showApiSettings && (
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Groq API Key
-                  </label>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="Enter your Groq API key (gsk_...)"
-                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Get your free API key from{" "}
-                    <a
-                      href="https://console.groq.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      console.groq.com
-                    </a>
-                  </p>
+              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-6 backdrop-blur-sm">
+                <div className="mb-4 flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-blue-500" />
+                  <h3 className="font-semibold text-foreground">API Configuration</h3>
                 </div>
-                <button
-                  onClick={saveApiKey}
-                  className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition"
-                >
-                  Save API Key
-                </button>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-3 text-foreground">
+                      Groq API Key
+                    </label>
+                    <input
+                      type="password"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      placeholder="gsk_..."
+                      className="w-full px-4 py-3 rounded-lg bg-background/50 border border-blue-500/30 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Get your free API key at{" "}
+                      <a
+                        href="https://console.groq.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-400 font-medium"
+                      >
+                        console.groq.com
+                      </a>
+                    </p>
+                  </div>
+                  <button
+                    onClick={saveApiKey}
+                    className="w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition duration-200"
+                  >
+                    Save & Continue
+                  </button>
+                </div>
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Topic
-              </label>
-              <input
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g., Biology, Python Programming, History"
-                className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Subtopic <span className="text-muted-foreground">(optional)</span>
-              </label>
-              <input
-                type="text"
-                value={subtopic}
-                onChange={(e) => setSubtopic(e.target.value)}
-                placeholder="e.g., Photosynthesis, Decorators, World War II"
-                className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            {/* Topic and Subtopic Section */}
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Number of Questions
+                <label className="block text-sm font-semibold mb-3 text-foreground">
+                  Topic
                 </label>
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g., Quantum Physics, Machine Learning, Shakespeare"
+                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-3 text-foreground">
+                  Subtopic{" "}
+                  <span className="font-normal text-xs text-muted-foreground">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={subtopic}
+                  onChange={(e) => setSubtopic(e.target.value)}
+                  placeholder="e.g., Wave-Particle Duality, Neural Networks"
+                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                />
+              </div>
+            </div>
+
+            {/* Configuration Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Questions Card */}
+              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-6 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Questions</h3>
+                </div>
                 <select
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(Number(e.target.value))}
-                  className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2.5 rounded-lg bg-background/50 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition"
                 >
-                    {[3, 5, 10, 15, 20].map((num) => (
+                  {[3, 5, 10, 15, 20].map((num) => (
                     <option key={num} value={num}>
-                        {num} Questions
+                      {num} Questions
                     </option>
-                    ))}
+                  ))}
                 </select>
-                </div>
+              </div>
 
-                <div>
-                <label className="block text-sm font-medium mb-2">
-                    Difficulty Level
-                </label>
-                <select
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                    <option>Easy</option>
-                    <option>Medium</option>
-                    <option>Hard</option>
-                </select>
+              {/* Difficulty Card */}
+              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-6 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="h-5 w-5 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">Difficulty</h3>
                 </div>
+                <select
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-lg bg-background/50 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition"
+                >
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
             </div>
 
-            <button
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <button
                 onClick={() => setShowApiSettings(!showApiSettings)}
-                className="text-sm text-primary hover:underline"
-            >
-                {showApiSettings ? "Hide" : "Configure"} API Settings
-            </button>
-
-            <button
+                className="px-4 py-2.5 rounded-lg bg-secondary/50 text-foreground font-medium hover:bg-secondary transition duration-200 flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </button>
+              <button
                 onClick={generateMCQs}
                 disabled={generating || !topic.trim()}
-                className="w-full px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-            >
+                className="ml-auto px-8 py-2.5 rounded-lg bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
+              >
                 {generating ? (
-                <>
-                    <span className="animate-spin">⏳</span>
-                    Generating MCQs...
-                </>
+                  <>
+                    <span className="animate-spin">⚡</span>
+                    <span>Crafting Questions...</span>
+                  </>
                 ) : (
-                <>
-                    <Brain className="h-5 w-5" />
-                    Generate MCQs
-                </>
+                  <>
+                    <Play className="h-5 w-5" />
+                    <span>Start Quiz</span>
+                  </>
                 )}
-            </button>
-            </GlassCard>
+              </button>
+            </div>
+          </GlassCard>
         </div>
-        </PageWrapper>
+      </PageWrapper>
     );
-    }
+  }
 
   // Page 2: Quiz
-    if (pageState === "quiz" && questions.length > 0) {
+  if (pageState === "quiz" && questions.length > 0) {
     const q = questions[currentQuestion];
     const selectedAnswer = userAnswers[q.id];
+    const progressPercent = ((currentQuestion + 1) / questions.length) * 100;
 
     return (
-        <PageWrapper
-        title="MCQ Quiz"
+      <PageWrapper
+        title="Quiz Session"
         subtitle={`Question ${currentQuestion + 1} of ${questions.length}`}
-        >
-        <div className="max-w-3xl mx-auto">
-            <GlassCard className="mb-6">
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold">{q.question}</h2>
-                <div className="text-sm text-muted-foreground">
-                    {currentQuestion + 1}/{questions.length}
+      >
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Progress Bar */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium text-foreground">
+                Progress
+              </div>
+              <div className="text-sm font-semibold text-primary">
+                {currentQuestion + 1}/{questions.length}
+              </div>
+            </div>
+            <div className="h-2 w-full bg-secondary/40 rounded-full overflow-hidden backdrop-blur-sm border border-border/30">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Question Card */}
+          <GlassCard className="space-y-8 border border-border/50 backdrop-blur-xl">
+            {/* Question Text */}
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15">
+                  <span className="text-sm font-bold text-primary">
+                    {currentQuestion + 1}
+                  </span>
                 </div>
-                </div>
-                <div className="w-full bg-secondary/30 rounded-full h-2 overflow-hidden">
-                <div
-                    className="bg-primary h-full transition-all duration-300"
-                  style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-                />
-                </div>
+                <h2 className="text-xl font-semibold leading-relaxed text-foreground mt-1">
+                  {q.question}
+                </h2>
+              </div>
             </div>
 
+            {/* Options */}
             <div className="space-y-3">
-                {q.options.map((option, idx) => (
-                <label
+              {q.options.map((option, idx) => {
+                const isSelected = selectedAnswer === option;
+                return (
+                  <label
                     key={idx}
-                    className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition ${
-                    selectedAnswer === option
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-background hover:border-primary/50"
+                    className={`group relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                      isSelected
+                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                        : "border-border/50 bg-secondary/20 hover:border-primary/40 hover:bg-secondary/40"
                     }`}
-                >
+                  >
+                    <div
+                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200 mt-0.5 ${
+                        isSelected
+                          ? "border-primary bg-primary"
+                          : "border-border/50 group-hover:border-primary/50"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="h-2 w-2 rounded-full bg-primary-foreground" />
+                      )}
+                    </div>
                     <input
-                    type="radio"
-                    name={`question-${q.id}`}
-                    value={option}
-                    checked={selectedAnswer === option}
-                    onChange={() => handleAnswerSelect(option)}
-                    className="w-4 h-4 cursor-pointer"
+                      type="radio"
+                      name={`question-${q.id}`}
+                      value={option}
+                      checked={isSelected}
+                      onChange={() => handleAnswerSelect(option)}
+                      className="sr-only"
                     />
-                    <span className="ml-4 text-sm">{option}</span>
-                </label>
-                ))}
+                    <span className="flex-1 text-base font-medium text-foreground leading-relaxed pt-0.5">
+                      {option}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-            </GlassCard>
+          </GlassCard>
 
-            <div className="flex gap-3">
+          {/* Navigation Buttons */}
+          <div className="flex gap-3 items-center pt-4">
             <button
-                onClick={goToPreviousQuestion}
-                disabled={currentQuestion === 0 || generating}
-                className="px-6 py-2 rounded-lg bg-secondary text-foreground font-medium hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              onClick={goToPreviousQuestion}
+              disabled={currentQuestion === 0}
+              className={`px-6 py-2.5 rounded-lg font-medium transition duration-200 flex items-center gap-2 ${
+                currentQuestion === 0
+                  ? "bg-secondary/30 text-muted-foreground cursor-not-allowed"
+                  : "bg-secondary/50 text-foreground hover:bg-secondary/70"
+              }`}
             >
-                Previous
+              ← Back
             </button>
 
+            <div className="flex-1" />
+
             {currentQuestion < questions.length - 1 ? (
-                <button
+              <button
                 onClick={goToNextQuestion}
-                className="ml-auto px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition flex items-center gap-2"
-                >
-                Next <ArrowRight className="h-4 w-4" />
-                </button>
+                disabled={!selectedAnswer}
+                className={`px-8 py-2.5 rounded-lg font-medium transition duration-200 flex items-center gap-2 ${
+                  !selectedAnswer
+                    ? "bg-primary/30 text-muted-foreground cursor-not-allowed"
+                    : "bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/30"
+                }`}
+              >
+                Next <ChevronRight className="h-5 w-5" />
+              </button>
             ) : (
-                <button
+              <button
                 onClick={submitQuiz}
-                className="ml-auto px-6 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition flex items-center gap-2"
-                >
-                Submit <CheckCircle2 className="h-4 w-4" />
-                </button>
+                disabled={!selectedAnswer}
+                className={`px-8 py-2.5 rounded-lg font-semibold transition duration-200 flex items-center gap-2 ${
+                  !selectedAnswer
+                    ? "bg-green-500/30 text-muted-foreground cursor-not-allowed"
+                    : "bg-gradient-to-r from-green-600 to-green-500 text-white hover:shadow-lg hover:shadow-green-500/30"
+                }`}
+              >
+                <CheckCircle2 className="h-5 w-5" />
+                Submit Quiz
+              </button>
             )}
-            </div>
+          </div>
         </div>
-        </PageWrapper>
+      </PageWrapper>
     );
-    }
+  }
 
   // Page 3: Results
-    if (pageState === "results" && results) {
+  if (pageState === "results" && results) {
+    const accuracyColor = 
+      results.score >= 80 ? "text-emerald-400" :
+      results.score >= 60 ? "text-yellow-400" : 
+      "text-orange-400";
+
+    const scoreStatus = 
+      results.score >= 80 ? "Excellent!" :
+      results.score >= 60 ? "Good Effort" : 
+      "Keep Practicing";
+
     return (
-        <PageWrapper
-        title="Quiz Results"
-        subtitle={`You scored ${results.score}% on this quiz`}
-        >
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Score Summary */}
-            <GlassCard className="bg-gradient-to-br from-primary/20 to-primary/10">
-            <div className="grid grid-cols-3 gap-6 text-center">
-                <div>
-                <div className="text-4xl font-bold text-primary mb-2">
-                    {results.score}%
+      <PageWrapper
+        title="Quiz Complete"
+        subtitle="Review your performance and learn from mistakes"
+      >
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Score Card */}
+          <div className="relative overflow-hidden rounded-2xl border border-border/50">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
+            <GlassCard className="relative space-y-8 backdrop-blur-xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Main Score */}
+                <div className="flex flex-col items-center justify-center space-y-4 py-8 px-6">
+                  <div className="relative h-40 w-40">
+                    <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        className="text-secondary/40"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="8"
+                        strokeDasharray={`${(results.score / 100) * 282.74} 282.74`}
+                        className={`${accuracyColor} transition-all duration-1000`}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className={`text-4xl font-bold ${accuracyColor}`}>
+                        {results.score}%
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-lg font-semibold ${accuracyColor}`}>
+                      {scoreStatus}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Overall Score</p>
+
+                {/* Stats */}
+                <div className="flex items-center justify-center">
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-emerald-400 mb-2">
+                        {results.correctAnswers}
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium">
+                        Correct Answers
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-red-400 mb-2">
+                        {results.totalQuestions - results.correctAnswers}
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium">
+                        Incorrect Answers
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                <div className="text-4xl font-bold text-green-500 mb-2">
-                    {results.correctAnswers}
+
+                {/* Summary */}
+                <div className="flex items-center">
+                  <div className="space-y-4 w-full">
+                    <div className="rounded-lg bg-secondary/30 p-4 backdrop-blur-sm border border-border/30">
+                      <p className="text-xs text-muted-foreground font-medium mb-2">
+                        TOTAL QUESTIONS
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {results.totalQuestions}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-secondary/30 p-4 backdrop-blur-sm border border-border/30">
+                      <p className="text-xs text-muted-foreground font-medium mb-2">
+                        ACCURACY RATE
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {Math.round((results.correctAnswers / results.totalQuestions) * 100)}%
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Correct Answers</p>
-                </div>
-                <div>
-                <div className="text-4xl font-bold text-red-500 mb-2">
-                    {results.totalQuestions - results.correctAnswers}
-                </div>
-                <p className="text-sm text-muted-foreground">Incorrect Answers</p>
-                </div>
-            </div>
+              </div>
             </GlassCard>
+          </div>
 
           {/* Detailed Results */}
-            <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Review Your Answers</h3>
-            {results.results.map((result, idx) => (
-                <GlassCard
-                key={idx}
-                className={`border-l-4 ${
-                    result.isCorrect ? "border-l-green-500" : "border-l-red-500"
-                }`}
-                >
-                <div className="flex items-start gap-3 mb-3">
-                    {result.isCorrect ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    ) : (
-                    <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                    )}
-                    <div className="flex-1">
-                    <p className="font-medium mb-2">{result.question}</p>
-                    <div className="space-y-2 text-sm">
-                        <div>
-                        <span className="text-muted-foreground">Your answer: </span>
-                        <span
-                            className={result.isCorrect ? "text-green-500" : "text-red-500"}
-                        >
-                            {result.userAnswer}
-                        </span>
-                        </div>
-                        {!result.isCorrect && (
-                        <div>
-                            <span className="text-muted-foreground">Correct answer: </span>
-                            <span className="text-green-500">{result.correctAnswer}</span>
-                        </div>
-                    )}
-                    </div>
-                </div>
-                </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 className="h-6 w-6 text-primary" />
+              <h3 className="text-xl font-bold tracking-tight">Answer Review</h3>
+            </div>
 
-                <div className="bg-secondary/30 rounded-lg p-3 ml-8">
-                <p className="text-xs font-medium text-primary mb-1">Explanation:</p>
-                <p className="text-sm text-muted-foreground">{result.explanation}</p>
-                </div>
-            </GlassCard>
+            {results.results.map((result, idx) => (
+              <div
+                key={idx}
+                className="group relative overflow-hidden rounded-xl border border-border/50 backdrop-blur-sm transition-all duration-200 hover:border-border/80"
+              >
+                <div
+                  className={`absolute left-0 top-0 bottom-0 w-1 transition-all ${
+                    result.isCorrect
+                      ? "bg-gradient-to-b from-emerald-500 to-emerald-400"
+                      : "bg-gradient-to-b from-red-500 to-red-400"
+                  }`}
+                />
+                <GlassCard className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 mt-1">
+                      {result.isCorrect ? (
+                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                      ) : (
+                        <XCircle className="h-6 w-6 text-red-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground mb-4">
+                        {result.question}
+                      </h4>
+
+                      <div className="space-y-3">
+                        {/* Your Answer */}
+                        <div className="rounded-lg bg-secondary/40 p-3 border border-border/40">
+                          <p className="text-xs font-semibold text-muted-foreground mb-1.5">
+                            YOUR ANSWER
+                          </p>
+                          <p className={`text-sm font-medium ${
+                            result.isCorrect ? "text-emerald-400" : "text-red-400"
+                          }`}>
+                            {result.userAnswer}
+                          </p>
+                        </div>
+
+                        {/* Correct Answer (if wrong) */}
+                        {!result.isCorrect && (
+                          <div className="rounded-lg bg-emerald-500/10 p-3 border border-emerald-500/20">
+                            <p className="text-xs font-semibold text-emerald-400 mb-1.5">
+                              CORRECT ANSWER
+                            </p>
+                            <p className="text-sm font-medium text-emerald-400">
+                              {result.correctAnswer}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Explanation */}
+                        <div className="rounded-lg bg-blue-500/10 p-4 border border-blue-500/20 space-y-2">
+                          <p className="flex items-center gap-2 text-xs font-semibold text-blue-400">
+                            <Zap className="h-3.5 w-3.5" />
+                            EXPLANATION
+                          </p>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {result.explanation}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </div>
             ))}
-        </div>
+          </div>
 
           {/* Action Button */}
-        <button
+          <button
             onClick={resetQuiz}
-            className="w-full px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition flex items-center justify-center gap-2"
-        >
+            className="w-full px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/30 transition duration-200 flex items-center justify-center gap-2 mt-8"
+          >
             <RotateCcw className="h-5 w-5" />
             Try Another Quiz
-        </button>
+          </button>
         </div>
-    </PageWrapper>
+      </PageWrapper>
     );
-}
+  }
 
     return null;
 }

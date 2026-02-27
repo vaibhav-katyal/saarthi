@@ -399,7 +399,14 @@ export default function KnowledgeVault() {
 
     // if we already generated a summary before just show it
     if (item.summary) {
-      const parts = item.summary.split("\n").filter(Boolean);
+      let parts = item.summary.split("\n").map(p => p.trim()).filter(Boolean);
+      // remove filler lines like "ok here is a brief summary" and anything containing "summary"
+      parts = parts.filter(p => !/^(?:ok(?:ay)?|sure|here(?:'s)?|alright)[\s,:-]/i.test(p));
+      parts = parts.filter(p => !/summary/i.test(p));
+      // strip leading bullet characters (e.g. *, -, •)
+      parts = parts.map(p => p.replace(/^[\*\-•\s]+/, ""));
+      // limit to first three points
+      parts = parts.slice(0, 3);
       parts.forEach((point, i) => {
         setTimeout(() => {
           setSummaryPoints((prev) => [...prev, point]);
@@ -421,6 +428,10 @@ export default function KnowledgeVault() {
       // drop filler lines or bullets that look like preamble or mention 'summary'
       parts = parts.filter(p => !/^(?:ok(?:ay)?|sure|here(?:'s)?|alright)[\s,:-]/i.test(p));
       parts = parts.filter(p => !/summary/i.test(p));
+      // strip leading bullet characters (e.g. *, -, •)
+      parts = parts.map(p => p.replace(/^[\*\-•\s]+/, ""));
+      // limit to first three points
+      parts = parts.slice(0, 3);
       parts.forEach((point, i) => {
         setTimeout(() => {
           setSummaryPoints((prev) => [...prev, point]);
@@ -568,9 +579,6 @@ export default function KnowledgeVault() {
               <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                 {item.description}
               </p>
-              {item.summary && (
-                <p className="text-xs text-primary mb-3">📌 AI summary available</p>
-              )}
               {item.preview && (
                 <pre className="mb-3 rounded-md bg-muted p-2.5 text-[11px] text-muted-foreground font-mono line-clamp-3 overflow-hidden">
                   {item.preview}

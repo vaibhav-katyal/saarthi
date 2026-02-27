@@ -1,4 +1,6 @@
 import { useState } from "react";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 import {
   Link2,
   Code2,
@@ -12,9 +14,18 @@ import {
   X,
   Trash2,
 } from "lucide-react";
+import { generateAISummary } from "@/lib/ai"; // AI helper for summaries
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
 import { toast } from "@/hooks/use-toast";
+
+// Set up PDF.js worker with proper path
+if (typeof window !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+  ).toString();
+}
 
 type ItemType = "link" | "snippet" | "pdf";
 type ViewMode = "grid" | "list";
@@ -31,6 +42,8 @@ interface VaultItem {
   fileName?: string;
   fileSize?: number;
   fileData?: string;
+  folder?: string;        // optional folder assignment
+  summary?: string;       // AI-generated summary
 }
 
 const initialItems: VaultItem[] = [
@@ -42,6 +55,7 @@ const initialItems: VaultItem[] = [
     tags: ["React", "Frontend"],
     date: "2 hours ago",
     url: "https://react.dev",
+    folder: "Frontend",
   },
   {
     id: "2",
@@ -51,6 +65,7 @@ const initialItems: VaultItem[] = [
     tags: ["DSA", "Python"],
     date: "Yesterday",
     preview: "def binary_search(arr, target):\n    lo, hi = 0, len(arr)-1\n    ...",
+    folder: "Algorithms",
   },
   {
     id: "3",
@@ -59,6 +74,7 @@ const initialItems: VaultItem[] = [
     description: "Process scheduling algorithms and deadlock prevention",
     tags: ["OS", "Theory"],
     date: "3 days ago",
+    folder: "Operating Systems",
   },
   {
     id: "4",
@@ -101,20 +117,8 @@ const filterOptions: { label: string; value: ItemType | "all" }[] = [
   { label: "PDFs", value: "pdf" },
 ];
 
-const summaryData: Record<string, string[]> = {
-  "Operating Systems – Chapter 5": [
-    "Process scheduling determines the order in which processes access the CPU using algorithms like FCFS, SJF, Round Robin, and Priority Scheduling.",
-    "Deadlock occurs when processes hold resources while waiting for others — four conditions: mutual exclusion, hold & wait, no preemption, circular wait.",
-    "Prevention strategies include resource ordering, timeout mechanisms, and the Banker's algorithm for safe state detection.",
-    "Context switching overhead is a key factor in choosing scheduling algorithms for real-time vs batch systems.",
-  ],
-  "Database Normalization Notes": [
-    "1NF eliminates repeating groups — each cell must hold a single atomic value.",
-    "2NF removes partial dependencies — all non-key attributes must depend on the entire primary key.",
-    "3NF removes transitive dependencies — non-key attributes must not depend on other non-key attributes.",
-    "BCNF (Boyce-Codd) strengthens 3NF — every determinant must be a candidate key.",
-  ],
-};
+// legacy mock summaries removed; real summaries are generated via AI when files are added or on request.
+
 
 export default function KnowledgeVault() {
   const [items, setItems] = useState<VaultItem[]>(initialItems);
@@ -124,7 +128,168 @@ export default function KnowledgeVault() {
 
   // Add modal state
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newItem, setNewItem] = useState({ type: "link" as ItemType, title: "", description: "", url: "", tags: "", preview: "", file: null as File | null });
+  const [newItem, setNewItem] = useState({ type: "link" as ItemType, title: "", description: "", url: "", tags: "", preview: "", file: null as File | null, folder: "" });
+
+  // folders that exist in the system (in-memory for now)
+  const [folders, setFolders] = useState<string[]>(() => {
+    const existing = initialItems
+      .map((i) => i.folder)
+      .filter((f): f is string => !!f);
+    return Array.from(new Set(existing));
+  });
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [suggestedFolder, setSuggestedFolder] = useState("");
+  const [newFolderName, setNewFolderName] = useState("");
+  const [dropFiles, setDropFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // drag & drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const extractFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      // Text-based files
+      if (file.type.startsWith("text/") || file.name.endsWith(".json") || file.name.endsWith(".md") || file.name.endsWith(".txt") || file.name.endsWith(".csv")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          resolve(content);
+        };
+        reader.onerror = () => {
+          console.error("Failed to read text file");
+          resolve(`Error reading file: ${file.name}`);
+        };
+        reader.readAsText(file);
+      } 
+      // PDF files - use pdfjs
+      else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            console.log("Starting PDF extraction for:", file.name);
+            
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            console.log("PDF loaded, pages:", pdf.numPages);
+            
+            let text = `PDF: ${file.name}\n\n`;
+            
+            // Extract text from first 5 pages
+            const maxPages = Math.min(5, pdf.numPages);
+            for (let i = 1; i <= maxPages; i++) {
+              try {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map((item: any) => item.str).join(" ");
+                text += `--- Page ${i} ---\n${pageText}\n\n`;
+              } catch (pageErr) {
+                console.error(`Error extracting page ${i}:`, pageErr);
+                text += `--- Page ${i} ---\n[Could not extract text]\n\n`;
+              }
+            }
+            
+            if (pdf.numPages > maxPages) {
+              text += `\n(Document has ${pdf.numPages} pages total, showing first ${maxPages})`;
+            }
+            
+            console.log("PDF extraction complete, text length:", text.length);
+            resolve(text);
+          } catch (err) {
+            console.error("PDF extraction error:", err);
+            // Fallback to metadata if PDF parsing fails
+            resolve(`PDF Document: "${file.name}"\nSize: ${(file.size / 1024).toFixed(2)} KB\n\nNote: Could not extract text from PDF. Summary based on filename.`);
+          }
+        };
+        reader.onerror = () => {
+          console.error("Failed to read PDF file");
+          resolve(`Error reading PDF: ${file.name}`);
+        };
+        reader.readAsArrayBuffer(file);
+      } 
+      // Other file types
+      else {
+        resolve(`File: ${file.name}\nType: ${file.type}\nSize: ${file.size} bytes\n\nNote: This file format is not supported for content extraction.`);
+      }
+    });
+  };
+
+  const addDroppedFiles = (files: File[], folder: string) => {
+    files.forEach(async (file) => {
+      try {
+        const content = await extractFileContent(file);
+        console.log("File content extracted for:", file.name, "length:", content.length);
+        
+        const item: VaultItem = {
+          id: Date.now().toString() + Math.random(),
+          type: "pdf",
+          title: file.name,
+          description: "",
+          tags: [],
+          date: "Just now",
+          fileName: file.name,
+          fileSize: file.size,
+          fileData: "", // We'll use content for summary, not storing base64
+          folder,
+        };
+        
+        console.log("Generating summary for:", item.title);
+        try {
+          item.summary = await generateAISummary(content);
+          console.log("Summary generated:", item.summary?.substring(0, 100));
+        } catch (err) {
+          console.warn("AI summary error", err);
+        }
+        
+        setItems((prev) => [item, ...prev]);
+      } catch (err) {
+        console.error("Error processing file:", file.name, err);
+        toast({ title: "Error processing file", variant: "destructive" });
+      }
+    });
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+    // attempt to deduce folder name from path or type
+    const file = files[0];
+    let folderName = "";
+    const wp = (file as any).webkitRelativePath;
+    if (wp && wp.includes("/")) {
+      folderName = wp.split("/")[0];
+    } else {
+      folderName = file.type.split("/")[0] || file.name.split(".")[0];
+    }
+    if (folders.includes(folderName)) {
+      addDroppedFiles(files, folderName);
+    } else {
+      setSuggestedFolder(folderName);
+      setNewFolderName(folderName);
+      setDropFiles(files);
+      setShowFolderModal(true);
+    }
+  };
+
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim()) return;
+    setFolders((prev) => [...prev, newFolderName]);
+    addDroppedFiles(dropFiles, newFolderName);
+    setShowFolderModal(false);
+    setDropFiles([]);
+  };
+
 
   // Summarize modal state
   const [showSummary, setShowSummary] = useState(false);
@@ -138,7 +303,7 @@ export default function KnowledgeVault() {
     return true;
   });
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!newItem.title.trim()) {
       toast({ title: "Title is required", variant: "destructive" });
       return;
@@ -148,11 +313,17 @@ export default function KnowledgeVault() {
       return;
     }
 
+    const folderToUse = newItem.folder?.trim();
+    if (folderToUse && !folders.includes(folderToUse)) {
+      setFolders((prev) => [...prev, folderToUse]);
+    }
+
     // Convert file to data URL if it's a PDF
     if (newItem.type === "pdf" && newItem.file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const fileData = e.target?.result as string;
+        const content = await extractFileContent(newItem.file);
         const item: VaultItem = {
           id: Date.now().toString(),
           type: newItem.type,
@@ -165,14 +336,29 @@ export default function KnowledgeVault() {
           fileName: newItem.type === "pdf" && newItem.file ? newItem.file.name : undefined,
           fileSize: newItem.type === "pdf" && newItem.file ? newItem.file.size : undefined,
           fileData: fileData,
+          folder: folderToUse || undefined,
         };
+        // generate AI summary in background using actual file content
+        try {
+          item.summary = await generateAISummary(content);
+        } catch (err) {
+          console.warn("AI summary failed", err);
+        }
         setItems((prev) => [item, ...prev]);
-        setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null });
+        setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null, folder: "" });
         setShowAddModal(false);
         toast({ title: "Item added to vault!" });
       };
       reader.readAsDataURL(newItem.file);
     } else {
+      // For links and snippets, generate summary from content
+      let contentForSummary = "";
+      if (newItem.type === "link") {
+        contentForSummary = `Link: ${newItem.title}\nURL: ${newItem.url}\nDescription: ${newItem.description}`;
+      } else if (newItem.type === "snippet") {
+        contentForSummary = `Snippet: ${newItem.title}\n\n${newItem.preview}\n\nDescription: ${newItem.description}`;
+      }
+      
       const item: VaultItem = {
         id: Date.now().toString(),
         type: newItem.type,
@@ -182,9 +368,20 @@ export default function KnowledgeVault() {
         date: "Just now",
         url: newItem.type === "link" ? newItem.url : undefined,
         preview: newItem.type === "snippet" ? newItem.preview : undefined,
+        folder: folderToUse || undefined,
       };
+      
+      // Generate AI summary for links and snippets
+      if (contentForSummary) {
+        try {
+          item.summary = await generateAISummary(contentForSummary);
+        } catch (err) {
+          console.warn("AI summary failed", err);
+        }
+      }
+      
       setItems((prev) => [item, ...prev]);
-      setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null });
+      setNewItem({ type: "link", title: "", description: "", url: "", tags: "", preview: "", file: null, folder: "" });
       setShowAddModal(false);
       toast({ title: "Item added to vault!" });
     }
@@ -195,24 +392,46 @@ export default function KnowledgeVault() {
     toast({ title: "Item removed from vault" });
   };
 
-  const handleSummarize = (title: string) => {
-    setSummaryTitle(title);
-    setSummarizing(true);
+  const handleSummarize = async (item: VaultItem) => {
+    setSummaryTitle(item.title);
     setShowSummary(true);
     setSummaryPoints([]);
-    // Simulate AI summarization
-    const points = summaryData[title] || [
-      "This document covers key theoretical concepts and their practical applications.",
-      "Important formulas and definitions are highlighted throughout the text.",
-      "Practice problems are included at the end of each section for self-assessment.",
-      "References to additional reading materials are provided for deeper understanding.",
-    ];
-    points.forEach((point, i) => {
-      setTimeout(() => {
-        setSummaryPoints((prev) => [...prev, point]);
-        if (i === points.length - 1) setSummarizing(false);
-      }, 600 * (i + 1));
-    });
+
+    // if we already generated a summary before just show it
+    if (item.summary) {
+      const parts = item.summary.split("\n").filter(Boolean);
+      parts.forEach((point, i) => {
+        setTimeout(() => {
+          setSummaryPoints((prev) => [...prev, point]);
+          if (i === parts.length - 1) setSummarizing(false);
+        }, 600 * (i + 1));
+      });
+      return;
+    }
+
+    setSummarizing(true);
+    let content = item.fileData || item.preview || item.url || item.description;
+    try {
+      const summary = await generateAISummary(content || "");
+      // persist to item
+      setItems((prev) =>
+        prev.map((i) => (i.id === item.id ? { ...i, summary } : i))
+      );
+      let parts = summary.split("\n").map(p => p.trim()).filter(Boolean);
+      // drop filler lines or bullets that look like preamble or mention 'summary'
+      parts = parts.filter(p => !/^(?:ok(?:ay)?|sure|here(?:'s)?|alright)[\s,:-]/i.test(p));
+      parts = parts.filter(p => !/summary/i.test(p));
+      parts.forEach((point, i) => {
+        setTimeout(() => {
+          setSummaryPoints((prev) => [...prev, point]);
+          if (i === parts.length - 1) setSummarizing(false);
+        }, 600 * (i + 1));
+      });
+    } catch (err) {
+      console.error("summarization error", err);
+      setSummaryPoints(["Failed to generate summary."]);
+      setSummarizing(false);
+    }
   };
 
   const handleOpenLink = (url: string) => {
@@ -229,8 +448,23 @@ export default function KnowledgeVault() {
 
   return (
     <PageWrapper title="Knowledge Vault" subtitle="Your curated library of links, code & documents">
-      {/* Toolbar */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Toolbar + drop zone */}
+      <div
+        className="relative"
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {/* overlay while dragging */}
+        {isDragging && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-primary/20 backdrop-blur-sm pointer-events-none">
+            <p className="text-lg font-medium text-primary-foreground">Drop files or folders here</p>
+          </div>
+        )}
+
+        {/* Toolbar */}
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-c
         enter gap-1.5">
           {filterOptions.map((opt) => (
@@ -297,10 +531,15 @@ export default function KnowledgeVault() {
                   <Icon className="h-3 w-3" />
                   {cfg.label}
                 </span>
+                {item.folder && (
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                    {item.folder}
+                  </span>
+                )}
                 <div className="flex items-center gap-1">
                   {item.type === "pdf" && (
                     <button
-                      onClick={() => handleSummarize(item.title)}
+                      onClick={() => handleSummarize(item)}
                       className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-primary hover:bg-secondary transition-colors"
                     >
                       <Sparkles className="h-3 w-3" />
@@ -329,6 +568,9 @@ export default function KnowledgeVault() {
               <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                 {item.description}
               </p>
+              {item.summary && (
+                <p className="text-xs text-primary mb-3">📌 AI summary available</p>
+              )}
               {item.preview && (
                 <pre className="mb-3 rounded-md bg-muted p-2.5 text-[11px] text-muted-foreground font-mono line-clamp-3 overflow-hidden">
                   {item.preview}
@@ -363,6 +605,8 @@ export default function KnowledgeVault() {
             </GlassCard>
           );
         })}
+      </div>
+      {/* wrapper end for drag/drop zone */}
       </div>
 
       {/* Add Modal */}
@@ -429,6 +673,16 @@ export default function KnowledgeVault() {
                   </div>
                 </div>
               )}
+
+              {/* optional folder assignment */}
+              <input
+                type="text"
+                placeholder="Folder (optional)"
+                value={newItem.folder}
+                onChange={(e) => setNewItem((p) => ({ ...p, folder: e.target.value }))}
+                className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/40 transition-colors"
+              />
+
               {newItem.type === "link" && (
                 <input
                   type="url"
@@ -462,6 +716,38 @@ export default function KnowledgeVault() {
               </button>
               <button onClick={handleAdd} className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity">
                 Add Item
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Folder suggestion modal (triggered by drop) */}
+      {showFolderModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm" onClick={() => setShowFolderModal(false)}>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-semibold text-foreground">Folder Assignment</h2>
+              <button onClick={() => setShowFolderModal(false)} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              We detected a folder suggestion based on the file path: <strong>{suggestedFolder}</strong>
+            </p>
+            <input
+              type="text"
+              placeholder="Folder name"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/40 transition-colors"
+            />
+            <div className="flex justify-end gap-2 mt-5">
+              <button onClick={() => setShowFolderModal(false)} className="rounded-lg px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleCreateFolder} className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity">
+                Create & assign
               </button>
             </div>
           </div>

@@ -9,11 +9,13 @@ import {
   ChevronsLeft,
   ChevronsRight,
   GraduationCap,
+  Brain,
 } from "lucide-react";
 
 const navItems = [
   { title: "Knowledge Vault", path: "/vault", icon: BookOpen },
   { title: "AI Roadmap", path: "/roadmap", icon: Map },
+  { title: "MCQ Generator", path: "/mcq", icon: Brain },
   { title: "Testpad", path: "/testpad", icon: Code2 },
   { title: "Community", path: "/community", icon: Users },
   { title: "Leave Manager", path: "/leave", icon: Calculator },

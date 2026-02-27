@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppSidebar } from "@/components/AppSidebar";
 import KnowledgeVault from "@/pages/KnowledgeVault";
 import Roadmap from "@/pages/Roadmap";
+import MCQ from "@/pages/MCQ";
 import Testpad from "@/pages/Testpad";
 import Community from "@/pages/Community";
 import LeaveManager from "@/pages/LeaveManager";
@@ -28,6 +29,7 @@ function AppLayout() {
       <Routes>
         <Route path="/vault" element={<KnowledgeVault />} />
         <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/mcq" element={<MCQ />} />
         <Route path="/testpad" element={<Testpad />} />
         <Route path="/community" element={<Community />} />
         <Route path="/leave" element={<LeaveManager />} />

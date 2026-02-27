@@ -12,6 +12,7 @@ import Community from "@/pages/Community";
 import LeaveManager from "@/pages/LeaveManager";
 import Landing from "@/pages/Landing";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/*" element={<AppLayout />} />
         </Routes>
       </BrowserRouter>

@@ -290,13 +290,21 @@ const Landing = () => {
             </div>
             <span className="font-heading text-lg font-bold tracking-wide text-white">Saarthi</span>
           </div>
-          <Link
-            to="/vault"
-            className="group relative inline-flex items-center gap-2 rounded-full bg-white/5 px-5 py-2 text-sm font-medium text-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-[#00F5FF]/50"
-          >
-            Open App
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/login"
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Login
+            </Link>
+            <Link
+              to="/vault"
+              className="group relative inline-flex items-center gap-2 rounded-full bg-white/5 px-5 py-2 text-sm font-medium text-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-[#00F5FF]/50"
+            >
+              Open App
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -333,7 +341,7 @@ const Landing = () => {
           className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
         >
           <Link
-            to="/vault"
+            to="/login"
             className="group relative inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-bold text-[#070B14] transition-all hover:scale-105 shadow-[0_0_40px_rgba(0,245,255,0.3)] hover:shadow-[0_0_60px_rgba(0,245,255,0.5)]"
           >
             Start Your Journey

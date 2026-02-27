@@ -377,10 +377,10 @@ Make sure:
                 <select
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 rounded-lg bg-background/50 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition"
+                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
                 >
                   {[3, 5, 10, 15, 20].map((num) => (
-                    <option key={num} value={num}>
+                    <option key={num} value={num} style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>
                       {num} Questions
                     </option>
                   ))}
@@ -396,11 +396,11 @@ Make sure:
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-lg bg-background/50 border border-border/50 text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition"
+                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
                 >
-                  <option>Beginner</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
+                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Beginner</option>
+                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Intermediate</option>
+                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Advanced</option>
                 </select>
               </div>
             </div>

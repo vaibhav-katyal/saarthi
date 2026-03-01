@@ -33,6 +33,7 @@ interface TestCase {
   actual?: string;
   output?: string;
   status?: "pass" | "fail" | "running" | "error";
+  isHidden?: boolean;
 }
 
 interface Problem {
@@ -212,6 +213,7 @@ CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
 8. Print result using System.out.println()
 9. For arrays, test case inputs MUST be space-separated values (e.g., "1 2 3"), NEVER use formatting like "[1, 2, 3]" or commas, so Scanner can read them easily.
 10. Generate EXACTLY 5 to 6 Test Cases. They MUST be generated using the "Equivalence Partitioning" method. Ensure cases cover average expected outcomes, boundary cases, edge constraints, negatives, or zeroes where applicable.
+11. Mark 3 testcases as hidden by setting '"isHidden": true', and leave the rest with '"isHidden": false'.
 
 Return ONLY a valid JSON object (no markdown, no extra text):
 {
@@ -224,11 +226,11 @@ Return ONLY a valid JSON object (no markdown, no extra text):
     {"input": "5 7", "output": "12"}
   ],
   "testCases": [
-    {"input": "1 2", "expected": "3"},
-    {"input": "5 7", "expected": "12"},
-    {"input": "-1 1", "expected": "0"},
-    {"input": "0 0", "expected": "0"},
-    {"input": "100 -50", "expected": "50"}
+    {"input": "1 2", "expected": "3", "isHidden": false},
+    {"input": "5 7", "expected": "12", "isHidden": false},
+    {"input": "-1 1", "expected": "0", "isHidden": true},
+    {"input": "0 0", "expected": "0", "isHidden": true},
+    {"input": "100 -50", "expected": "50", "isHidden": true}
   ],
   "language": "java",
   "fullTemplate": "import java.util.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public long sumTwoNumbers(int a, int b) {\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        if (sc.hasNextInt()) {\\n            int a = sc.nextInt();\\n            int b = sc.nextInt();\\n            Main obj = new Main();\\n            long result = obj.sumTwoNumbers(a, b);\\n            System.out.println(result);\\n        }\\n    }\\n}"
@@ -294,6 +296,7 @@ ENFORCED RULES:
           id: i + 1,
           input: tc.input,
           expected: tc.expected,
+          isHidden: tc.isHidden || false,
         })),
       };
 
@@ -1033,23 +1036,32 @@ ENFORCED RULES:
                         )}
                       </div>
                       <div className="space-y-1 text-muted-foreground">
-                        <p className="font-mono text-xs">
-                          <span className="text-muted-foreground">Input:</span> {tc.input}
-                        </p>
-                        <p className="font-mono text-xs">
-                          <span className="text-muted-foreground">Expected:</span> {tc.expected}
-                        </p>
-                        {tc.output && (
-                          <p className="font-mono text-xs">
-                            <span className="text-muted-foreground">Output:</span>{" "}
-                            <span
-                              className={
-                                tc.status === "pass" ? "text-green-400" : "text-red-400"
-                              }
-                            >
-                              {tc.output}
-                            </span>
-                          </p>
+                        {tc.isHidden ? (
+                          <div className="flex items-center gap-2 py-2">
+                            <div className="h-4 w-32 bg-muted-foreground/20 animate-pulse rounded"></div>
+                            <span className="text-xs text-muted-foreground italic">Hidden Test Case</span>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-mono text-xs">
+                              <span className="text-muted-foreground">Input:</span> {tc.input}
+                            </p>
+                            <p className="font-mono text-xs">
+                              <span className="text-muted-foreground">Expected:</span> {tc.expected}
+                            </p>
+                            {tc.output && (
+                              <p className="font-mono text-xs">
+                                <span className="text-muted-foreground">Output:</span>{" "}
+                                <span
+                                  className={
+                                    tc.status === "pass" ? "text-green-400" : "text-red-400"
+                                  }
+                                >
+                                  {tc.output}
+                                </span>
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

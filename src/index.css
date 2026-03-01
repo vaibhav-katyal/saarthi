@@ -6,8 +6,10 @@
 
 @layer base {
   :root {
-    --background: 222 47% 5%; /* #070B14 */
-    --foreground: 216 33% 97%; /* #F5F7FA */
+    --background: 222 47% 5%;
+    /* #070B14 */
+    --foreground: 216 33% 97%;
+    /* #F5F7FA */
 
     --card: 222 47% 7%;
     --card-foreground: 216 33% 97%;
@@ -15,16 +17,20 @@
     --popover: 222 47% 7%;
     --popover-foreground: 216 33% 97%;
 
-    --primary: 182 100% 50%; /* #00F5FF Electric Cyan */
+    --primary: 182 100% 50%;
+    /* #00F5FF Electric Cyan */
     --primary-foreground: 222 47% 5%;
 
-    --secondary: 243 75% 59%; /* #4F46E5 Soft Indigo */
+    --secondary: 243 75% 59%;
+    /* #4F46E5 Soft Indigo */
     --secondary-foreground: 216 33% 97%;
 
     --muted: 226 14% 13%;
-    --muted-foreground: 222 16% 68%; /* #A1A8B8 */
+    --muted-foreground: 222 16% 68%;
+    /* #A1A8B8 */
 
-    --accent: 250 100% 69%; /* #7B61FF AI Violet */
+    --accent: 250 100% 69%;
+    /* #7B61FF AI Violet */
     --accent-foreground: 216 33% 97%;
 
     --destructive: 0 60% 48%;
@@ -49,7 +55,8 @@
     --success-foreground: 0 0% 100%;
     --warning: 38 75% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 199 89% 48%; /* #0EA5E9 Subtle Teal Glow */
+    --info: 199 89% 48%;
+    /* #0EA5E9 Subtle Teal Glow */
     --info-foreground: 216 33% 97%;
   }
 }

@@ -33,6 +33,7 @@ interface TestCase {
   actual?: string;
   output?: string;
   status?: "pass" | "fail" | "running" | "error";
+  isHidden?: boolean;
 }
 
 interface Problem {
@@ -71,7 +72,16 @@ export default function Testpad() {
   const [generating, setGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<"tests" | "custom">("tests");
   const [showFullCode, setShowFullCode] = useState(false);
-  
+  const showFullCodeRef = useRef(false);
+
+  const handleToggleFullCode = () => {
+    setShowFullCode((prev) => {
+      const newValue = !prev;
+      showFullCodeRef.current = newValue;
+      return newValue;
+    });
+  };
+
   // Resizable panels state
   const [leftWidth, setLeftWidth] = useState(30);
   const [rightWidth, setRightWidth] = useState(25);
@@ -86,7 +96,7 @@ export default function Testpad() {
   // Handle left divider resize
   useEffect(() => {
     if (!isDraggingLeft) return;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       const newWidth = (e.clientX / window.innerWidth) * 100;
       if (newWidth > 15 && newWidth < 50) {
@@ -109,7 +119,7 @@ export default function Testpad() {
   // Handle right divider resize
   useEffect(() => {
     if (!isDraggingRight) return;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       const newWidth = ((window.innerWidth - e.clientX) / window.innerWidth) * 100;
       if (newWidth > 15 && newWidth < 50) {
@@ -194,13 +204,16 @@ export default function Testpad() {
 
 CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
 1. Class name MUST be Main
-2. The user-editable method must have EMPTY BODY - only signature, NO implementation
-3. Never use static methods - methods must be instance methods
+2. The user-editable method must be an instance method inside Main.
+3. Never use static methods for the user-editable method
 4. Never use solution(String input) pattern
 5. Method body MUST be completely empty with just closing brace
-6. Main method must instantiate Solution class and call the method
+6. Main method must instantiate Main class and call the method (e.g. Main obj = new Main(); obj.methodName(...);)
 7. Pass individual parameters, NOT String input
 8. Print result using System.out.println()
+9. For arrays, test case inputs MUST be space-separated values (e.g., "1 2 3"), NEVER use formatting like "[1, 2, 3]" or commas, so Scanner can read them easily.
+10. Generate EXACTLY 5 to 6 Test Cases. They MUST be generated using the "Equivalence Partitioning" method. Ensure cases cover average expected outcomes, boundary cases, edge constraints, negatives, or zeroes where applicable.
+11. Mark 3 testcases as hidden by setting '"isHidden": true', and leave the rest with '"isHidden": false'.
 
 Return ONLY a valid JSON object (no markdown, no extra text):
 {
@@ -209,16 +222,18 @@ Return ONLY a valid JSON object (no markdown, no extra text):
   "description": "Detailed problem description",
   "constraints": ["constraint1", "constraint2"],
   "examples": [
-    {"input": "example input", "output": "example output"},
-    {"input": "example input 2", "output": "example output 2"}
+    {"input": "1 2", "output": "3"},
+    {"input": "5 7", "output": "12"}
   ],
   "testCases": [
-    {"input": "test input 1", "expected": "expected output 1"},
-    {"input": "test input 2", "expected": "expected output 2"},
-    {"input": "test input 3", "expected": "expected output 3"}
+    {"input": "1 2", "expected": "3", "isHidden": false},
+    {"input": "5 7", "expected": "12", "isHidden": false},
+    {"input": "-1 1", "expected": "0", "isHidden": true},
+    {"input": "0 0", "expected": "0", "isHidden": true},
+    {"input": "100 -50", "expected": "50", "isHidden": true}
   ],
   "language": "java",
-  "fullTemplate": "import java.util.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public long sumTwoNumbers(int a, int b) {\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        Solution sol = new Solution();\\n        long result = sol.sumTwoNumbers(a, b);\\n        System.out.println(result);\\n    }\\n}"
+  "fullTemplate": "import java.util.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public long sumTwoNumbers(int a, int b) {\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        if (sc.hasNextInt()) {\\n            int a = sc.nextInt();\\n            int b = sc.nextInt();\\n            Main obj = new Main();\\n            long result = obj.sumTwoNumbers(a, b);\\n            System.out.println(result);\\n        }\\n    }\\n}"
 }
 
 SKELETON TEMPLATE STRUCTURE:
@@ -232,22 +247,25 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        // Read inputs
-        Solution sol = new Solution();
-        RETURN_TYPE result = sol.methodName(params);
-        System.out.println(result);
+        if (sc.hasNext()) {
+            // Read inputs matching EXACTLY the format in testCases.input
+            Main obj = new Main();
+            RETURN_TYPE result = obj.methodName(params);
+            System.out.println(result);
+        }
     }
 }
 
 ENFORCED RULES:
 - Method between markers must have EMPTY BODY (no implementation, no return statement)
 - Main method reads input using Scanner
-- Main creates Solution instance and calls the empty method
+- Main creates Main instance and calls the empty method
 - Result is printed with System.out.println()
 - Template must be fully compilable (even with empty method)
 - NEVER generate solution(String input)
 - NEVER use static for user method
 - Wrap method EXACTLY between // USER_CODE_START and // USER_CODE_END markers
+- Parse input safely (e.g., check sc.hasNext() to prevent NoSuchElementException)
 - Properly escape template string for JSON`;
 
     const response = await callGroqAPI(prompt);
@@ -278,6 +296,7 @@ ENFORCED RULES:
           id: i + 1,
           input: tc.input,
           expected: tc.expected,
+          isHidden: tc.isHidden || false,
         })),
       };
 
@@ -288,6 +307,7 @@ ENFORCED RULES:
       setTestCases(newProblem.testCases);
       setCustomInput("");
       setShowFullCode(false);
+      showFullCodeRef.current = false;
       setCustomOutput("");
       setActiveTab("tests");
       toast({ title: `Problem generated: ${newProblem.title}` });
@@ -398,7 +418,7 @@ ENFORCED RULES:
           ...testCase,
           status: passed ? "pass" : "fail",
           actual: execution.output,
-          output: execution.output,
+          output: execution.error ? execution.error : execution.output,
         });
 
         // Add small delay between tests for UX
@@ -866,7 +886,7 @@ ENFORCED RULES:
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowFullCode(!showFullCode)}
+                onClick={handleToggleFullCode}
                 title={showFullCode ? "Hide full code" : "View full code"}
                 className="text-xs px-2.5 py-1.5 rounded border border-border/50 bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium flex items-center gap-1.5"
               >
@@ -914,7 +934,7 @@ ENFORCED RULES:
               defaultLanguage={problem.language}
               value={showFullCode ? buildFinalCode(problem.fullTemplate, code) : code}
               onChange={(v) => {
-                if (!showFullCode) {
+                if (!showFullCodeRef.current) {
                   setCode(v || "");
                 }
               }}
@@ -950,21 +970,19 @@ ENFORCED RULES:
           <div className="flex items-center border-b border-border/50 bg-muted/30">
             <button
               onClick={() => setActiveTab("tests")}
-              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${
-                activeTab === "tests"
-                  ? "text-primary border-primary"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
-              }`}
+              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${activeTab === "tests"
+                ? "text-primary border-primary"
+                : "text-muted-foreground border-transparent hover:text-foreground"
+                }`}
             >
               Tests ({testCases.filter((t) => t.status === "pass").length}/{testCases.length})
             </button>
             <button
               onClick={() => setActiveTab("custom")}
-              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${
-                activeTab === "custom"
-                  ? "text-primary border-primary"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
-              }`}
+              className={`flex-1 px-3 py-3 text-xs font-medium border-b-2 transition-colors ${activeTab === "custom"
+                ? "text-primary border-primary"
+                : "text-muted-foreground border-transparent hover:text-foreground"
+                }`}
             >
               <Terminal className="h-3 w-3 inline mr-1" />
               Console
@@ -1000,13 +1018,12 @@ ENFORCED RULES:
                         </span>
                         {tc.status && (
                           <span
-                            className={`ml-auto text-xs font-bold ${
-                              tc.status === "pass"
-                                ? "text-green-400"
-                                : tc.status === "fail"
-                                  ? "text-red-400"
-                                  : "text-muted-foreground"
-                            }`}
+                            className={`ml-auto text-xs font-bold ${tc.status === "pass"
+                              ? "text-green-400"
+                              : tc.status === "fail"
+                                ? "text-red-400"
+                                : "text-muted-foreground"
+                              }`}
                           >
                             {tc.status === "pass"
                               ? "PASS"
@@ -1019,23 +1036,32 @@ ENFORCED RULES:
                         )}
                       </div>
                       <div className="space-y-1 text-muted-foreground">
-                        <p className="font-mono text-xs">
-                          <span className="text-muted-foreground">Input:</span> {tc.input}
-                        </p>
-                        <p className="font-mono text-xs">
-                          <span className="text-muted-foreground">Expected:</span> {tc.expected}
-                        </p>
-                        {tc.output && (
-                          <p className="font-mono text-xs">
-                            <span className="text-muted-foreground">Output:</span>{" "}
-                            <span
-                              className={
-                                tc.status === "pass" ? "text-green-400" : "text-red-400"
-                              }
-                            >
-                              {tc.output}
-                            </span>
-                          </p>
+                        {tc.isHidden ? (
+                          <div className="flex items-center gap-2 py-2">
+                            <div className="h-4 w-32 bg-muted-foreground/20 animate-pulse rounded"></div>
+                            <span className="text-xs text-muted-foreground italic">Hidden Test Case</span>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-mono text-xs">
+                              <span className="text-muted-foreground">Input:</span> {tc.input}
+                            </p>
+                            <p className="font-mono text-xs">
+                              <span className="text-muted-foreground">Expected:</span> {tc.expected}
+                            </p>
+                            {tc.output && (
+                              <p className="font-mono text-xs">
+                                <span className="text-muted-foreground">Output:</span>{" "}
+                                <span
+                                  className={
+                                    tc.status === "pass" ? "text-green-400" : "text-red-400"
+                                  }
+                                >
+                                  {tc.output}
+                                </span>
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>

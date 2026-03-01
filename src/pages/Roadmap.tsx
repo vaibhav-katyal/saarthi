@@ -84,7 +84,7 @@ export default function Roadmap() {
           messages: [
             {
               role: "system",
-              content: "You are an expert technical writer and developer documentation creator. YOU MUST FORMAT YOUR ENTIRE RESPONSE IN VALID MARKDOWN. You must use `#` for the main title, `##` for section titles, and `###` for sub-sections. Never use plain text for headings.",
+              content: "You are an expert technical writer and developer documentation creator. YOU MUST FORMAT YOUR ENTIRE RESPONSE IN VALID MARKDOWN. Use standard Markdown symbols: `#` for Heading 1, `##` for Heading 2, `###` for Heading 3, `-` for bulleted lists, `**bold**` for bold text. Do not return plain text for structural elements.",
             },
             {
               role: "user",
@@ -130,9 +130,9 @@ export default function Roadmap() {
 
   const handleGenerate = async () => {
     if (!generateTopic.trim()) {
-      toast({ 
-        title: "Please enter a topic", 
-        variant: "destructive" 
+      toast({
+        title: "Please enter a topic",
+        variant: "destructive"
       });
       return;
     }
@@ -146,27 +146,54 @@ export default function Roadmap() {
 
       setIsGenerating(true);
       setGeneratedGuide("");
-      
-      const prompt = `Generate a professional, visually structured documentation-style guide about "${generateTopic}" optimized for a modern developer portal.
 
-FORMATTING RULES (CRITICAL):
-1. You MUST use valid Markdown headings. Use "# [Title]" for the main heading, "## [Section Name]" for sections, and "### [Sub-section]" for overviews.
-2. NEVER output plain text headings without the # symbols.
+      const prompt = `Create a visually appealing, highly-structured Markdown guide for the topic: "${generateTopic}".
 
-STRUCTURE REQUIREMENTS:
-1. Title Section: Start with exactly one "# ". Under it, write a 1-line tagline and a 2-sentence intro paragraph.
-2. Overview: Use "## Overview". Add "### What It Is" (2 lines) and "### Why It Matters" (2 lines).
-3. Core Concepts: Use "## Core Concepts". Use bullet points with **bold terms** followed by strictly a 1-sentence explanation.
-4. How It Works: Use "## Architecture / How It Works". Use a numbered list for steps. Keep steps to exactly 1 sentence.
-5. Code Example: Add a clean, minimal code block (max 8 lines) wrapped in markdown triple backticks. Add a short bold paragraph above it explaining it.
-6. Interview Questions: Use exactly "## Common Interview Questions". Provide a bulleted list of 5 high-signal questions without answers.
+Please strictly adhere to the following Markdown format. DO NOT use plain text for headings.
 
-WRITE IN A DIRECT, PROFESSIONAL TONE WITHOUT EXCESSIVE JARGON. DO NOT INCLUDE ANY CONVERSATIONAL CHAT. OVER-INDEX ON SHORT PARAGRAPHS AND SCANNABILITY.`;
-      
+# ${generateTopic} Guide
+
+[Write a 1-line catchy tagline]
+
+[Write a short 2-sentence intro paragraph]
+
+## Overview
+### What It Is
+[2 line description]
+
+### Why It Matters
+[2 line description]
+
+## Core Concepts
+- **[Concept 1]**: [1-sentence explanation]
+- **[Concept 2]**: [1-sentence explanation]
+- **[Concept 3]**: [1-sentence explanation]
+- **[Concept 4]**: [1-sentence explanation]
+
+## Architecture / How It Works
+1. [Step 1 description]
+2. [Step 2 description]
+3. [Step 3 description]
+
+## Code Example
+[Short paragraph explaining the code below]
+\`\`\`javascript
+// Example code
+\`\`\`
+
+## Common Interview Questions
+- [Question 1]
+- [Question 2]
+- [Question 3]
+- [Question 4]
+- [Question 5]
+
+Ensure that the output includes the exact markdown tags shown above (e.g., "#", "##", "###", "-", "\`\`\`", "**"). DO NOT omit the markdown symbols. WRITE IN A DIRECT, PROFESSIONAL TONE.`;
+
       const response = await callGroqAPI(prompt);
-      
+
       setIsGenerating(false);
-      
+
       if (response) {
         setGeneratedGuide(response);
         toast({ title: `Generated guide for ${generateTopic}` });
@@ -177,7 +204,7 @@ WRITE IN A DIRECT, PROFESSIONAL TONE WITHOUT EXCESSIVE JARGON. DO NOT INCLUDE AN
       // Simulate generation delay
       setTimeout(() => {
         setIsGenerating(false);
-        toast({ 
+        toast({
           title: `Generated ${generateType} for ${generateTopic}`,
           description: "This feature is coming soon!"
         });
@@ -252,179 +279,179 @@ WRITE IN A DIRECT, PROFESSIONAL TONE WITHOUT EXCESSIVE JARGON. DO NOT INCLUDE AN
             </div>
           </div>
         )}
-        
+
         {/* AI Generation Section */}
         {!generatedGuide && !selectedRoadmapPdf ? (
           <>
             <div className="flex flex-col items-center justify-center space-y-8 text-center pt-8 pb-4">
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
-              What can I help you learn?
-            </h1>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-              Enter a topic below to get it personalized for you
-            </p>
-          </div>
-          
-          <div className="w-full max-w-xl space-y-6">
-            <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-4">
-              <div className="text-left space-y-2">
-                <label className="text-sm font-medium text-muted-foreground px-1">
+              <div className="space-y-3">
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
                   What can I help you learn?
-                </label>
-                <div className="flex bg-muted/50 p-1 rounded-xl">
-                  <button 
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${generateType === 'roadmap' ? 'bg-background shadow font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                    onClick={() => setGenerateType('roadmap')}
-                  >
-                    <Map className="w-4 h-4" />
-                    Roadmap
-                  </button>
-                  <button 
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${generateType === 'guide' ? 'bg-background shadow font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                    onClick={() => setGenerateType('guide')}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    Guide
-                  </button>
-                </div>
+                </h1>
+                <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
+                  Enter a topic below to get it personalized for you
+                </p>
               </div>
 
-              <div className="text-left space-y-2">
-                <label className="text-sm font-medium text-muted-foreground px-1 hover:cursor-pointer" htmlFor="topic-input">
-                  Topic
-                </label>
-                <input
-                  id="topic-input"
-                  type="text"
-                  placeholder="e.g. Frontend Development, Machine Learning..."
-                  value={generateTopic}
-                  onChange={(e) => setGenerateTopic(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3.5 text-base outline-none placeholder:text-muted-foreground/60 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
-                />
-              </div>
-
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating || !generateTopic.trim()}
-                className="w-full flex items-center justify-center gap-2 bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3.5 rounded-xl text-sm font-medium transition-all shadow-md mt-4"
-              >
-                {isGenerating ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-background/30 border-t-background animate-spin" />
-                    Generating...
+              <div className="w-full max-w-xl space-y-6">
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-4">
+                  <div className="text-left space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground px-1">
+                      What can I help you learn?
+                    </label>
+                    <div className="flex bg-muted/50 p-1 rounded-xl">
+                      <button
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${generateType === 'roadmap' ? 'bg-background shadow font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                        onClick={() => setGenerateType('roadmap')}
+                      >
+                        <Map className="w-4 h-4" />
+                        Roadmap
+                      </button>
+                      <button
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${generateType === 'guide' ? 'bg-background shadow font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                        onClick={() => setGenerateType('guide')}
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        Guide
+                      </button>
+                    </div>
                   </div>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Generate
-                  </>
-                )}
-              </button>
-              
-              {generateType === 'guide' && (
-                <div className="flex items-center justify-between px-1 pt-2">
-                  {apiKey ? (
-                    <p className="text-xs text-green-500">✓ API key configured</p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      Configure API key to get started
-                    </p>
+
+                  <div className="text-left space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground px-1 hover:cursor-pointer" htmlFor="topic-input">
+                      Topic
+                    </label>
+                    <input
+                      id="topic-input"
+                      type="text"
+                      placeholder="e.g. Frontend Development, Machine Learning..."
+                      value={generateTopic}
+                      onChange={(e) => setGenerateTopic(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3.5 text-base outline-none placeholder:text-muted-foreground/60 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !generateTopic.trim()}
+                    className="w-full flex items-center justify-center gap-2 bg-foreground text-background hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3.5 rounded-xl text-sm font-medium transition-all shadow-md mt-4"
+                  >
+                    {isGenerating ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border-2 border-background/30 border-t-background animate-spin" />
+                        Generating...
+                      </div>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Generate
+                      </>
+                    )}
+                  </button>
+
+                  {generateType === 'guide' && (
+                    <div className="flex items-center justify-between px-1 pt-2">
+                      {apiKey ? (
+                        <p className="text-xs text-green-500">✓ API key configured</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          Configure API key to get started
+                        </p>
+                      )}
+                      <button
+                        onClick={() => setShowApiSettings(true)}
+                        className="text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Settings className="h-3 w-3" />
+                        API Settings
+                      </button>
+                    </div>
                   )}
-                  <button
-                    onClick={() => setShowApiSettings(true)}
-                    className="text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <Settings className="h-3 w-3" />
-                    API Settings
-                  </button>
                 </div>
-              )}
-            </div>
 
-          </div>
-        </div>
-
-        {!isLibraryExpanded ? (
-          <div className="border-t border-border pt-12 flex justify-center pb-0">
-            <button
-              onClick={() => setIsLibraryExpanded(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border rounded-xl text-base font-medium transition-colors shadow-sm"
-            >
-              <BookOpen className="w-5 h-5" />
-              Explore Library
-            </button>
-          </div>
-        ) : (
-          <div className="border-t border-border pt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-semibold tracking-tight">Explore Library</h2>
-              <p className="text-sm text-muted-foreground">Discover professionally curated learning paths.</p>
-            </div>
-            {/* Search Input */}
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search library..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full border border-border bg-card pl-9 pr-4 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
-              />
-            </div>
-          </div>
-
-          {/* Role-Based Roadmaps */}
-          {(filteredRoles.length > 0) && (
-            <div className="space-y-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                Role-Based Paths
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {filteredRoles.map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => handleCardClick(role)}
-                    className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm"
-                  >
-                    {role}
-                  </button>
-                ))}
               </div>
             </div>
-          )}
 
-          {/* Skill-Based Roadmaps */}
-          {(filteredSkills.length > 0) && (
-            <div className="space-y-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                Skill-Based Paths
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {filteredSkills.map((skill) => (
-                  <button
-                    key={skill}
-                    onClick={() => handleCardClick(skill)}
-                    className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm"
-                  >
-                    {skill}
-                  </button>
-                ))}
+            {!isLibraryExpanded ? (
+              <div className="border-t border-border pt-12 flex justify-center pb-0">
+                <button
+                  onClick={() => setIsLibraryExpanded(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border rounded-xl text-base font-medium transition-colors shadow-sm"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  Explore Library
+                </button>
               </div>
-            </div>
-          )}
-          
-          {filteredRoles.length === 0 && filteredSkills.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border">
-              <p>No roadmaps or guides found for "{search}"</p>
-            </div>
-          )}
-        </div>
-        )}
-        </>
+            ) : (
+              <div className="border-t border-border pt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-semibold tracking-tight">Explore Library</h2>
+                    <p className="text-sm text-muted-foreground">Discover professionally curated learning paths.</p>
+                  </div>
+                  {/* Search Input */}
+                  <div className="relative w-full sm:w-72">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search library..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full rounded-full border border-border bg-card pl-9 pr-4 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Role-Based Roadmaps */}
+                {(filteredRoles.length > 0) && (
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                      Role-Based Paths
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {filteredRoles.map((role) => (
+                        <button
+                          key={role}
+                          onClick={() => handleCardClick(role)}
+                          className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm"
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skill-Based Roadmaps */}
+                {(filteredSkills.length > 0) && (
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                      Skill-Based Paths
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {filteredSkills.map((skill) => (
+                        <button
+                          key={skill}
+                          onClick={() => handleCardClick(skill)}
+                          className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm"
+                        >
+                          {skill}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {filteredRoles.length === 0 && filteredSkills.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border">
+                    <p>No roadmaps or guides found for "{search}"</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         ) : (
           <div className="w-full max-w-none mx-auto space-y-6 pt-4 pb-12 animate-in fade-in slide-in-from-bottom-4">
             {!selectedRoadmapPdf && (
@@ -473,9 +500,9 @@ WRITE IN A DIRECT, PROFESSIONAL TONE WITHOUT EXCESSIVE JARGON. DO NOT INCLUDE AN
                   </button>
                 </div>
                 <div className="flex-1 w-full bg-muted/10 relative">
-                  <iframe 
-                    src={selectedRoadmapPdf} 
-                    className="absolute inset-0 w-full h-full border-0" 
+                  <iframe
+                    src={selectedRoadmapPdf}
+                    className="absolute inset-0 w-full h-full border-0"
                     title="Roadmap PDF View"
                   />
                 </div>

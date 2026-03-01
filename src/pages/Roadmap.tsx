@@ -44,6 +44,9 @@ export default function Roadmap() {
   const [apiKey, setApiKey] = useState("");
   const [showApiSettings, setShowApiSettings] = useState(false);
   const [generatedGuide, setGeneratedGuide] = useState("");
+  const [selectedRoadmapPdf, setSelectedRoadmapPdf] = useState("");
+
+  const [isLibraryExpanded, setIsLibraryExpanded] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("groq_api_key");
@@ -81,7 +84,7 @@ export default function Roadmap() {
           messages: [
             {
               role: "system",
-              content: "You are an expert learning guide generator.",
+              content: "You are an expert technical writer and developer documentation creator. YOU MUST FORMAT YOUR ENTIRE RESPONSE IN VALID MARKDOWN. You must use `#` for the main title, `##` for section titles, and `###` for sub-sections. Never use plain text for headings.",
             },
             {
               role: "user",
@@ -116,8 +119,13 @@ export default function Roadmap() {
   };
 
   const handleCardClick = (title: string) => {
-    toast({ title: `Coming Soon: ${title} Roadmap` });
-    console.log(`Will open roadmap for: ${title} later`);
+    if (title.toLowerCase() === "frontend") {
+      setSelectedRoadmapPdf("/roadmaps/frontend.pdf");
+      toast({ title: `Opening Frontend Roadmap...` });
+    } else {
+      toast({ title: `Coming Soon: ${title} Roadmap` });
+      console.log(`Will open roadmap for: ${title} later`);
+    }
   };
 
   const handleGenerate = async () => {
@@ -139,7 +147,21 @@ export default function Roadmap() {
       setIsGenerating(true);
       setGeneratedGuide("");
       
-      const prompt = `Generate a learning guide about "${generateTopic}". Limit your response to strictly 50 words max. Be concise.`;
+      const prompt = `Generate a professional, visually structured documentation-style guide about "${generateTopic}" optimized for a modern developer portal.
+
+FORMATTING RULES (CRITICAL):
+1. You MUST use valid Markdown headings. Use "# [Title]" for the main heading, "## [Section Name]" for sections, and "### [Sub-section]" for overviews.
+2. NEVER output plain text headings without the # symbols.
+
+STRUCTURE REQUIREMENTS:
+1. Title Section: Start with exactly one "# ". Under it, write a 1-line tagline and a 2-sentence intro paragraph.
+2. Overview: Use "## Overview". Add "### What It Is" (2 lines) and "### Why It Matters" (2 lines).
+3. Core Concepts: Use "## Core Concepts". Use bullet points with **bold terms** followed by strictly a 1-sentence explanation.
+4. How It Works: Use "## Architecture / How It Works". Use a numbered list for steps. Keep steps to exactly 1 sentence.
+5. Code Example: Add a clean, minimal code block (max 8 lines) wrapped in markdown triple backticks. Add a short bold paragraph above it explaining it.
+6. Interview Questions: Use exactly "## Common Interview Questions". Provide a bulleted list of 5 high-signal questions without answers.
+
+WRITE IN A DIRECT, PROFESSIONAL TONE WITHOUT EXCESSIVE JARGON. DO NOT INCLUDE ANY CONVERSATIONAL CHAT. OVER-INDEX ON SHORT PARAGRAPHS AND SCANNABILITY.`;
       
       const response = await callGroqAPI(prompt);
       
@@ -169,7 +191,7 @@ export default function Roadmap() {
 
   return (
     <PageWrapper title="Roadmaps & Guides">
-      <div className="mx-auto w-full space-y-12 max-w-5xl pb-10">
+      <div className={`mx-auto w-full space-y-12 pb-10 ${generatedGuide || selectedRoadmapPdf ? "max-w-7xl" : "max-w-5xl"}`}>
 
         {/* API Settings Modal */}
         {showApiSettings && (
@@ -232,7 +254,9 @@ export default function Roadmap() {
         )}
         
         {/* AI Generation Section */}
-        <div className="flex flex-col items-center justify-center space-y-8 text-center pt-8 pb-4">
+        {!generatedGuide && !selectedRoadmapPdf ? (
+          <>
+            <div className="flex flex-col items-center justify-center space-y-8 text-center pt-8 pb-4">
           <div className="space-y-3">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
               What can I help you learn?
@@ -320,21 +344,21 @@ export default function Roadmap() {
               )}
             </div>
 
-            {generatedGuide && (
-              <div className="text-left bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
-                  Generated Guide
-                </h3>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                  <ReactMarkdown>{generatedGuide}</ReactMarkdown>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        <div className="border-t border-border pt-12 space-y-8">
+        {!isLibraryExpanded ? (
+          <div className="border-t border-border pt-12 flex justify-center pb-0">
+            <button
+              onClick={() => setIsLibraryExpanded(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border rounded-xl text-base font-medium transition-colors shadow-sm"
+            >
+              <BookOpen className="w-5 h-5" />
+              Explore Library
+            </button>
+          </div>
+        ) : (
+          <div className="border-t border-border pt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-2xl font-semibold tracking-tight">Explore Library</h2>
@@ -399,6 +423,66 @@ export default function Roadmap() {
             </div>
           )}
         </div>
+        )}
+        </>
+        ) : (
+          <div className="w-full max-w-none mx-auto space-y-6 pt-4 pb-12 animate-in fade-in slide-in-from-bottom-4">
+            {!selectedRoadmapPdf && (
+              <button
+                onClick={() => {
+                  setGeneratedGuide("");
+                  setSelectedRoadmapPdf("");
+                }}
+                className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-muted/50 hover:text-foreground hover:bg-muted rounded-xl transition-all border border-transparent hover:border-border w-fit"
+              >
+                <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Close Guide
+              </button>
+            )}
+            {generatedGuide ? (
+              <div className="text-left w-full max-w-4xl mx-auto py-8">
+                <div className="prose prose-slate dark:prose-invert max-w-none 
+                  prose-headings:tracking-tight 
+                  prose-h1:text-5xl sm:prose-h1:text-[4rem] sm:prose-h1:leading-[1.1] prose-h1:font-black prose-h1:text-foreground prose-h1:mb-12
+                  prose-h2:text-3xl sm:prose-h2:text-[2rem] prose-h2:font-bold prose-h2:text-foreground prose-h2:mt-16 prose-h2:mb-8
+                  prose-h3:text-xl sm:prose-h3:text-[1.35rem] prose-h3:font-semibold prose-h3:text-foreground/90 prose-h3:mt-10 prose-h3:mb-4
+                  prose-p:text-base sm:prose-p:text-[1.1rem] prose-p:leading-[1.75] prose-p:text-muted-foreground prose-p:mb-6
+                  prose-strong:font-semibold prose-strong:text-foreground
+                  prose-ul:space-y-4 prose-ul:my-8 prose-ul:ml-6 prose-ul:list-disc marker:prose-ul:text-foreground/40
+                  prose-ol:space-y-4 prose-ol:my-8 prose-ol:ml-6 prose-ol:list-decimal marker:prose-ol:text-foreground/60 marker:prose-ol:font-medium
+                  prose-li:text-muted-foreground prose-li:leading-relaxed prose-li:pl-2
+                  prose-code:px-1.5 prose-code:py-0.5 prose-code:bg-muted/80 prose-code:text-foreground prose-code:rounded-md prose-code:border prose-code:border-border/50 prose-code:text-[0.85em] prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
+                  prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-border/30 prose-pre:rounded-2xl prose-pre:p-6 prose-pre:shadow-xl
+                ">
+                  <ReactMarkdown>{generatedGuide}</ReactMarkdown>
+                </div>
+              </div>
+            ) : (
+              <div className="fixed inset-0 z-[100] bg-background flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex-none p-4 flex justify-between items-center border-b border-border/40 bg-card/60 backdrop-blur-xl">
+                  <div className="font-semibold text-foreground ml-2 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-primary" />
+                    Interactive Roadmap
+                  </div>
+                  <button
+                    onClick={() => setSelectedRoadmapPdf("")}
+                    className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-muted hover:text-foreground hover:bg-muted/80 rounded-xl transition-all border border-transparent hover:border-border shadow-sm"
+                  >
+                    <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    Close Roadmap
+                  </button>
+                </div>
+                <div className="flex-1 w-full bg-muted/10 relative">
+                  <iframe 
+                    src={selectedRoadmapPdf} 
+                    className="absolute inset-0 w-full h-full border-0" 
+                    title="Roadmap PDF View"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
     </PageWrapper>

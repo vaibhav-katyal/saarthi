@@ -211,6 +211,7 @@ CRITICAL REQUIREMENTS - MUST FOLLOW EXACTLY:
 7. Pass individual parameters, NOT String input
 8. Print result using System.out.println()
 9. For arrays, test case inputs MUST be space-separated values (e.g., "1 2 3"), NEVER use formatting like "[1, 2, 3]" or commas, so Scanner can read them easily.
+10. Generate EXACTLY 5 to 6 Test Cases. They MUST be generated using the "Equivalence Partitioning" method. Ensure cases cover average expected outcomes, boundary cases, edge constraints, negatives, or zeroes where applicable.
 
 Return ONLY a valid JSON object (no markdown, no extra text):
 {
@@ -225,7 +226,9 @@ Return ONLY a valid JSON object (no markdown, no extra text):
   "testCases": [
     {"input": "1 2", "expected": "3"},
     {"input": "5 7", "expected": "12"},
-    {"input": "-1 1", "expected": "0"}
+    {"input": "-1 1", "expected": "0"},
+    {"input": "0 0", "expected": "0"},
+    {"input": "100 -50", "expected": "50"}
   ],
   "language": "java",
   "fullTemplate": "import java.util.*;\\n\\npublic class Main {\\n    // USER_CODE_START\\n    public long sumTwoNumbers(int a, int b) {\\n    }\\n    // USER_CODE_END\\n\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        if (sc.hasNextInt()) {\\n            int a = sc.nextInt();\\n            int b = sc.nextInt();\\n            Main obj = new Main();\\n            long result = obj.sumTwoNumbers(a, b);\\n            System.out.println(result);\\n        }\\n    }\\n}"

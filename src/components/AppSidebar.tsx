@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { NavLink, useLocation, Link } from "react-router-dom";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   BookOpen,
   Map,
   Code2,
@@ -22,7 +28,7 @@ const navItems = [
 ];
 
 export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
 
   return (
@@ -46,11 +52,12 @@ export function AppSidebar() {
       </Link>
 
       {/* Nav items */}
-      <nav className="flex-1 py-2 px-2 overflow-y-auto scrollbar-thin">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <NavLink key={item.path} to={item.path} className="block">
+      <TooltipProvider delayDuration={0}>
+        <nav className="flex-1 py-2 px-2 overflow-y-auto scrollbar-thin">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            
+            const linkContent = (
               <div
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 mb-0.5 ${
                   isActive
@@ -61,10 +68,31 @@ export function AppSidebar() {
                 <item.icon className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="truncate">{item.title}</span>}
               </div>
-            </NavLink>
-          );
-        })}
-      </nav>
+            );
+
+            if (!collapsed) {
+              return (
+                <NavLink key={item.path} to={item.path} className="block">
+                  {linkContent}
+                </NavLink>
+              );
+            }
+
+            return (
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>
+                  <NavLink to={item.path} className="block">
+                    {linkContent}
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={10} className="font-medium">
+                  {item.title}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </nav>
+      </TooltipProvider>
 
       {/* Collapse toggle */}
       <div className="p-2 border-t border-border">

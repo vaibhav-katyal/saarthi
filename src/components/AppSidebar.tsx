@@ -39,7 +39,7 @@ export function AppSidebar() {
       {/* Logo */}
       <Link
         to="/"
-        className="flex h-14 items-center gap-2.5 px-4 border-b border-border cursor-pointer hover:bg-secondary/30 transition-colors duration-150"
+        className="flex h-14 items-center gap-2.5 px-4 border-b border-border cursor-pointer transition-colors duration-150"
       >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <GraduationCap className="h-4 w-4 text-primary" />
@@ -56,14 +56,13 @@ export function AppSidebar() {
         <nav className="flex-1 py-2 px-2 overflow-y-auto scrollbar-thin">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
-            
+
             const linkContent = (
               <div
-                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 mb-0.5 ${
-                  isActive
+                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 mb-0.5 ${isActive
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-                }`}
+                  }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="truncate">{item.title}</span>}

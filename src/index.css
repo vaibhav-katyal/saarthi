@@ -21,8 +21,8 @@
     /* #00F5FF Electric Cyan */
     --primary-foreground: 222 47% 5%;
 
-    --secondary: 243 75% 59%;
-    /* #4F46E5 Soft Indigo */
+    --secondary: 226 14% 13%;
+    /* Muted dark color for active/hover states to match theme */
     --secondary-foreground: 216 33% 97%;
 
     --muted: 226 14% 13%;

@@ -1,26 +1,65 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
+import { Eye, EyeOff, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const Login = () => {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login
-    console.log("Login submitted", { email, password });
+    setLoading(true);
+
+    const endpoint = isSignUp
+      ? "http://localhost:5000/api/auth/register"
+      : "http://localhost:5000/api/auth/login";
+
+    const body = isSignUp
+      ? JSON.stringify({ name, email, password })
+      : JSON.stringify({ email, password });
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || (isSignUp ? "Registration failed" : "Login failed"));
+      }
+
+      // Save token
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      toast.success(isSignUp ? "Registration successful!" : "Login successful!");
+      navigate("/vault");
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#1A1A1E] p-4 sm:p-8">
       {/* Main Container */}
       <div className="w-full max-w-5xl h-[700px] flex flex-col md:flex-row bg-[#EBEBEB] rounded-[2rem] overflow-hidden shadow-2xl relative">
-        
+
         {/* Left Side: Illustration */}
         <div className="hidden md:flex flex-1 items-end justify-center relative overflow-hidden">
           <svg className="w-full h-auto max-w-md pb-12" viewBox="0 0 400 350" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,7 +95,7 @@ const Login = () => {
         {/* Right Side: Form */}
         <div className="w-full md:w-[480px] bg-white h-full p-8 sm:p-12 md:p-16 flex flex-col justify-center rounded-[2rem] md:rounded-l-none">
           <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-            
+
             {/* Logo */}
             <div className="mb-8">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -65,13 +104,32 @@ const Login = () => {
             </div>
 
             {/* Headers */}
-            <h1 className="text-3xl font-bold text-[#1A1A1E] mb-2 font-sans tracking-tight">Welcome back!</h1>
-            <p className="text-sm text-gray-500 mb-10">Please enter your details</p>
+            <h1 className="text-3xl font-bold text-[#1A1A1E] mb-2 font-sans tracking-tight">
+              {isSignUp ? "Create Account" : "Welcome back!"}
+            </h1>
+            <p className="text-sm text-gray-500 mb-10">
+              {isSignUp ? "Please fill in your details to join" : "Please enter your details"}
+            </p>
 
-            <form onSubmit={handleLogin} className="w-full flex flex-col gap-6">
-              
+            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
+
+              {/* Name Input (Only on Sign Up) */}
+              {isSignUp && (
+                <div className="relative flex flex-col gap-2">
+                  <label className="text-xs font-medium text-gray-600">Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pb-2 text-sm text-[#1A1A1E] bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:outline-none focus:border-[#1A1A1E] transition-colors"
+                    placeholder="John Doe"
+                    required={isSignUp}
+                  />
+                </div>
+              )}
+
               {/* Email Input */}
-              <div className="relative flex flex-col gap-2">
+              <div className="relative flex flex-col gap-2 mt-2">
                 <label className="text-xs font-medium text-gray-600">Email</label>
                 <input
                   type="email"
@@ -113,14 +171,16 @@ const Login = () => {
                     Remember for 30 days
                   </label>
                 </div>
-                <button type="button" className="text-xs text-gray-500 hover:text-[#1A1A1E] transition-colors">
-                  Forgot password?
-                </button>
+                {!isSignUp && (
+                  <button type="button" className="text-xs text-gray-500 hover:text-[#1A1A1E] transition-colors">
+                    Forgot password?
+                  </button>
+                )}
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full mt-4 bg-[#1A1A1E] hover:bg-black text-white h-12 rounded-xl text-sm font-medium transition-transform active:scale-[0.98]">
-                Log In
+              <Button disabled={loading} type="submit" className="w-full mt-4 bg-[#1A1A1E] hover:bg-black text-white h-12 rounded-xl text-sm font-medium transition-transform active:scale-[0.98]">
+                {loading ? (isSignUp ? "Creating Account..." : "Logging In...") : (isSignUp ? "Sign Up" : "Log In")}
               </Button>
 
               {/* Google Login */}
@@ -131,13 +191,19 @@ const Login = () => {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </svg>
-                Log in with Google
+                {isSignUp ? "Sign up with Google" : "Log in with Google"}
               </Button>
             </form>
 
-            {/* Sign Up Link */}
+            {/* Toggle Sign Up / Login */}
             <p className="mt-8 text-xs text-gray-500">
-              Don't have an account? <Link to="/signup" className="text-[#1A1A1E] font-medium hover:underline">Sign Up</Link>
+              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-[#1A1A1E] font-medium hover:underline bg-transparent border-none p-0"
+              >
+                {isSignUp ? "Log In" : "Sign Up"}
+              </button>
             </p>
           </div>
         </div>

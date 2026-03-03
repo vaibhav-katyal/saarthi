@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(cors());
 
 // Mount routers
-// app.use('/api/v1/users', require('./routes/users'));
+app.use('/api/auth', require('./routes/authRoutes'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Saarthi API' });

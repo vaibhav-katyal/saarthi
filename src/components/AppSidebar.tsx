@@ -23,6 +23,7 @@ const navItems = [
   { title: "AI Roadmap", path: "/roadmap", icon: Map },
   { title: "MCQ Generator", path: "/mcq", icon: Brain },
   { title: "Testpad", path: "/testpad", icon: Code2 },
+  { title: "Code Duel", path: "/duel", icon: Code2 },
   { title: "Community", path: "/community", icon: Users },
   { title: "Leave Manager", path: "/leave", icon: Calculator },
 ];
@@ -60,8 +61,8 @@ export function AppSidebar() {
             const linkContent = (
               <div
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 mb-0.5 ${isActive
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                   }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />

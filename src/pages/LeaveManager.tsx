@@ -143,7 +143,7 @@ export default function LeaveManager() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
+    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
       {/* Background Noise & Gradient */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />

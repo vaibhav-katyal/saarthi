@@ -5,19 +5,32 @@ import { BookOpen, Sparkles, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 
-const generatePrompt = (topic: string) => `Your task is to generate a COMPLETE, STRUCTURED learning guide for the topic:
+const generatePrompt = (topic: string) => `
+Your task is to generate a COMPLETE, STRUCTURED learning guide for the topic:
 "${topic}"
 
+The guide must teach the topic from beginner level and gradually progress toward advanced understanding.
+
 STRICT RULES:
-- Assume the learner is a BEGINNER unless the topic demands prior knowledge
-- Progress from fundamentals → intermediate → advanced
-- Do NOT skip prerequisites
-- Be practical, not theoretical fluff
-- No motivational talk, no emojis
+- Assume the learner is a BEGINNER unless the topic absolutely requires prior knowledge.
+- If prerequisites exist, clearly state them and keep them minimal.
+- Progress logically: fundamentals → core skills → intermediate → advanced → real-world use.
+- Do NOT skip foundational concepts required to understand later topics.
+- Focus on practical understanding and real developer workflows.
+- Avoid academic or theoretical explanations unless necessary.
+- Do NOT include motivational talk, filler text, or emojis.
+- Do NOT repeat information between sections.
+- Keep explanations concise and focused.
+
+CONTENT REQUIREMENTS:
+- Prefer practical skills over abstract theory.
+- Include realistic project ideas developers would actually build.
+- Use modern tools and practices relevant to the topic.
+- Avoid outdated technologies unless historically necessary.
 
 OUTPUT FORMAT (Markdown ONLY):
 
-# ${topic} – Complete Learning Guide
+# ${topic} - Complete Learning Guide
 
 ## 1. Prerequisites
 - List only what is absolutely required
@@ -74,11 +87,13 @@ STYLE CONSTRAINTS:
 - Clear, concise, professional
 - Use bullet points, not long paragraphs
 - No repetition
-- No unnecessary explanations`;
+- No unnecessary explanations
+`;
 
 export default function GuideView() {
   const [searchParams] = useSearchParams();
   const topic = searchParams.get("topic") || "";
+
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -91,36 +106,43 @@ export default function GuideView() {
     }
 
     const apiKey = localStorage.getItem("groq_api_key");
+
     if (!apiKey) {
-      setError("No API key configured. Please configure it in the AI Roadmap section first.");
+      setError(
+        "No API key configured. Please configure it in the AI Roadmap section first."
+      );
       setLoading(false);
       return;
     }
 
     const generateGuide = async () => {
       try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              {
-                role: "system",
-                content: "You are an expert technical learning guide generator. You must follow the exact structure and rules requested.",
-              },
-              {
-                role: "user",
-                content: generatePrompt(topic),
-              },
-            ],
-            temperature: 0.7,
-            max_tokens: 3000,
-          }),
-        });
+        const response = await fetch(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model: "llama-3.3-70b-versatile",
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are an expert technical learning guide generator. You must follow the exact structure and rules requested.",
+                },
+                {
+                  role: "user",
+                  content: generatePrompt(topic),
+                },
+              ],
+              temperature: 0.4,
+              max_tokens: 3000,
+            }),
+          }
+        );
 
         if (!response.ok) {
           const errData = await response.json();
@@ -128,15 +150,20 @@ export default function GuideView() {
         }
 
         const data = await response.json();
-        const result = data.choices[0].message.content;
+        const result =
+          data?.choices?.[0]?.message?.content || "Failed to generate guide.";
+
         setContent(result);
       } catch (err) {
         toast({
           title: "Generation Error",
           description: err instanceof Error ? err.message : "An error occurred",
-          variant: "destructive"
+          variant: "destructive",
         });
-        setError("Failed to generate the guide. Please check your API key and try again.");
+
+        setError(
+          "Failed to generate the guide. Please check your API key and try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -152,25 +179,34 @@ export default function GuideView() {
           <div className="space-y-3">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground flex items-center gap-4">
               {topic ? `${topic} Learning Guide` : "Your Personalized Guide"}
-              {loading && <Loader2 className="w-8 h-8 text-primary animate-spin" />}
+              {loading && (
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              )}
             </h1>
+
             <p className="text-muted-foreground text-base sm:text-lg">
-              {loading ? "Generating your comprehensive path..." : "Here is everything you need to know, structured from basics to advanced."}
+              {loading
+                ? "Generating your comprehensive path..."
+                : "Here is everything you need to know, structured from basics to advanced."}
             </p>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm space-y-4 animate-in fade-in slide-in-from-bottom-4 relative">
-            
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-6 text-center">
                 <div className="relative">
                   <div className="absolute inset-0 blur-xl bg-primary/20 rounded-full animate-pulse" />
                   <Sparkles className="w-16 h-16 text-primary animate-bounce relative z-10" />
                 </div>
+
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-semibold">Crafting the Perfect Curriculum</h3>
+                  <h3 className="text-2xl font-semibold">
+                    Crafting the Perfect Curriculum
+                  </h3>
+
                   <p className="text-muted-foreground max-w-sm">
-                    Analyzing prerequisites, finding the best resources, and structuring timelines. This will take a few seconds.
+                    Analyzing prerequisites, finding the best resources, and
+                    structuring timelines. This will take a few seconds.
                   </p>
                 </div>
               </div>
@@ -187,7 +223,6 @@ export default function GuideView() {
                 <p>No guide found. Please generate one from the Roadmaps section.</p>
               </div>
             )}
-            
           </div>
         </div>
       </div>

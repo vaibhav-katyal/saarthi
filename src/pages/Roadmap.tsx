@@ -472,23 +472,7 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
                 <div className="relative rounded-[2rem] border border-white/5 bg-background/40 p-5 md:p-6 backdrop-blur-xl shadow-2xl overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 mix-blend-overlay pointer-events-none" />
                   
-                  <div className="relative z-10 space-y-4">
-                    <div className="flex bg-muted/40 p-1.5 rounded-2xl border border-border/40 relative">
-                      <button
-                        className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold rounded-[14px] transition-all duration-300 ${generateType === "roadmap" ? "bg-background shadow-md text-foreground scale-[0.98]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-                        onClick={() => setGenerateType("roadmap")}
-                      >
-                        <Map className="w-4 h-4" />
-                        Roadmap
-                      </button>
-                      <button
-                        className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold rounded-[14px] transition-all duration-300 ${generateType === "guide" ? "bg-background shadow-md text-foreground scale-[0.98]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
-                        onClick={() => setGenerateType("guide")}
-                      >
-                        <BookOpen className="w-4 h-4" />
-                        Guide
-                      </button>
-                    </div>
+                  
 
                     <div className="text-left space-y-2 mt-4 relative">
                       <label className="text-sm font-semibold text-muted-foreground/80 px-1 ml-1 hover:cursor-pointer" htmlFor="topic-input">

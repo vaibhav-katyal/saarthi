@@ -36,6 +36,36 @@ const SKILL_BASED = [
   "Ruby on Rails", "Claude Code", "Vibe Coding"
 ];
 
+const ROADMAP_FILES: Record<string, string> = {
+  "Frontend": "frontend",
+  "Backend": "backend",
+  "Full Stack": "full-stack",
+  "DevOps": "devops",
+  "DevSecOps": "devsecops",
+  "Data Analyst": "data-analyst",
+  "AI Engineer": "ai-engineer",
+  "AI and Data Scientist": "ai-data-scientist",
+  "Data Engineer": "data-engineer",
+  "Android": "android",
+  "Machine Learning": "machine-learning",
+  "PostgreSQL": "postgresql-dba",
+  "iOS": "ios",
+  "Blockchain": "blockchain",
+  "QA": "qa",
+  "Software Architect": "software-architect",
+  "Cyber Security": "cyber-security",
+  "UX Design": "ux-design",
+  "Game Developer": "game-developer",
+  "Server Side Game Developer": "server-side-game-developer",
+  "MLOps": "mlops",
+  "Product Manager": "product-manager",
+  "Engineering Manager": "engineering-manager",
+  "Developer Relations": "devrel",
+  "BI Analyst": "bi-analyst",
+  "AI Red Teaming": "ai-red-teaming",
+  "API Design": "api-design"
+};
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function parseInterviewQuestions(markdown: string): {
@@ -254,9 +284,10 @@ export default function Roadmap() {
   };
 
   const handleCardClick = (title: string) => {
-    if (title.toLowerCase() === "frontend") {
-      setSelectedRoadmapPdf("/roadmaps/frontend.pdf");
-      toast({ title: `Opening Frontend Roadmap...` });
+    const fileBase = ROADMAP_FILES[title];
+    if (fileBase) {
+      setSelectedRoadmapPdf(`/roadmaps/${fileBase}.pdf`);
+      toast({ title: `Opening ${title} Roadmap...` });
     } else {
       toast({ title: `Coming Soon: ${title} Roadmap` });
     }
@@ -335,9 +366,22 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
       setIsGenerating(true);
       setTimeout(() => {
         setIsGenerating(false);
-        toast({ title: `Generated ${generateType} for ${generateTopic}`, description: "This feature is coming soon!" });
+        
+        const topicLower = generateTopic.toLowerCase();
+        const matchedRole = Object.keys(ROADMAP_FILES).find((role) => 
+          topicLower.includes(role.toLowerCase())
+        );
+
+        if (matchedRole) {
+          handleCardClick(matchedRole);
+        } else {
+          toast({ 
+            title: "Roadmap In The Works! 🚀", 
+            description: `We are currently working on making the best ${generateTopic} roadmap for you. Stay tuned!`
+          });
+        }
         setGenerateTopic("");
-      }, 1500);
+      }, 800);
     }
   };
 
@@ -537,7 +581,7 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
                   </div>
                 )}
 
-                {filteredSkills.length > 0 && (
+                {/* {filteredSkills.length > 0 && (
                   <div className="space-y-4">
                     <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Skill-Based Paths</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -548,9 +592,9 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
 
-                {filteredRoles.length === 0 && filteredSkills.length === 0 && (
+                {filteredRoles.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border">
                     <p>No roadmaps or guides found for "{search}"</p>
                   </div>

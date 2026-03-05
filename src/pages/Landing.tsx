@@ -27,10 +27,9 @@ import {
 } from "lucide-react";
 
 const HERO_WORDS = [
-  "Ace College.",
-  "Master Coding.",
-  "Build Skills.",
-  "Dominate Exams."
+  "Plan Smarter.",
+  "Study Better.",
+  "Achieve More."
 ];
 
 const TypewriterText = () => {
@@ -46,7 +45,7 @@ const TypewriterText = () => {
   return (
     <span className="inline-grid grid-cols-1 grid-rows-1 items-center justify-items-center">
       <span className="invisible col-start-1 row-start-1" aria-hidden="true">
-        Dominate Exams.
+        Achieve More.
       </span>
       <AnimatePresence mode="wait">
         <motion.span
@@ -151,11 +150,11 @@ const FeatureSection = ({
 
           {/* Visual Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)", y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, filter: "blur(5px)", y: 20 }}
             whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex-1 relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent overflow-hidden backdrop-blur-3xl shadow-2xl flex items-center justify-center p-8 lg:p-12 group"
+            className="flex-1 relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent overflow-hidden backdrop-blur-lg shadow-2xl flex items-center justify-center p-8 lg:p-12 group"
           >
             {/* Soft backdrop glow on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#00F5FF]/10 to-[#7B61FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -323,13 +322,13 @@ const visualMockups = {
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-[#070B14] text-foreground font-sans overflow-x-hidden selection:bg-[#00F5FF]/30">
-      {/* Premium Dark Gradient Background */}
+    <main className="relative flex flex-col min-h-screen w-full bg-[#070B14] text-foreground font-sans overflow-x-hidden selection:bg-[#00F5FF]/30">
+      {/* Premium Dark Gradient Background - Optimized for performance */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[#070B14]">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.25] mix-blend-soft-light" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
         {/* Glow behind hero */}
-        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-[#4F46E5]/20 blur-[150px] opacity-40 mix-blend-screen" />
-        <div className="absolute top-[20%] -right-[20%] w-[600px] h-[600px] rounded-full bg-[#00F5FF]/10 blur-[150px] opacity-30 mix-blend-screen" />
+        <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full bg-[#4F46E5]/10 blur-[100px] opacity-30" />
+        <div className="absolute top-[20%] -right-[10%] w-[500px] h-[500px] rounded-full bg-[#00F5FF]/10 blur-[100px] opacity-20" />
       </div>
 
       {/* Modern Top Nav (Vercel/Linear Style) */}
@@ -364,7 +363,7 @@ const Landing = () => {
       <section className="relative z-10 pt-36 pb-20 px-6 max-w-6xl mx-auto flex flex-col items-center text-center">
 
         <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter text-white max-w-4xl mx-auto mb-6 leading-[1.1]">
-          Prepare Smarter. <br />
+          Your Personal AI <br className="hidden sm:block" /> For College. <br />
           <TypewriterText />
         </h1>
 
@@ -372,9 +371,9 @@ const Landing = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-lg md:text-xl text-[#A1A8B8] max-w-2xl mx-auto mb-10 leading-relaxed font-light"
+          className="text-lg md:text-xl text-[#A1A8B8] max-w-3xl mx-auto mb-10 leading-relaxed font-light"
         >
-          Your AI academic co-pilot. Generate tailored roadmaps, practice with smart mock tests, and manage your campus life in one beautiful system.
+          Saarthi helps you stay ahead in college. Generate study roadmaps, practice with AI-driven tests, and manage everything from learning to productivity in one seamless system.
         </motion.p>
 
         <motion.div
@@ -400,10 +399,10 @@ const Landing = () => {
 
         {/* Hero Dashboard Preview Window */}
         <motion.div
-           initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+           initial={{ opacity: 0, y: 40, filter: "blur(5px)" }}
            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
            transition={{ duration: 1, delay: 0.6 }}
-           className="w-full relative mx-auto rounded-[2rem] border border-white/10 bg-black/40 p-2 md:p-4 backdrop-blur-2xl shadow-2xl"
+           className="w-full relative mx-auto rounded-[2rem] border border-white/10 bg-black/40 p-2 md:p-4 backdrop-blur-md shadow-2xl"
         >
            <div className="absolute -inset-1 bg-gradient-to-r from-[#00F5FF]/20 to-[#7B61FF]/20 rounded-[2.2rem] blur-xl opacity-50 -z-10" />
            <div className="rounded-[1.5rem] border border-white/10 bg-[#0A0E17] overflow-hidden flex flex-col shadow-inner min-h-[400px] md:min-h-[550px] aspect-auto lg:aspect-[16/10]">
@@ -651,7 +650,7 @@ const Landing = () => {
         <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#00F5FF]/50 to-transparent" />
         
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="h-[400px] w-[600px] rounded-full bg-gradient-to-br from-[#00F5FF]/10 to-[#7B61FF]/10 blur-[120px]" />
+          <div className="h-[300px] w-[500px] rounded-full bg-gradient-to-br from-[#00F5FF]/10 to-[#7B61FF]/10 blur-[100px] opacity-50" />
         </div>
 
         <motion.div
@@ -671,17 +670,17 @@ const Landing = () => {
             Join the thousands of top-tier students already learning smarter with Saarthi's AI engine.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link
-              to="/login"
-              className="group relative inline-flex h-12 items-center gap-2 rounded-full bg-white px-8 text-[15px] font-bold text-black transition-all hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)]"
-            >
-              Start Free
-            </Link>
+            
             <Link
               to="/dashboard"
-              className="inline-flex h-12 items-center gap-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
+              className="group relative inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-10 text-[15px] font-bold text-white transition-all duration-300 hover:bg-white/10 hover:border-[#00F5FF]/50 shadow-lg hover:shadow-[0_0_40px_rgba(0,245,255,0.3)] hover:-translate-y-1"
             >
-              Explore Platform
+              <span className="relative z-10 flex items-center gap-2">
+                Let's Explore
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:text-white group-hover:translate-x-1.5" />
+              </span>
+              {/* Subtle animated background glow effect on hover */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#00F5FF]/0 via-[#00F5FF]/10 to-[#7B61FF]/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
             </Link>
           </div>
         </motion.div>
@@ -783,7 +782,7 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </main>
   );
 };
 

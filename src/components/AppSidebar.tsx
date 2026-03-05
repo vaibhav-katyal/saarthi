@@ -80,8 +80,8 @@ export function AppSidebar() {
             const linkContent = (
               <div
                 className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 mb-0.5 ${isActive
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                   }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -127,9 +127,13 @@ export function AppSidebar() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center justify-center p-1.5 cursor-default">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-[11px] font-bold text-foreground">
-                        {initials}
-                      </div>
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover border border-white/10" />
+                      ) : (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-[11px] font-bold text-foreground">
+                          {initials}
+                        </div>
+                      )}
                     </div>
                   </TooltipTrigger>
                   <TooltipContent
@@ -146,9 +150,13 @@ export function AppSidebar() {
               </TooltipProvider>
             ) : (
               <div className="flex items-center gap-3 rounded-lg px-2.5 py-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-xs font-bold text-foreground">
-                  {initials}
-                </div>
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover border border-white/10 shrink-0" />
+                ) : (
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-xs font-bold text-foreground">
+                    {initials}
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-foreground truncate">
                     {user.name}

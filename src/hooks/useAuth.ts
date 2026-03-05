@@ -4,7 +4,7 @@ interface User {
     name: string;
     email: string;
     _id?: string;
-    avatar?: string;
+    avatar?: string | null;
 }
 
 export function useAuth() {

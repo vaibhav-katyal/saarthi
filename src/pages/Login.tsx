@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Eye, EyeOff, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, GraduationCap, ArrowLeft, Sparkles } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -42,7 +40,6 @@ const Login = () => {
         throw new Error(data.error || (isSignUp ? "Registration failed" : "Login failed"));
       }
 
-      // Save token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -55,73 +52,108 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSuccess = async (tokenResponse: any) => {
+    setLoading(true);
+    try {
+      const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+      });
+      const userInfo = await userInfoRes.json();
+
+      const response = await fetch("http://localhost:5000/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: tokenResponse.access_token,
+          userInfo,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Google login failed");
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success("Google login successful!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => toast.error("Google login failed"),
+  });
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#1A1A1E] p-4 sm:p-8">
-      {/* Main Container */}
-      <div className="w-full max-w-5xl h-[700px] flex flex-col md:flex-row bg-[#EBEBEB] rounded-[2rem] overflow-hidden shadow-2xl relative">
+    <div className="min-h-screen w-full bg-[#070B14] text-white font-sans relative overflow-hidden">
+      {/* Background — matching project's design system */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
+        <div className="absolute top-[10%] left-[5%] w-[50%] h-[50%] rounded-full bg-primary/8 blur-[180px]" />
+        <div className="absolute bottom-[10%] right-[5%] w-[40%] h-[40%] rounded-full bg-accent/8 blur-[200px]" />
+      </div>
 
-        {/* Left Side: Illustration */}
-        <div className="hidden md:flex flex-1 items-end justify-center relative overflow-hidden">
-          <svg className="w-full h-auto max-w-md pb-12" viewBox="0 0 400 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Purple Rectangle */}
-            <rect x="70" y="20" width="120" height="330" fill="#6D39FF" />
-            <circle cx="100" cy="65" r="7" fill="white" />
-            <circle cx="100" cy="65" r="2.5" fill="#1A1A1E" />
-            <circle cx="145" cy="65" r="7" fill="white" />
-            <circle cx="145" cy="65" r="2.5" fill="#1A1A1E" />
-            <rect x="120" y="55" width="5" height="40" fill="#1A1A1E" />
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium">Back to Home</span>
+        </Link>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <GraduationCap className="h-4 w-4 text-primary" />
+          </div>
+          <span className="text-sm font-semibold tracking-tight text-foreground">Saarthi</span>
+        </Link>
+      </div>
 
-            {/* Black Rectangle */}
-            <rect x="160" y="160" width="90" height="190" fill="#202124" />
-            <circle cx="215" cy="210" r="9" fill="white" />
-            <circle cx="215" cy="210" r="3" fill="#1A1A1E" />
-            <circle cx="245" cy="210" r="9" fill="white" />
-            <circle cx="245" cy="210" r="3" fill="#1A1A1E" />
-
-            {/* Yellow Bird Shape */}
-            <path d="M 230 350 L 230 250 A 55 55 0 0 1 340 250 L 340 350 Z" fill="#EAC118" />
-            <circle cx="265" cy="235" r="3.5" fill="#1A1A1E" />
-            <rect x="285" y="250" width="60" height="5" fill="#1A1A1E" />
-
-            {/* Orange Half Circle */}
-            <path d="M 10 350 A 130 130 0 0 1 270 350 Z" fill="#F78C3D" />
-            <circle cx="110" cy="285" r="6" fill="#1A1A1E" />
-            <circle cx="165" cy="285" r="6" fill="#1A1A1E" />
-            {/* Smile */}
-            <path d="M 130 305 Q 137.5 320 145 305 Z" fill="#1A1A1E" stroke="#1A1A1E" strokeWidth="2" strokeLinejoin="round" />
-          </svg>
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-8 pb-16">
+        {/* Header */}
+        <div className="text-center mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary shadow-[0_0_20px_rgba(0,245,255,0.15)] mb-4">
+            <Sparkles className="h-3 w-3" />
+            {isSignUp ? "Join Saarthi" : "Welcome Back"}
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground font-heading mb-3">
+            {isSignUp ? "Create your " : "Sign in to "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+              {isSignUp ? "Account" : "Saarthi"}
+            </span>
+          </h1>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+            {isSignUp
+              ? "Start your personalized learning journey today"
+              : "Continue your learning journey right where you left off"}
+          </p>
         </div>
 
-        {/* Right Side: Form */}
-        <div className="w-full md:w-[480px] bg-white h-full p-8 sm:p-12 md:p-16 flex flex-col justify-center rounded-[2rem] md:rounded-l-none">
-          <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+        {/* Form Card */}
+        <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
+          <div className="glass-panel p-8">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-            {/* Logo */}
-            <div className="mb-8">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" fill="#1A1A1E" />
-              </svg>
-            </div>
-
-            {/* Headers */}
-            <h1 className="text-3xl font-bold text-[#1A1A1E] mb-2 font-sans tracking-tight">
-              {isSignUp ? "Create Account" : "Welcome back!"}
-            </h1>
-            <p className="text-sm text-gray-500 mb-10">
-              {isSignUp ? "Please fill in your details to join" : "Please enter your details"}
-            </p>
-
-            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-
-              {/* Name Input (Only on Sign Up) */}
+              {/* Name Input (Sign Up only) */}
               {isSignUp && (
-                <div className="relative flex flex-col gap-2">
-                  <label className="text-xs font-medium text-gray-600">Full Name</label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pb-2 text-sm text-[#1A1A1E] bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:outline-none focus:border-[#1A1A1E] transition-colors"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
                     placeholder="John Doe"
                     required={isSignUp}
                   />
@@ -129,83 +161,117 @@ const Login = () => {
               )}
 
               {/* Email Input */}
-              <div className="relative flex flex-col gap-2 mt-2">
-                <label className="text-xs font-medium text-gray-600">Email</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Email
+                </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pb-2 text-sm text-[#1A1A1E] bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:outline-none focus:border-[#1A1A1E] transition-colors"
-                  placeholder="anna@example.com"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+                  placeholder="you@example.com"
                   required
                 />
               </div>
 
               {/* Password Input */}
-              <div className="relative flex flex-col gap-2 mt-2">
-                <label className="text-xs font-medium text-gray-600">Password</label>
-                <div className="relative w-full">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Password
+                </label>
+                <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pb-2 text-sm text-[#1A1A1E] bg-transparent border-0 border-b border-gray-300 focus:ring-0 focus:outline-none focus:border-[#1A1A1E] transition-colors pr-10"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all pr-12"
                     placeholder="••••••••••"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-0 bottom-2 text-gray-400 hover:text-gray-600 p-0 flex items-center justify-center bg-transparent border-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              {/* Options */}
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="remember" className="rounded-sm w-4 h-4 border-gray-300 data-[state=checked]:bg-[#1A1A1E] data-[state=checked]:border-[#1A1A1E]" />
-                  <label htmlFor="remember" className="text-xs text-gray-600 cursor-pointer select-none">
-                    Remember for 30 days
-                  </label>
-                </div>
+              {/* Options Row */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    className="w-3.5 h-3.5 rounded border-white/20 bg-black/40 accent-primary"
+                  />
+                  <span className="text-xs text-muted-foreground">Remember me</span>
+                </label>
                 {!isSignUp && (
-                  <button type="button" className="text-xs text-gray-500 hover:text-[#1A1A1E] transition-colors">
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
                     Forgot password?
                   </button>
                 )}
               </div>
 
               {/* Submit Button */}
-              <Button disabled={loading} type="submit" className="w-full mt-4 bg-[#1A1A1E] hover:bg-black text-white h-12 rounded-xl text-sm font-medium transition-transform active:scale-[0.98]">
-                {loading ? (isSignUp ? "Creating Account..." : "Logging In...") : (isSignUp ? "Sign Up" : "Log In")}
-              </Button>
+              <button
+                disabled={loading}
+                type="submit"
+                className="relative overflow-hidden w-full group/btn rounded-xl bg-gradient-to-r from-primary to-accent p-0.5 transition-all hover:scale-[1.02] active:scale-[0.98] mt-1 h-[48px] disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out z-10" />
+                <div className="w-full h-full bg-gradient-to-r from-primary to-accent flex items-center justify-center rounded-[10px] z-20 relative px-4 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(0,245,255,0.3)] group-hover/btn:shadow-[0_0_40px_rgba(123,97,255,0.5)]">
+                  {loading
+                    ? (isSignUp ? "Creating Account..." : "Signing In...")
+                    : (isSignUp ? "Create Account" : "Sign In")}
+                </div>
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-1">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-muted-foreground font-medium">or</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
 
               {/* Google Login */}
-              <Button type="button" variant="outline" className="w-full mt-1 bg-[#F5F5F5] hover:bg-[#EBEBEB] text-[#1A1A1E] border-none h-12 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+              <button
+                type="button"
+                onClick={() => googleLogin()}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3.5 text-sm font-medium text-foreground transition-all hover:border-white/20 active:scale-[0.98] disabled:opacity-50"
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </svg>
-                {isSignUp ? "Sign up with Google" : "Log in with Google"}
-              </Button>
+                {isSignUp ? "Sign up with Google" : "Continue with Google"}
+              </button>
             </form>
 
             {/* Toggle Sign Up / Login */}
-            <p className="mt-8 text-xs text-gray-500">
+            <p className="mt-7 text-center text-sm text-muted-foreground">
               {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-[#1A1A1E] font-medium hover:underline bg-transparent border-none p-0"
+                className="text-primary font-semibold hover:text-primary/80 transition-colors bg-transparent border-none p-0"
               >
-                {isSignUp ? "Log In" : "Sign Up"}
+                {isSignUp ? "Sign In" : "Sign Up"}
               </button>
             </p>
           </div>
+
+          {/* Footer note */}
+          <p className="text-center text-[11px] text-muted-foreground/50 mt-6">
+            By continuing, you agree to Saarthi's Terms & Privacy Policy
+          </p>
         </div>
       </div>
     </div>

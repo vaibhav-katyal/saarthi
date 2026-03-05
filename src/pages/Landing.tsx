@@ -26,6 +26,74 @@ import {
   BarChart3
 } from "lucide-react";
 
+//custom cool arrow cursor on logIn button
+const CustomCursor = () => {
+  const [mousePosition, setMousePosition] = useState({ x: -100, y: -100 });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-cursor="blob"]')) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("mousemove", updateMousePosition);
+    window.addEventListener("mouseover", handleMouseOver);
+
+    return () => {
+      window.removeEventListener("mousemove", updateMousePosition);
+      window.removeEventListener("mouseover", handleMouseOver);
+    };
+  }, []);
+
+  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
+    return null;
+  }
+
+  return (
+    <>
+      <style>
+        {`
+          [data-cursor="blob"], [data-cursor="blob"] * {
+            cursor: none !important;
+          }
+        `}
+      </style>
+      <motion.div
+        className="fixed top-0 left-0 w-16 h-16 rounded-full bg-white pointer-events-none z-[9999] mix-blend-difference flex items-center justify-center overflow-hidden shadow-sm"
+        animate={{
+          x: mousePosition.x - 32,
+          y: mousePosition.y - 32,
+          scale: isVisible ? 1 : 0,
+          opacity: isVisible ? 1 : 0
+        }}
+        transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.2 }}
+      >
+        <motion.div 
+          className="w-full h-full flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
+          animate={{ 
+            opacity: isVisible ? 1 : 0, 
+            scale: isVisible ? 1 : 0.5,
+            rotate: isVisible ? 0 : -45
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          <ArrowRight className="w-6 h-6 text-black" strokeWidth={3} />
+        </motion.div>
+      </motion.div>
+    </>
+  );
+};
+
 const HERO_WORDS = [
   "Plan Smarter.",
   "Study Better.",
@@ -323,6 +391,7 @@ const visualMockups = {
 const Landing = () => {
   return (
     <main className="relative flex flex-col min-h-screen w-full bg-[#070B14] text-foreground font-sans overflow-x-hidden selection:bg-[#00F5FF]/30">
+      <CustomCursor />
       {/* Premium Dark Gradient Background - Optimized for performance */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[#070B14]">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
@@ -350,6 +419,7 @@ const Landing = () => {
           <div className="flex items-center gap-4">
             <Link 
               to="/login" 
+              data-cursor="blob"
               className="group relative inline-flex items-center gap-2 rounded-full border border-blue/10 bg-white/5 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-white/10 hover:border-[#00F5FF]/50 shadow-lg hover:shadow-[0_0_20px_rgba(0,245,255,0.2)]"
             >
               Login

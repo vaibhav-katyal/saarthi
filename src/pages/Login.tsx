@@ -47,7 +47,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success(isSignUp ? "Registration successful!" : "Login successful!");
-      navigate("/vault");
+      navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "An error occurred");
     } finally {

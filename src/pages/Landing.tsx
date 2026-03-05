@@ -293,15 +293,9 @@ const Landing = () => {
           <div className="flex items-center gap-4">
             <Link
               to="/login"
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              to="/vault"
               className="group relative inline-flex items-center gap-2 rounded-full bg-white/5 px-5 py-2 text-sm font-medium text-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-[#00F5FF]/50"
             >
-              Open App
+              Login
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
@@ -415,7 +409,7 @@ const Landing = () => {
           <div className="h-[500px] w-[500px] rounded-full bg-gradient-to-br from-[#00F5FF]/10 to-[#7B61FF]/10 blur-[100px]" />
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light" />
         </div>
-        
+
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -441,14 +435,14 @@ const Landing = () => {
         <div className="mx-auto max-w-7xl px-6 flex flex-col">
           {/* Top Section */}
           <div className="grid gap-16 lg:grid-cols-4 lg:gap-8 pb-8">
-            
+
             {/* Brand Statement */}
             <div className="lg:col-span-1">
               <h3 className="font-heading text-xl font-bold text-white max-w-[200px] leading-tight mt-2">
                 Where <span className="text-[#F472B6]">intelligence</span> & <span className="text-[#00F5FF]">ambition</span> meet
               </h3>
             </div>
-            
+
             {/* Links and Actions Grid */}
             <div className="grid gap-12 sm:grid-cols-3 lg:col-span-3">
               {/* Explore */}
@@ -504,8 +498,8 @@ const Landing = () => {
                     <ArrowRight className="h-4 w-4 text-white group-hover:text-[#22C55E] transition-colors" />
                   </div>
                 </a>
-                
-                <Link to="/vault" className="group flex items-center justify-between pt-6 transition-colors">
+
+                <Link to="/login" className="group flex items-center justify-between pt-6 transition-colors">
                   <div>
                     <h4 className="text-[15px] font-semibold text-white mb-1 group-hover:text-[#22C55E] transition-colors">Open Dashboard</h4>
                     <p className="text-xs text-muted-foreground">Explore Platform</p>
@@ -517,14 +511,14 @@ const Landing = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Huge Brand Text */}
           <div className="w-full relative flex items-end justify-start mix-blend-plus-lighter pointer-events-none pb-4 sm:pb-8 pt-4 md:pt-4">
-             <h1 className="font-heading font-black text-[#F4EFE6] select-none tracking-tighter" style={{ fontSize: 'clamp(5rem, 20vw, 25rem)', lineHeight: '0.75' }}>
-               saarthi<span className="text-[#7B61FF]">.</span>
-             </h1>
+            <h1 className="font-heading font-black text-[#F4EFE6] select-none tracking-tighter" style={{ fontSize: 'clamp(5rem, 20vw, 25rem)', lineHeight: '0.75' }}>
+              saarthi<span className="text-[#7B61FF]">.</span>
+            </h1>
           </div>
-          
+
           {/* Bottom attribution */}
           <div className="flex flex-col sm:flex-row justify-between items-center mt-4 border-t border-white/5 pt-6 gap-4 text-xs font-medium text-white/70">
             <p>saarthi ©2026 - Privacy Policy</p>

@@ -17,9 +17,16 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
     minlength: 6,
     select: false // Exclude password from query results by default
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple null values (non-Google users)
+  },
+  avatar: {
+    type: String
   },
   createdAt: {
     type: Date,
@@ -28,9 +35,9 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
+UserSchema.pre('save', async function() {
+  if (!this.isModified('password') || !this.password) {
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -39,6 +46,7 @@ UserSchema.pre('save', async function(next) {
 
 // Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function(enteredPassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

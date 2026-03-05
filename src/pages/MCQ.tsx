@@ -276,17 +276,19 @@ Make sure:
       <PageWrapper
         title="MCQ Generator"
         subtitle="Create personalized quizzes powered by advanced AI"
+        icon={<Brain className="h-3 w-3" />}
+        badge="Quizzes"
       >
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-4">
           {/* Header Section */}
-          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/15 via-transparent to-transparent p-8">
+          <div className="relative overflow-hidden rounded-[1.5rem] border border-border/50 bg-gradient-to-br from-primary/15 via-transparent to-transparent p-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/20 backdrop-blur-sm">
-                <Brain className="h-8 w-8 text-primary" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 backdrop-blur-sm">
+                <Brain className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold tracking-tight">Quiz Builder</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <h2 className="text-xl font-bold tracking-tight">Quiz Builder</h2>
+                <p className="mt-1 text-xs text-muted-foreground">
                   Customize your learning experience with AI-generated questions
                 </p>
               </div>
@@ -294,17 +296,17 @@ Make sure:
           </div>
 
           {/* Main Form Card */}
-          <GlassCard className="space-y-8 border border-border/50">
+          <GlassCard className="space-y-5 border border-border/50 p-5">
             {/* API Settings Panel */}
             {showApiSettings && (
-              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-blue-500" />
-                  <h3 className="font-semibold text-foreground">API Configuration</h3>
+              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 backdrop-blur-sm">
+                <div className="mb-3 flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-blue-500" />
+                  <h3 className="text-sm font-semibold text-foreground">API Configuration</h3>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-semibold mb-3 text-foreground">
+                    <label className="block text-xs font-semibold mb-2 text-foreground">
                       Groq API Key
                     </label>
                     <input
@@ -312,9 +314,9 @@ Make sure:
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
                       placeholder="gsk_..."
-                      className="w-full px-4 py-3 rounded-lg bg-background/50 border border-blue-500/30 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-blue-500/30 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition"
                     />
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-[10px] text-muted-foreground mt-1.5">
                       Get your free API key at{" "}
                       <a
                         href="https://console.groq.com"
@@ -328,7 +330,7 @@ Make sure:
                   </div>
                   <button
                     onClick={saveApiKey}
-                    className="w-full px-4 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition duration-200"
+                    className="w-full px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition duration-200"
                   >
                     Save & Continue
                   </button>
@@ -337,9 +339,9 @@ Make sure:
             )}
 
             {/* Topic and Subtopic Section */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-3 text-foreground">
+                <label className="block text-xs font-semibold mb-2 text-foreground">
                   Topic
                 </label>
                 <input
@@ -347,37 +349,37 @@ Make sure:
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Quantum Physics, Machine Learning, Shakespeare"
-                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-3 text-foreground">
+                <label className="block text-xs font-semibold mb-2 text-foreground">
                   Subtopic{" "}
-                  <span className="font-normal text-xs text-muted-foreground">(optional)</span>
+                  <span className="font-normal text-[10px] text-muted-foreground">(optional)</span>
                 </label>
                 <input
                   type="text"
                   value={subtopic}
                   onChange={(e) => setSubtopic(e.target.value)}
                   placeholder="e.g., Wave-Particle Duality, Neural Networks"
-                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition"
                 />
               </div>
             </div>
 
             {/* Configuration Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Questions Card */}
-              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-6 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">Questions</h3>
+              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-4 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  <h3 className="text-xs font-semibold text-foreground">Questions</h3>
                 </div>
                 <select
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(Number(e.target.value))}
-                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
                 >
                   {[3, 5, 10, 15, 20].map((num) => (
                     <option key={num} value={num} style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>
@@ -388,15 +390,15 @@ Make sure:
               </div>
 
               {/* Difficulty Card */}
-              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-6 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <Zap className="h-5 w-5 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">Difficulty</h3>
+              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-4 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <h3 className="text-xs font-semibold text-foreground">Difficulty</h3>
                 </div>
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
                 >
                   <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Beginner</option>
                   <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Intermediate</option>
@@ -406,27 +408,27 @@ Make sure:
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowApiSettings(!showApiSettings)}
-                className="px-4 py-2.5 rounded-lg bg-secondary/50 text-foreground font-medium hover:bg-secondary transition duration-200 flex items-center gap-2"
+                className="px-3 py-2 text-sm rounded-lg bg-secondary/50 text-foreground font-medium hover:bg-secondary transition duration-200 flex items-center gap-2"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-3.5 w-3.5" />
                 Settings
               </button>
               <button
                 onClick={generateMCQs}
                 disabled={generating || !topic.trim()}
-                className="ml-auto px-8 py-2.5 rounded-lg bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
+                className="ml-auto px-6 py-2 text-sm rounded-lg bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
               >
                 {generating ? (
                   <>
-                    <span className="animate-spin">⚡</span>
+                    <span className="animate-spin w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full" />
                     <span>Crafting Questions...</span>
                   </>
                 ) : (
                   <>
-                    <Play className="h-5 w-5" />
+                    <Play className="h-4 w-4" />
                     <span>Start Quiz</span>
                   </>
                 )}
@@ -448,6 +450,8 @@ Make sure:
       <PageWrapper
         title="Quiz Session"
         subtitle={`Question ${currentQuestion + 1} of ${questions.length}`}
+        icon={<Zap className="h-3 w-3" />}
+        badge="Live"
       >
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Progress Bar */}
@@ -589,6 +593,8 @@ Make sure:
       <PageWrapper
         title="Quiz Complete"
         subtitle="Review your performance and learn from mistakes"
+        icon={<BarChart3 className="h-3 w-3" />}
+        badge="Results"
       >
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Score Card */}

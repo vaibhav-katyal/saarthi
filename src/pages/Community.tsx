@@ -131,7 +131,7 @@ export default function Community() {
     .sort((a, b) => b.upvotes - a.upvotes);
 
   return (
-    <PageWrapper title="Community" subtitle="Raise issues, upvote what matters, track resolutions">
+    <PageWrapper title="Community" subtitle="Raise issues, upvote what matters, track resolutions" icon={<MessageSquare className="h-3 w-3" />} badge="Connect">
       {/* Toolbar */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-1.5">

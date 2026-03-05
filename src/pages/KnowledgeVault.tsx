@@ -13,6 +13,7 @@ import {
   ExternalLink,
   X,
   Trash2,
+  Database,
 } from "lucide-react";
 import { generateAISummary } from "@/lib/ai"; // AI helper for summaries
 import { PageWrapper } from "@/components/PageWrapper";
@@ -458,7 +459,12 @@ export default function KnowledgeVault() {
   };
 
   return (
-    <PageWrapper title="Knowledge Vault" subtitle="Your curated library of links, code & documents">
+    <PageWrapper 
+      title="Knowledge Vault" 
+      subtitle="Your curated library of links, code & documents"
+      icon={<Database className="h-3 w-3" />}
+      badge="Resources"
+    >
       {/* Toolbar + drop zone */}
       <div
         className="relative"

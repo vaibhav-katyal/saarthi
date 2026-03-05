@@ -173,25 +173,15 @@ export default function GuideView() {
   }, [topic]);
 
   return (
-    <div className="w-full min-h-screen bg-background p-6">
+    <PageWrapper
+      title={topic ? `${topic} Learning Guide` : "Your Personalized Guide"}
+      subtitle={loading ? "Generating your comprehensive path..." : "Here is everything you need to know, structured from basics to advanced."}
+      icon={<BookOpen className="w-3 h-3" />}
+      badge="Guide"
+    >
       <div className="mx-auto w-full max-w-5xl space-y-12 pb-10">
-        <div className="flex flex-col space-y-8 pt-8 pb-4">
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-foreground flex items-center gap-4">
-              {topic ? `${topic} Learning Guide` : "Your Personalized Guide"}
-              {loading && (
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              )}
-            </h1>
-
-            <p className="text-muted-foreground text-base sm:text-lg">
-              {loading
-                ? "Generating your comprehensive path..."
-                : "Here is everything you need to know, structured from basics to advanced."}
-            </p>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm space-y-4 animate-in fade-in slide-in-from-bottom-4 relative">
+        <div className="flex flex-col space-y-8 pt-4 pb-4">
+          <div className="glass-panel p-6 sm:p-10 shadow-sm space-y-4 animate-in fade-in slide-in-from-bottom-4 relative">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-6 text-center">
                 <div className="relative">
@@ -226,6 +216,6 @@ export default function GuideView() {
           </div>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

@@ -418,7 +418,7 @@ Return ONLY a valid JSON object:
                         <Swords className="h-10 w-10 text-white" />
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black font-heading tracking-tight mb-4">Code<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F5FF] to-[#7B61FF]">Duel</span></h1>
-                    <p className="text-gray-400 max-w-md mx-auto">Challenge your peers in real-time coding battles. May the best algorithm win.</p>
+                    <p className="text-gray-400 max-w-md mx-auto">Challenge your peers in real-time coding battles.</p>
                 </div>
 
                 <div className="z-10 flex flex-col md:flex-row gap-6 w-full max-w-3xl">

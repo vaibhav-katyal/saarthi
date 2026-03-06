@@ -100,6 +100,11 @@ io.on('connection', (socket) => {
 
 // Mount routers
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/vault', require('./routes/vaultRoutes'));
+
+// Serve uploads folder statically
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Saarthi API' });

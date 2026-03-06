@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, MouseEvent } from "react";
 
 interface GlassCardProps {
   children: ReactNode;
   className?: string;
   hover?: boolean;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
 export function GlassCard({ children, className = "", hover = false, onClick }: GlassCardProps) {

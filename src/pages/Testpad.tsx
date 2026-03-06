@@ -11,10 +11,11 @@ import {
   ChevronDown,
   Settings,
   X,
-  Code2,
   FileText,
   Terminal,
   AlertCircle,
+  History,
+  Code2,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { PageWrapper } from "@/components/PageWrapper";
@@ -73,6 +74,12 @@ export default function Testpad() {
   const [activeTab, setActiveTab] = useState<"tests" | "custom">("tests");
   const [showFullCode, setShowFullCode] = useState(false);
   const showFullCodeRef = useRef(false);
+  const [attempts, setAttempts] = useState(0);
+
+  // History state
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const handleToggleFullCode = () => {
     setShowFullCode((prev) => {
@@ -310,6 +317,7 @@ ENFORCED RULES:
       showFullCodeRef.current = false;
       setCustomOutput("");
       setActiveTab("tests");
+      setAttempts(0);
       toast({ title: `Problem generated: ${newProblem.title}` });
     } catch (error) {
       toast({
@@ -430,6 +438,31 @@ ENFORCED RULES:
       const passCount = results.filter((r) => r.status === "pass").length;
       const failCount = results.filter((r) => r.status === "fail").length;
 
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      // Save to MongoDB
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch("http://localhost:5000/api/testpad", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              problemTitle: problem.title,
+              passedCases: passCount,
+              totalCases: results.length,
+              attempts: newAttempts,
+            }),
+          }).catch(err => console.error("Failed to save testpad results:", err));
+        }
+      } catch (err) {
+        console.error("Failed to save testpad results:", err);
+      }
+
       toast({
         title: `Tests Complete: ${passCount} passed, ${failCount} failed`,
         description:
@@ -507,6 +540,32 @@ ENFORCED RULES:
     }
   };
 
+  const fetchHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const res = await fetch("http://localhost:5000/api/testpad", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          setHistoryData(json.data);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch history:", err);
+      toast({ title: "Failed to load history", variant: "destructive" });
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const openHistory = () => {
+    setShowHistory(true);
+    fetchHistory();
+  };
+
   if (!problem) {
     return (
       <PageWrapper
@@ -575,6 +634,52 @@ ENFORCED RULES:
           </div>
         )}
 
+        {/* History Modal */}
+        {showHistory && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowHistory(false)}>
+            <GlassCard className="w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4 border-b border-border/50 pb-4">
+                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <History className="h-5 w-5 text-primary" />
+                  Attempt History
+                </h2>
+                <button onClick={() => setShowHistory(false)} className="p-1 hover:bg-muted rounded-md transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-2 space-y-3 scrollbar-thin">
+                {loadingHistory ? (
+                  <div className="flex justify-center py-8">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                ) : historyData.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8 text-sm">No attempts yet. Start solving problems!</p>
+                ) : (
+                  historyData.map((record) => (
+                    <div key={record._id} className="bg-muted/30 border border-border/50 rounded-lg p-4 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-foreground text-sm mb-1">{record.problemTitle}</h3>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className={`h-3 w-3 ${record.passedCases === record.totalCases ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            {record.passedCases} / {record.totalCases} Passed
+                          </span>
+                          <span>•</span>
+                          <span>{record.attempts} Attempts</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(record.lastAttemptedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </GlassCard>
+          </div>
+        )}
+
         {/* Welcome Screen */}
         <div className="max-w-2xl mx-auto space-y-4">
           <GlassCard className="text-center py-5">
@@ -632,6 +737,14 @@ ENFORCED RULES:
                 >
                   <Settings className="h-4 w-4" />
                   API Settings
+                </button>
+                <button
+                  onClick={openHistory}
+                  className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  title="View History"
+                >
+                  <History className="h-4 w-4" />
+                  History
                 </button>
               </div>
             </div>
@@ -714,6 +827,13 @@ ENFORCED RULES:
 
         <div className="flex items-center gap-2">
           <button
+            onClick={openHistory}
+            title="Attempt History"
+            className="p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <History className="h-4 w-4" />
+          </button>
+          <button
             onClick={() => setShowApiSettings(true)}
             title="API Settings"
             className="p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
@@ -737,6 +857,52 @@ ENFORCED RULES:
 
       {/* Main Content - Three Column Layout */}
       <div className="flex-1 flex overflow-hidden relative">
+        {/* History Modal (Inner View) */}
+        {showHistory && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowHistory(false)}>
+            <div className="w-full max-w-2xl max-h-[80vh] bg-background border border-border rounded-lg shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <History className="h-4 w-4 text-primary" />
+                  Attempt History
+                </h2>
+                <button onClick={() => setShowHistory(false)} className="p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+                {loadingHistory ? (
+                  <div className="flex justify-center py-8">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </div>
+                ) : historyData.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8 text-sm">No attempts yet. Keep practicing!</p>
+                ) : (
+                  historyData.map((record) => (
+                    <div key={record._id} className="bg-muted/30 border border-border/50 rounded-lg p-3 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium text-foreground text-xs mb-1">{record.problemTitle}</h3>
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className={`h-3 w-3 ${record.passedCases === record.totalCases && record.totalCases > 0 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            {record.passedCases} / {record.totalCases} Passed
+                          </span>
+                          <span>•</span>
+                          <span>{record.attempts} Attempts</span>
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {new Date(record.lastAttemptedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* API Settings Modal */}
         {showApiSettings && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

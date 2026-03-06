@@ -101,6 +101,7 @@ io.on('connection', (socket) => {
 // Mount routers
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/vault', require('./routes/vaultRoutes'));
+app.use('/api/testpad', require('./routes/testpadRoutes'));
 
 // Serve uploads folder statically
 const path = require('path');

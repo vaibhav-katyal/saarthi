@@ -137,25 +137,76 @@ const Dashboard = () => {
     const firstName = user?.name?.split(" ")[0] || "Student";
     const [submissionsCount, setSubmissionsCount] = useState<number | string>("...");
 
+    // Course Stats State
+    const [attendancePercent, setAttendancePercent] = useState<number | string>("...");
+    const [leaveBalance, setLeaveBalance] = useState<number | string>("...");
+    const [skipClasses, setSkipClasses] = useState<number | string>("...");
+
     useEffect(() => {
-        const fetchSubmissions = async () => {
+        const fetchData = async () => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
-                const res = await fetch("http://localhost:5000/api/testpad", {
+
+                // Fetch Submissions
+                const subRes = await fetch("http://localhost:5000/api/testpad", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && Array.isArray(data.data)) {
-                        setSubmissionsCount(data.data.length);
+                if (subRes.ok) {
+                    const subData = await subRes.json();
+                    if (subData.success && Array.isArray(subData.data)) {
+                        setSubmissionsCount(subData.data.length);
+                    }
+                }
+
+                // Fetch Courses for Attendance & Leave
+                const courseRes = await fetch("http://localhost:5000/api/courses", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (courseRes.ok) {
+                    const courseData = await courseRes.json();
+                    if (courseData.success && Array.isArray(courseData.data)) {
+                        const courses = courseData.data;
+                        if (courses.length > 0) {
+                            let totalDelivered = 0;
+                            let totalAttended = 0;
+                            let totalSafeSkips = 0;
+
+                            courses.forEach((course: any) => {
+                                totalDelivered += course.delivered || 0;
+                                totalAttended += course.attended || 0;
+
+                                // Calculate safe skips for this course
+                                const req = course.requiredAttendance || 75;
+                                const del = course.delivered || 0;
+                                const att = course.attended || 0;
+
+                                const currentPercent = del === 0 ? 0 : (att / del) * 100;
+                                if (currentPercent >= req && req > 0 && del > 0) {
+                                    const skipRaw = (100 * att - req * del) / req;
+                                    totalSafeSkips += Math.floor(Math.max(0, skipRaw));
+                                }
+                            });
+
+                            const overallPercent = totalDelivered === 0 ? 0 : (totalAttended / totalDelivered) * 100;
+                            setAttendancePercent(overallPercent.toFixed(1) + "%");
+
+                            // Let's summarize leave balance as total safe skips
+                            setLeaveBalance(totalSafeSkips.toString() + (totalSafeSkips === 1 ? " class" : " classes"));
+                            setSkipClasses("Can skip " + totalSafeSkips);
+                        } else {
+                            // No courses yet
+                            setAttendancePercent("N/A");
+                            setLeaveBalance("0 classes");
+                            setSkipClasses("Add some courses");
+                        }
                     }
                 }
             } catch (err) {
-                console.error("Failed to fetch submissions", err);
+                console.error("Failed to fetch dashboard data", err);
             }
         };
-        fetchSubmissions();
+        fetchData();
     }, []);
 
     const statsCards = [
@@ -169,16 +220,16 @@ const Dashboard = () => {
         },
         {
             label: "Attendance",
-            value: "87%",
-            change: "Can skip 3 classes",
+            value: attendancePercent.toString(),
+            change: skipClasses.toString(),
             icon: Activity,
             color: "text-primary",
             iconBg: "bg-primary/10",
         },
         {
             label: "Leave Balance",
-            value: "6 days",
-            change: "2 planned",
+            value: leaveBalance.toString(),
+            change: "Available Skips",
             icon: CalendarDays,
             color: "text-orange-400",
             iconBg: "bg-orange-400/10",

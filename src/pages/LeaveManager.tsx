@@ -32,6 +32,7 @@ export default function LeaveManager() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isAddingCourse, setIsAddingCourse] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
 
   // New Course Form
   const [newCourse, setNewCourse] = useState({
@@ -146,6 +147,7 @@ export default function LeaveManager() {
     const courseToSave = courses.find(c => c.id === id || c._id === id);
     if (!courseToSave || !courseToSave._id) return;
 
+    setIsSaving(prev => ({ ...prev, [id]: true }));
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:5000/api/courses/${courseToSave._id}`, {
@@ -162,9 +164,14 @@ export default function LeaveManager() {
           delete next[id];
           return next;
         });
+      } else {
+        alert("Failed to save. Is the backend server running with the new routes?");
       }
     } catch (e) {
       console.error("Failed to save course", e);
+      alert("Failed to save. Network Error.");
+    } finally {
+      setIsSaving(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -481,8 +488,12 @@ export default function LeaveManager() {
                           </div>
                           <div className="flex gap-2">
                             {unsavedChanges[(course.id || course._id) as string] && (
-                              <button onClick={() => handleSaveCourse((course.id || course._id) as string)} className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold mr-1">
-                                <Save className="w-3.5 h-3.5" /> Save
+                              <button
+                                onClick={() => handleSaveCourse((course.id || course._id) as string)}
+                                disabled={isSaving[(course.id || course._id) as string]}
+                                className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <Save className="w-3.5 h-3.5" /> {isSaving[(course.id || course._id) as string] ? "Saving..." : "Save"}
                               </button>
                             )}
                             <button onClick={() => deleteCourse((course.id || course._id) as string)} className="p-2 bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400 rounded-lg transition-colors">

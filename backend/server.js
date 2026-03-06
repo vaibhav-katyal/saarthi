@@ -32,69 +32,95 @@ const io = new Server(server, {
   }
 });
 
-// Basic Socket.io Logic for Code Duels
-let waitingPlayer = null;
+// Room-based Code Duels
 let rooms = {};
 
 io.on('connection', (socket) => {
   console.log(`User connected to socket: ${socket.id}`);
 
-  // Join Duel Queue
-  socket.on('join-duel', (user) => {
-    if (waitingPlayer) {
-      if (waitingPlayer.socket.id === socket.id) return; // Ignore duplicate requests
-      
-      const roomId = `room-${Date.now()}`;
-      socket.join(roomId);
-      waitingPlayer.socket.join(roomId);
+  // Create Room
+  socket.on('create-room', (user) => {
+    // Generate a simple 4 digit room code for easy sharing
+    const roomId = Math.floor(1000 + Math.random() * 9000).toString();
+    socket.join(roomId);
 
-      rooms[roomId] = {
-        players: [waitingPlayer.user, user],
-        code: ''
-      };
+    rooms[roomId] = {
+      owner: user,
+      players: [user],
+      problem: null,
+      status: 'waiting', // waiting, active, finished
+      timerStartTime: null,
+    };
 
-      // Notify both players
-      io.to(roomId).emit('duel-started', {
-        roomId,
-        opponent: waitingPlayer.user,
-        message: 'A wild opponent appeared! Let the duel begin.'
-      });
-      waitingPlayer.socket.emit('duel-started', {
-        roomId,
-        opponent: user,
-        message: 'A wild opponent appeared! Let the duel begin.'
-      });
-
-      waitingPlayer = null; // Reset waiting player
-    } else {
-      waitingPlayer = { socket, user };
-      socket.emit('waiting', { message: 'Waiting for an opponent...' });
-    }
+    socket.emit('room-created', { roomId, room: rooms[roomId] });
   });
 
-  // Handle Code Changes
-  socket.on('code-change', ({ roomId, code }) => {
+  // Join Room
+  socket.on('join-room', ({ roomId, user }) => {
+    if (!rooms[roomId]) {
+      return socket.emit('error', { message: 'Room not found' });
+    }
+    
+    if (rooms[roomId].players.length >= 2) {
+      return socket.emit('error', { message: 'Room is full' });
+    }
+
+    // Prevent joining multiple times
+    const isAlreadyIn = rooms[roomId].players.find(p => p.id === user.id);
+    if (!isAlreadyIn) {
+      rooms[roomId].players.push(user);
+    }
+
+    socket.join(roomId);
+
+    // Notify room
+    io.to(roomId).emit('player-joined', { roomId, room: rooms[roomId] });
+  });
+
+  // Sync Problem
+  socket.on('sync-problem', ({ roomId, problem }) => {
     if (rooms[roomId]) {
-      rooms[roomId].code = code;
-      // Broadcast to everyone else in the room
-      socket.to(roomId).emit('opponent-code-change', code);
+      rooms[roomId].problem = problem;
+      io.to(roomId).emit('problem-synced', { problem });
     }
   });
 
-  // End Duel (Simplified)
-  socket.on('submit-code', ({ roomId, user }) => {
-    io.to(roomId).emit('duel-finished', {
-      winner: user,
-      message: `${user.name || 'Opponent'} has submitted their code and won the duel!`
-    });
-    delete rooms[roomId];
+  // Start Round
+  socket.on('start-round', ({ roomId }) => {
+    if (rooms[roomId]) {
+      rooms[roomId].status = 'active';
+      rooms[roomId].timerStartTime = Date.now();
+      io.to(roomId).emit('round-started', { timerStartTime: rooms[roomId].timerStartTime });
+    }
+  });
+
+  // Test Progress
+  socket.on('test-progress', ({ roomId, userId, passed, total }) => {
+    if (rooms[roomId]) {
+      socket.to(roomId).emit('opponent-progress', { userId, passed, total });
+    }
+  });
+
+  // Win
+  socket.on('duel-win', ({ roomId, user }) => {
+    if (rooms[roomId] && rooms[roomId].status === 'active') {
+      rooms[roomId].status = 'finished';
+      io.to(roomId).emit('duel-finished', { winner: user, message: `${user.name || 'Opponent'} has passed all test cases and won the duel!` });
+    }
+  });
+
+  // New Round
+  socket.on('new-round', ({ roomId }) => {
+    if (rooms[roomId]) {
+      rooms[roomId].status = 'waiting';
+      rooms[roomId].problem = null;
+      rooms[roomId].timerStartTime = null;
+      io.to(roomId).emit('round-reset', { room: rooms[roomId] });
+    }
   });
 
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
-    if (waitingPlayer && waitingPlayer.socket.id === socket.id) {
-      waitingPlayer = null;
-    }
   });
 });
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import {
@@ -79,40 +80,6 @@ const quickAccess = [
     },
 ];
 
-const statsCards = [
-    {
-        label: "MCQs Attempted",
-        value: "48",
-        change: "+12 this week",
-        icon: CheckCircle2,
-        color: "text-accent",
-        iconBg: "bg-accent/10",
-    },
-    {
-        label: "Code Submissions",
-        value: "23",
-        change: "+5 this week",
-        icon: Code2,
-        color: "text-emerald-400",
-        iconBg: "bg-emerald-400/10",
-    },
-    {
-        label: "Attendance",
-        value: "87%",
-        change: "Can skip 3 classes",
-        icon: Activity,
-        color: "text-primary",
-        iconBg: "bg-primary/10",
-    },
-    {
-        label: "Leave Balance",
-        value: "6 days",
-        change: "2 planned",
-        icon: CalendarDays,
-        color: "text-orange-400",
-        iconBg: "bg-orange-400/10",
-    },
-];
 
 const recentActivity = [
     {
@@ -168,6 +135,55 @@ const Dashboard = () => {
     const { user } = useAuth();
     const greeting = getGreeting();
     const firstName = user?.name?.split(" ")[0] || "Student";
+    const [submissionsCount, setSubmissionsCount] = useState<number | string>("...");
+
+    useEffect(() => {
+        const fetchSubmissions = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) return;
+                const res = await fetch("http://localhost:5000/api/testpad", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && Array.isArray(data.data)) {
+                        setSubmissionsCount(data.data.length);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch submissions", err);
+            }
+        };
+        fetchSubmissions();
+    }, []);
+
+    const statsCards = [
+        {
+            label: "Code Submissions",
+            value: submissionsCount.toString(),
+            change: "Total Solved",
+            icon: Code2,
+            color: "text-emerald-400",
+            iconBg: "bg-emerald-400/10",
+        },
+        {
+            label: "Attendance",
+            value: "87%",
+            change: "Can skip 3 classes",
+            icon: Activity,
+            color: "text-primary",
+            iconBg: "bg-primary/10",
+        },
+        {
+            label: "Leave Balance",
+            value: "6 days",
+            change: "2 planned",
+            icon: CalendarDays,
+            color: "text-orange-400",
+            iconBg: "bg-orange-400/10",
+        },
+    ];
 
     return (
         <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
@@ -198,7 +214,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in zoom-in-95 duration-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in zoom-in-95 duration-500">
                     {statsCards.map((stat) => (
                         <GlassCard key={stat.label} hover>
                             <div className="flex items-start justify-between mb-4">

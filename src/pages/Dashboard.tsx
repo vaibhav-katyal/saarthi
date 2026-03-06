@@ -70,14 +70,6 @@ const quickAccess = [
         iconBg: "bg-orange-400/10",
     },
     {
-        title: "Community",
-        desc: "Discuss & collaborate",
-        path: "/community",
-        icon: Users,
-        color: "text-sky-400",
-        iconBg: "bg-sky-400/10",
-    },
-    {
         title: "Leave Manager",
         desc: "Attendance & leave tracker",
         path: "/leave",

@@ -29,7 +29,6 @@ const navItems = [
   { title: "MCQ Generator", path: "/mcq", icon: Brain },
   { title: "Testpad", path: "/testpad", icon: Code2 },
   { title: "Code Duel", path: "/duel", icon: Swords },
-  { title: "Community", path: "/community", icon: Users },
   { title: "Leave Manager", path: "/leave", icon: Calculator },
 ];
 

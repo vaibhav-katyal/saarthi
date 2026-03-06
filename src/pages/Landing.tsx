@@ -35,7 +35,7 @@ const CustomCursor = () => {
     const updateMousePosition = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    
+
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.closest('[data-cursor="blob"]')) {
@@ -77,11 +77,11 @@ const CustomCursor = () => {
         }}
         transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.2 }}
       >
-        <motion.div 
+        <motion.div
           className="w-full h-full flex items-center justify-center"
           initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
-          animate={{ 
-            opacity: isVisible ? 1 : 0, 
+          animate={{
+            opacity: isVisible ? 1 : 0,
             scale: isVisible ? 1 : 0.5,
             rotate: isVisible ? 0 : -45
           }}
@@ -171,7 +171,7 @@ const FeatureSection = ({
               variants={fadeUp}
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-[#00F5FF] mb-6">
-                 <Icon className="w-3.5 h-3.5" /> {tag}
+                <Icon className="w-3.5 h-3.5" /> {tag}
               </div>
               <h2 className="font-heading text-3xl font-bold sm:text-5xl text-white mb-6 tracking-tight leading-[1.1]">
                 {title}
@@ -251,7 +251,7 @@ const visualMockups = {
             <div className="absolute left-[11px] top-8 bottom-[-24px] w-[2px] bg-gradient-to-b from-[#00F5FF] to-transparent/20" />
           )}
           <div className="absolute left-0 top-1.5 h-6 w-6 rounded-full border-2 border-[#00F5FF] bg-[#070B14] shadow-[0_0_15px_rgba(0,245,255,0.4)] flex items-center justify-center">
-             <div className="w-2 h-2 rounded-full bg-[#00F5FF]" />
+            <div className="w-2 h-2 rounded-full bg-[#00F5FF]" />
           </div>
           <div className="rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur-md hover:bg-white/5 transition-colors cursor-default">
             <h4 className="text-sm font-semibold text-white">Milestone {step}</h4>
@@ -290,19 +290,19 @@ const visualMockups = {
           </div>
         </div>
       </motion.div>
-      
+
       <motion.div
         animate={{ y: [5, -5, 5] }}
         transition={{ repeat: Infinity, duration: 6, ease: "easeInOut", delay: 1 }}
         className="w-full max-w-xs rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-2xl shadow-2xl absolute -bottom-4 right-4 md:-right-8 flex items-center gap-3"
       >
-         <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-         </div>
-         <div className="text-xs">
-            <p className="font-semibold text-white">Semantic Match Found</p>
-            <p className="text-muted-foreground">in "Lecture_4_Notes.pdf"</p>
-         </div>
+        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        </div>
+        <div className="text-xs">
+          <p className="font-semibold text-white">Semantic Match Found</p>
+          <p className="text-muted-foreground">in "Lecture_4_Notes.pdf"</p>
+        </div>
       </motion.div>
     </div>
   ),
@@ -333,8 +333,8 @@ const visualMockups = {
         </div>
         <div className="border-t border-white/10 pt-4 mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-             <Terminal className="h-4 w-4 text-[#00F5FF]" />
-             <span className="text-emerald-400 text-xs font-semibold">Tests passed: 4/4</span>
+            <Terminal className="h-4 w-4 text-[#00F5FF]" />
+            <span className="text-emerald-400 text-xs font-semibold">Tests passed: 4/4</span>
           </div>
           <button className="bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-1.5 rounded transition-colors">
             Run Code
@@ -417,8 +417,8 @@ const Landing = () => {
           </nav> */}
 
           <div className="flex items-center gap-4">
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               data-cursor="blob"
               className="group relative inline-flex items-center gap-2 rounded-full border border-blue/10 bg-white/5 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-white/10 hover:border-[#00F5FF]/50 shadow-lg hover:shadow-[0_0_20px_rgba(0,245,255,0.2)]"
             >
@@ -460,138 +460,138 @@ const Landing = () => {
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <a
-             href="#product"
-             className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
+            href="#product"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
           >
-             <Play className="h-4 w-4 text-[#00F5FF]" /> Explore Features
+            <Play className="h-4 w-4 text-[#00F5FF]" /> Explore Features
           </a>
         </motion.div>
 
         {/* Hero Dashboard Preview Window */}
         <motion.div
-           initial={{ opacity: 0, y: 40, filter: "blur(5px)" }}
-           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-           transition={{ duration: 1, delay: 0.6 }}
-           className="w-full relative mx-auto rounded-[2rem] border border-white/10 bg-black/40 p-2 md:p-4 backdrop-blur-md shadow-2xl"
+          initial={{ opacity: 0, y: 40, filter: "blur(5px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1, delay: 0.6 }}
+          className="w-full relative mx-auto rounded-[2rem] border border-white/10 bg-black/40 p-2 md:p-4 backdrop-blur-md shadow-2xl"
         >
-           <div className="absolute -inset-1 bg-gradient-to-r from-[#00F5FF]/20 to-[#7B61FF]/20 rounded-[2.2rem] blur-xl opacity-50 -z-10" />
-           <div className="rounded-[1.5rem] border border-white/10 bg-[#0A0E17] overflow-hidden flex flex-col shadow-inner min-h-[400px] md:min-h-[550px] aspect-auto lg:aspect-[16/10]">
-              {/* Window Controls */}
-              <div className="h-10 border-b border-white/5 bg-white/5 flex items-center px-4">
-                 <div className="flex gap-1.5 border border-white/5 p-1 rounded-md bg-black/50">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
-                 </div>
-                 <div className="mx-auto flex items-center gap-2 px-6 py-1 rounded-md bg-black/40 border border-white/5 text-xs text-muted-foreground mr-16">
-                    <Sparkles className="w-3 h-3 text-[#00F5FF]" /> saarthi.ai/dashboard
-                 </div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#00F5FF]/20 to-[#7B61FF]/20 rounded-[2.2rem] blur-xl opacity-50 -z-10" />
+          <div className="rounded-[1.5rem] border border-white/10 bg-[#0A0E17] overflow-hidden flex flex-col shadow-inner min-h-[400px] md:min-h-[550px] aspect-auto lg:aspect-[16/10]">
+            {/* Window Controls */}
+            <div className="h-10 border-b border-white/5 bg-white/5 flex items-center px-4">
+              <div className="flex gap-1.5 border border-white/5 p-1 rounded-md bg-black/50">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
               </div>
-              {/* Fake Dashboard Content */}
-              <div className="flex-1 flex overflow-hidden">
-                 {/* Left Sidebar (Mini) */}
-                 <div className="w-12 md:w-16 border-r border-white/5 bg-white/[0.01] flex-col items-center py-4 gap-4 hidden sm:flex">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F5FF] to-[#7B61FF] flex items-center justify-center mb-2 shadow-lg">
-                       <GraduationCap className="h-4 w-4 text-black" />
-                    </div>
-                    <div className="w-8 h-8 rounded-lg bg-[#00F5FF]/10 text-[#00F5FF] flex items-center justify-center">
-                       <LayoutDashboard className="h-4 w-4" />
-                    </div>
-                    {[BookOpen, Map, Brain, Code2].map((Icon, i) => (
-                       <div key={i} className="w-8 h-8 rounded-lg text-muted-foreground hover:text-white flex items-center justify-center transition-colors">
-                          <Icon className="h-4 w-4" />
-                       </div>
-                    ))}
-                 </div>
+              <div className="mx-auto flex items-center gap-2 px-6 py-1 rounded-md bg-black/40 border border-white/5 text-xs text-muted-foreground mr-16">
+                <Sparkles className="w-3 h-3 text-[#00F5FF]" /> saarthi.ai/dashboard
+              </div>
+            </div>
+            {/* Fake Dashboard Content */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Left Sidebar (Mini) */}
+              <div className="w-12 md:w-16 border-r border-white/5 bg-white/[0.01] flex-col items-center py-4 gap-4 hidden sm:flex">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F5FF] to-[#7B61FF] flex items-center justify-center mb-2 shadow-lg">
+                  <GraduationCap className="h-4 w-4 text-black" />
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-[#00F5FF]/10 text-[#00F5FF] flex items-center justify-center">
+                  <LayoutDashboard className="h-4 w-4" />
+                </div>
+                {[BookOpen, Map, Brain, Code2].map((Icon, i) => (
+                  <div key={i} className="w-8 h-8 rounded-lg text-muted-foreground hover:text-white flex items-center justify-center transition-colors">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                ))}
+              </div>
 
-                 {/* Main Dashboard Area */}
-                 <div className="flex-1 flex flex-col p-3 md:p-5 overflow-hidden gap-3 md:gap-4 bg-transparent max-h-full">
-                    {/* Greeting Header */}
-                    <div>
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#00F5FF]/20 bg-[#00F5FF]/10 text-[9px] font-bold uppercase tracking-wider text-[#00F5FF] mb-1.5">
-                           <LayoutDashboard className="h-2.5 w-2.5" /> Dashboard
+              {/* Main Dashboard Area */}
+              <div className="flex-1 flex flex-col p-3 md:p-5 overflow-hidden gap-3 md:gap-4 bg-transparent max-h-full">
+                {/* Greeting Header */}
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#00F5FF]/20 bg-[#00F5FF]/10 text-[9px] font-bold uppercase tracking-wider text-[#00F5FF] mb-1.5">
+                    <LayoutDashboard className="h-2.5 w-2.5" /> Dashboard
+                  </div>
+                  <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+                    Good Afternoon, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#00F5FF] to-[#7B61FF]">Vishesh</span>! 👋
+                  </h2>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { val: "48", lbl: "MCQs Attempted", change: "+12 this week", icon: CheckCircle2, color: "text-[#7B61FF]", bg: "bg-[#7B61FF]/10" },
+                    { val: "23", lbl: "Code Submissions", change: "+5 this week", icon: Code2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+                    { val: "87%", lbl: "Attendance", change: "Can skip 3 classes", icon: Activity, color: "text-[#00F5FF]", bg: "bg-[#00F5FF]/10" },
+                    { val: "6 days", lbl: "Leave Balance", change: "2 planned", icon: Calculator, color: "text-orange-400", bg: "bg-orange-400/10" }
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                          <stat.icon className={`w-4 h-4 ${stat.color}`} />
                         </div>
-                        <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                           Good Afternoon, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#00F5FF] to-[#7B61FF]">Vishesh</span>! 👋
-                        </h2>
+                      </div>
+                      <div className="text-lg md:text-xl font-bold text-white leading-tight">{stat.val}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5 mb-1">{stat.lbl}</div>
+                      <div className={`text-[9px] font-medium ${stat.color}`}>{stat.change}</div>
                     </div>
+                  ))}
+                </div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                       {[
-                         { val: "48", lbl: "MCQs Attempted", change: "+12 this week", icon: CheckCircle2, color: "text-[#7B61FF]", bg: "bg-[#7B61FF]/10" },
-                         { val: "23", lbl: "Code Submissions", change: "+5 this week", icon: Code2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-                         { val: "87%", lbl: "Attendance", change: "Can skip 3 classes", icon: Activity, color: "text-[#00F5FF]", bg: "bg-[#00F5FF]/10" },
-                         { val: "6 days", lbl: "Leave Balance", change: "2 planned", icon: Calculator, color: "text-orange-400", bg: "bg-orange-400/10" }
-                       ].map((stat, i) => (
-                          <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col">
-                             <div className="flex justify-between items-start mb-2">
-                                <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                                   <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                                </div>
-                             </div>
-                             <div className="text-lg md:text-xl font-bold text-white leading-tight">{stat.val}</div>
-                             <div className="text-[10px] text-muted-foreground mt-0.5 mb-1">{stat.lbl}</div>
-                             <div className={`text-[9px] font-medium ${stat.color}`}>{stat.change}</div>
-                          </div>
-                       ))}
+                {/* Bottom Area: Activity & Performance */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-hidden min-h-0">
+                  <div className="md:col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                        <Activity className="w-3.5 h-3.5 text-muted-foreground" /> Recent Activity
+                      </div>
+                      <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Last 7 Days</div>
                     </div>
+                    <div className="space-y-2 overflow-y-auto pr-1">
+                      {[
+                        { title: "Completed MCQ set", sub: "Data Structures — Trees & Graphs", time: "2 hours ago", icon: Brain, color: "text-pink-400", bg: "bg-pink-400/10" },
+                        { title: "Submitted solution", sub: "Two Sum — Testpad", time: "5 hours ago", icon: Code2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+                        { title: "Saved note", sub: "DBMS Normalization Summary", time: "Yesterday", icon: BookOpen, color: "text-[#7B61FF]", bg: "bg-[#7B61FF]/10" }
+                      ].map((act, i) => (
+                        <div key={i} className="flex items-center gap-3 hover:bg-white/[0.02] p-1.5 rounded-lg transition-colors">
+                          <div className={`w-7 h-7 rounded-md ${act.bg} flex items-center justify-center shrink-0`}>
+                            <act.icon className={`w-3.5 h-3.5 ${act.color}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium text-white truncate">{act.title}</div>
+                            <div className="text-[10px] text-muted-foreground truncate">{act.sub}</div>
+                          </div>
+                          <div className="text-[9px] text-muted-foreground shrink-0">{act.time}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                    {/* Bottom Area: Activity & Performance */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-hidden min-h-0">
-                       <div className="md:col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col overflow-hidden">
-                          <div className="flex justify-between items-center mb-3">
-                             <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                                <Activity className="w-3.5 h-3.5 text-muted-foreground" /> Recent Activity
-                             </div>
-                             <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Last 7 Days</div>
-                          </div>
-                          <div className="space-y-2 overflow-y-auto pr-1">
-                             {[
-                                { title: "Completed MCQ set", sub: "Data Structures — Trees & Graphs", time: "2 hours ago", icon: Brain, color: "text-pink-400", bg: "bg-pink-400/10" },
-                                { title: "Submitted solution", sub: "Two Sum — Testpad", time: "5 hours ago", icon: Code2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-                                { title: "Saved note", sub: "DBMS Normalization Summary", time: "Yesterday", icon: BookOpen, color: "text-[#7B61FF]", bg: "bg-[#7B61FF]/10" }
-                             ].map((act, i) => (
-                                <div key={i} className="flex items-center gap-3 hover:bg-white/[0.02] p-1.5 rounded-lg transition-colors">
-                                   <div className={`w-7 h-7 rounded-md ${act.bg} flex items-center justify-center shrink-0`}>
-                                      <act.icon className={`w-3.5 h-3.5 ${act.color}`} />
-                                   </div>
-                                   <div className="flex-1 min-w-0">
-                                      <div className="text-xs font-medium text-white truncate">{act.title}</div>
-                                      <div className="text-[10px] text-muted-foreground truncate">{act.sub}</div>
-                                   </div>
-                                   <div className="text-[9px] text-muted-foreground shrink-0">{act.time}</div>
-                                </div>
-                             ))}
-                          </div>
-                       </div>
-                       
-                       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col hidden sm:flex">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-white mb-4 lg:mb-5">
-                             <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" /> Performance
-                          </div>
-                          <div className="space-y-3 lg:space-y-4">
-                             {[
-                                { lbl: "DSA Progress", val: "72%", tw: "bg-[#7B61FF]", w: "72%" },
-                                { lbl: "MCQ Accuracy", val: "85%", tw: "bg-[#00F5FF]", w: "85%" },
-                                { lbl: "Code Quality", val: "68%", tw: "bg-emerald-400", w: "68%" }
-                             ].map((p, i) => (
-                                <div key={i}>
-                                   <div className="flex justify-between text-[10px] mb-1.5">
-                                      <span className="text-muted-foreground font-medium">{p.lbl}</span>
-                                      <span className="text-white font-bold">{p.val}</span>
-                                   </div>
-                                   <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                                      <div className={`h-full ${p.tw}`} style={{ width: p.w }} />
-                                   </div>
-                                </div>
-                             ))}
-                          </div>
-                       </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 md:p-4 flex flex-col hidden sm:flex">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-white mb-4 lg:mb-5">
+                      <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" /> Performance
                     </div>
-                 </div>
+                    <div className="space-y-3 lg:space-y-4">
+                      {[
+                        { lbl: "DSA Progress", val: "72%", tw: "bg-[#7B61FF]", w: "72%" },
+                        { lbl: "MCQ Accuracy", val: "85%", tw: "bg-[#00F5FF]", w: "85%" },
+                        { lbl: "Code Quality", val: "68%", tw: "bg-emerald-400", w: "68%" }
+                      ].map((p, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-[10px] mb-1.5">
+                            <span className="text-muted-foreground font-medium">{p.lbl}</span>
+                            <span className="text-white font-bold">{p.val}</span>
+                          </div>
+                          <div className="h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                            <div className={`h-full ${p.tw}`} style={{ width: p.w }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-           </div>
+            </div>
+          </div>
         </motion.div>
       </section>
 
@@ -658,67 +658,67 @@ const Landing = () => {
       <section className="relative z-10 py-32 px-6 overflow-hidden">
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <div className="max-w-6xl mx-auto">
-           <div className="text-center mb-16">
-              <h2 className="font-heading text-3xl font-bold sm:text-5xl text-white mb-6 tracking-tight">
-                 Built for the Way Students<br className="sm:hidden" /> Actually Learn
-              </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-                 Traditional platforms focus on content. Saarthi focuses on understanding.<br className="hidden sm:block" />
-                 Our AI adapts to how you think, helping you learn concepts deeply instead of just memorizing answers.
-              </p>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-              {[
-                { 
-                  title: "Concept-First Learning", 
-                  desc: "Understand the “why” behind every topic.", 
-                  icon: Brain,
-                  col: "text-[#00F5FF]",
-                  bg: "bg-[#00F5FF]/10",
-                  border: "border-[#00F5FF]/20"
-                },
-                { 
-                  title: "Guided Problem Solving", 
-                  desc: "Step-by-step assistance when you're stuck.", 
-                  icon: Target,
-                  col: "text-[#7B61FF]",
-                  bg: "bg-[#7B61FF]/10",
-                  border: "border-[#7B61FF]/20"
-                },
-                { 
-                  title: "Continuous Improvement", 
-                  desc: "Every interaction helps Saarthi guide you better.", 
-                  icon: TrendingUp,
-                  col: "text-emerald-400",
-                  bg: "bg-emerald-400/10",
-                  border: "border-emerald-400/20"
-                }
-              ].map((card, i) => (
-                <motion.div
-                   key={i}
-                   initial={{ opacity: 0, y: 20 }}
-                   whileInView={{ opacity: 1, y: 0 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ delay: i * 0.15, duration: 0.6 }}
-                   className="group bg-[#0A0E17]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 hover:border-white/10 hover:bg-white/[0.02] transition-colors relative overflow-hidden"
-                >
-                   <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] ${card.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
-                   <div className={`w-12 h-12 rounded-xl ${card.bg} border ${card.border} flex items-center justify-center mb-6 shadow-inner`}>
-                      <card.icon className={`w-5 h-5 ${card.col}`} />
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3 tracking-tight">{card.title}</h3>
-                   <p className="text-muted-foreground text-[15px] leading-relaxed">{card.desc}</p>
-                </motion.div>
-              ))}
-           </div>
+          <div className="text-center mb-16">
+            <h2 className="font-heading text-3xl font-bold sm:text-5xl text-white mb-6 tracking-tight">
+              Built for the Way Students<br className="sm:hidden" /> Actually Learn
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+              Traditional platforms focus on content. Saarthi focuses on understanding.<br className="hidden sm:block" />
+              Our AI adapts to how you think, helping you learn concepts deeply instead of just memorizing answers.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            {[
+              {
+                title: "Concept-First Learning",
+                desc: "Understand the “why” behind every topic.",
+                icon: Brain,
+                col: "text-[#00F5FF]",
+                bg: "bg-[#00F5FF]/10",
+                border: "border-[#00F5FF]/20"
+              },
+              {
+                title: "Guided Problem Solving",
+                desc: "Step-by-step assistance when you're stuck.",
+                icon: Target,
+                col: "text-[#7B61FF]",
+                bg: "bg-[#7B61FF]/10",
+                border: "border-[#7B61FF]/20"
+              },
+              {
+                title: "Continuous Improvement",
+                desc: "Every interaction helps Saarthi guide you better.",
+                icon: TrendingUp,
+                col: "text-emerald-400",
+                bg: "bg-emerald-400/10",
+                border: "border-emerald-400/20"
+              }
+            ].map((card, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: i * 0.15, duration: 0.6 }}
+                className="group bg-[#0A0E17]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 hover:border-white/10 hover:bg-white/[0.02] transition-colors relative overflow-hidden"
+              >
+                <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] ${card.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
+                <div className={`w-12 h-12 rounded-xl ${card.bg} border ${card.border} flex items-center justify-center mb-6 shadow-inner`}>
+                  <card.icon className={`w-5 h-5 ${card.col}`} />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3 tracking-tight">{card.title}</h3>
+                <p className="text-muted-foreground text-[15px] leading-relaxed">{card.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Final Linear/Vercel style CTA */}
       <section className="relative z-10 py-32 px-6 overflow-hidden border-t border-white/5 bg-[#0A0E17]">
         <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#00F5FF]/50 to-transparent" />
-        
+
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="h-[300px] w-[500px] rounded-full bg-gradient-to-br from-[#00F5FF]/10 to-[#7B61FF]/10 blur-[100px] opacity-50" />
         </div>
@@ -731,7 +731,7 @@ const Landing = () => {
           className="relative mx-auto max-w-3xl text-center"
         >
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#00F5FF] to-[#7B61FF] shadow-[0_0_30px_rgba(0,245,255,0.4)] mb-8">
-             <GraduationCap className="h-8 w-8 text-black" />
+            <GraduationCap className="h-8 w-8 text-black" />
           </div>
           <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6">
             Start mastering your exams today.
@@ -740,7 +740,7 @@ const Landing = () => {
             Join the thousands of top-tier students already learning smarter with Saarthi's AI engine.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            
+
             <Link
               to="/dashboard"
               className="group relative inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-10 text-[15px] font-bold text-white transition-all duration-300 hover:bg-white/10 hover:border-[#00F5FF]/50 shadow-lg hover:shadow-[0_0_40px_rgba(0,245,255,0.3)] hover:-translate-y-1"
@@ -761,7 +761,7 @@ const Landing = () => {
         <div className="mx-auto max-w-7xl px-6 flex flex-col">
           {/* Top Section */}
           <div className="grid gap-16 lg:grid-cols-4 lg:gap-8 pb-16">
-            
+
             {/* Brand Statement */}
             <div className="lg:col-span-1">
               <h3 className="font-heading text-2xl font-bold text-white max-w-[200px] leading-tight mt-1">
@@ -778,7 +778,6 @@ const Landing = () => {
                   <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
                   <li><a href="#product" className="hover:text-white transition-colors">Features</a></li>
                   <li><Link to="/roadmap" className="hover:text-white transition-colors">Roadmap</Link></li>
-                  <li><Link to="/community" className="hover:text-white transition-colors">Community</Link></li>
                 </ul>
               </div>
 

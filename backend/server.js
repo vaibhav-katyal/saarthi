@@ -128,6 +128,7 @@ io.on('connection', (socket) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/vault', require('./routes/vaultRoutes'));
 app.use('/api/testpad', require('./routes/testpadRoutes'));
+app.use('/api/courses', require('./routes/courseRoutes'));
 
 // Serve uploads folder statically
 const path = require('path');

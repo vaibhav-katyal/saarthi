@@ -21,6 +21,7 @@ import Editor from "@monaco-editor/react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
 import { toast } from "@/hooks/use-toast";
+import { logTestpadActivity } from "@/lib/activityLogger";
 import {
   extractUserCode,
   buildFinalCode,
@@ -319,6 +320,9 @@ ENFORCED RULES:
       setActiveTab("tests");
       setAttempts(0);
       toast({ title: `Problem generated: ${newProblem.title}` });
+      
+      // Log the problem generation activity
+      logTestpadActivity.generate(topic);
     } catch (error) {
       toast({
         title: "Error parsing response",

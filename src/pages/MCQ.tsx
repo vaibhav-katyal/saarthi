@@ -17,6 +17,7 @@ import {
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
 import { toast } from "@/hooks/use-toast";
+import { logMCQActivity } from "@/lib/activityLogger";
 
 interface MCQQuestion {
     id: number;
@@ -185,6 +186,10 @@ Make sure:
       setUserAnswers({});
       setCurrentQuestion(0);
       setPageState("quiz");
+      
+      // Log the quiz generation activity
+      logMCQActivity.generate(topic, parsedQuestions.length, difficulty);
+      
       toast({ title: `Generated ${parsedQuestions.length} MCQ questions!` });
     } catch (err) {
       console.error("Error parsing MCQs:", err);
@@ -256,6 +261,9 @@ Make sure:
       results: quizResults,
     });
     setPageState("results");
+    
+    // Log the quiz completion activity
+    logMCQActivity.submit(score, correctCount, questions.length);
   };
 
   const resetQuiz = () => {

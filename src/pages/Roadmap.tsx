@@ -3,6 +3,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { toast } from "@/hooks/use-toast";
 import { Sparkles, Map, BookOpen, Search, Settings, X, AlertCircle, ChevronDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { logRoadmapActivity } from "@/lib/activityLogger";
 
 const ROLE_BASED = [
   "Frontend", "Backend", "Full Stack",
@@ -288,6 +289,7 @@ export default function Roadmap() {
     if (fileBase) {
       setSelectedRoadmapPdf(`/roadmaps/${fileBase}.pdf`);
       toast({ title: `Opening ${title} Roadmap...` });
+      logRoadmapActivity.selectRoadmap(title);
     } else {
       toast({ title: `Coming Soon: ${title} Roadmap` });
     }
@@ -360,6 +362,7 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
         setCurrentTopic(topic);
         setGeneratedGuide(response);
         toast({ title: `Generated guide for ${topic}` });
+        logRoadmapActivity.generateGuide(topic);
         setGenerateTopic("");
       }
     } else {

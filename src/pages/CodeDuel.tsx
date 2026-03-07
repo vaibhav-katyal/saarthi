@@ -6,6 +6,7 @@ import { Play, User, Swords, CheckCircle2, Clock, Copy, Plus, Sparkles, Settings
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/GlassCard";
 import { extractUserCode, buildFinalCode, normalizeOutput } from "@/lib/codeExecution";
+import { logCodeDuelActivity } from "@/lib/activityLogger";
 
 interface TestCase {
     id: number;
@@ -97,6 +98,7 @@ const CodeDuel = () => {
             setCode(userCode);
             setTestCases(problem.testCases);
             toast.info("Problem generated! Owner can start the round.");
+            logCodeDuelActivity.generateProblem(problem.title);
         });
 
         newSocket.on("round-started", ({ timerStartTime }) => {
@@ -125,8 +127,10 @@ const CodeDuel = () => {
 
             if (winner.id === user.id) {
                 toast.success("You won the duel! 🎉");
+                logCodeDuelActivity.winDuel(roomId || '');
             } else {
                 toast.error("You lost the duel.");
+                logCodeDuelActivity.loseDuel(roomId || '');
             }
         });
 
@@ -185,11 +189,13 @@ const CodeDuel = () => {
 
     const createRoom = () => {
         if (socket) socket.emit("create-room", user);
+        logCodeDuelActivity.createRoom();
     };
 
     const joinRoom = () => {
         if (!joinRoomId.trim()) return toast.error("Enter a room ID");
         if (socket) socket.emit("join-room", { roomId: joinRoomId.trim(), user });
+        logCodeDuelActivity.joinRoom(joinRoomId.trim());
     };
 
     const leaveRoom = () => {

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
-import { Play, User, Swords, CheckCircle2, Clock, Copy, Plus, Sparkles, Settings, X, LogOut, Code2, AlertCircle } from "lucide-react";
+import { Play, User, Swords, CheckCircle2, Clock, Copy, Plus, Sparkles, Settings, X, LogOut, Code2, AlertCircle, Trophy, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/GlassCard";
 import { extractUserCode, buildFinalCode, normalizeOutput } from "@/lib/codeExecution";
@@ -29,6 +29,18 @@ interface Problem {
     language: string;
 }
 
+interface Achievement {
+    _id: string;
+    winner: string;
+    winnerName: string;
+    opponent: string;
+    opponentName: string;
+    problemTitle: string;
+    difficulty: string;
+    roomId: string;
+    winTime: string;
+}
+
 const CodeDuel = () => {
     // General Socket & Room State
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -41,9 +53,30 @@ const CodeDuel = () => {
     const [winner, setWinner] = useState<any>(null);
     const [resultMessage, setResultMessage] = useState<string>("");
 
-    // Setup User
+    // Achievements State
+    const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+    const [achievements, setAchievements] = useState<Achievement[]>([]);
+    const [achievementsLoading, setAchievementsLoading] = useState(false);
+    const [achievementsStats, setAchievementsStats] = useState<any>(null);
+
+    // Setup User - with persistent guest ID
     const userString = localStorage.getItem("user");
-    const user = userString ? JSON.parse(userString) : { id: `guest-${Math.floor(Math.random() * 1000)}`, name: "Guest User" };
+    let user = userString ? JSON.parse(userString) : null;
+    
+    // If no user, create a guest and store it
+    if (!user) {
+        // Check if guest ID already exists
+        const existingGuestId = localStorage.getItem("guestUserId");
+        const guestId = existingGuestId || `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        if (!existingGuestId) {
+            localStorage.setItem("guestUserId", guestId);
+        }
+        
+        user = { id: guestId, name: "Guest User" };
+    }
+    
+    console.log('Current user:', user);
 
     // AI Generation State
     const [apiKey, setApiKey] = useState("");
@@ -53,6 +86,7 @@ const CodeDuel = () => {
 
     // Problem & Execution State
     const [problem, setProblem] = useState<Problem | null>(null);
+    const [problemSnapshot, setProblemSnapshot] = useState<Problem | null>(null);  // Keep a snapshot for achievements
     const [code, setCode] = useState<string>("// Wait for the problem to be generated...\n");
     const [testCases, setTestCases] = useState<TestCase[]>([]);
     const [running, setRunning] = useState(false);
@@ -86,14 +120,23 @@ const CodeDuel = () => {
 
             // Find opponent
             const otherPlayer = room.players.find((p: any) => p.id !== user.id);
+            console.log('Player joined event - room players:', room.players, 'current user:', user.id, 'found opponent:', otherPlayer);
             if (otherPlayer) {
                 setOpponent(otherPlayer);
                 toast.success(`${otherPlayer.name} joined the room!`);
+            } else {
+                console.warn('No other player found in room');
             }
         });
 
         newSocket.on("problem-synced", ({ problem }) => {
+            console.log('===============================================');
+            console.log('🎯 PROBLEM-SYNCED EVENT RECEIVED ✅');
+            console.log('===============================================');
+            console.log('Problem synced:', { title: problem?.title, difficulty: problem?.difficulty });
+            console.log('Full problem object:', problem);
             setProblem(problem);
+            setProblemSnapshot(problem);  // SAVE SNAPSHOT
             const userCode = extractUserCode(problem.fullTemplate);
             setCode(userCode);
             setTestCases(problem.testCases);
@@ -119,24 +162,63 @@ const CodeDuel = () => {
             }
         });
 
-        newSocket.on("duel-finished", ({ winner, message }) => {
+        newSocket.on("duel-finished", (eventData) => {
+            console.log('===============================================');
+            console.log('🎯 DUEL FINISHED EVENT RECEIVED ✅');
+            console.log('===============================================');
+            console.log('Full event data:', JSON.stringify(eventData, null, 2));
+            
+            const winner = eventData?.winner;
+            const opponent = eventData?.opponent;
+            const message = eventData?.message;
+            const problemTitle = eventData?.problemTitle;
+            const problemDifficulty = eventData?.problemDifficulty;
+            const eventRoomId = eventData?.roomId;
+            
+            console.log('Destructured from event:');
+            console.log('- winner:', winner);
+            console.log('- opponent:', opponent?.name);
+            console.log('- problemTitle:', problemTitle);
+            console.log('- problemDifficulty:', problemDifficulty);
+            console.log('- roomId:', eventRoomId);
+            
             setStatus("finished");
             setWinner(winner);
             setResultMessage(message);
             if (timerRef.current) clearInterval(timerRef.current);
 
-            if (winner.id === user.id) {
-                toast.success("You won the duel! 🎉");
+    if (winner?.id === user.id) {
+                console.log('✅ CURRENT USER WON THE DUEL');
+                toast.success("You won the duel! 🎉 Achievement saving with fallbacks...");
                 logCodeDuelActivity.winDuel(roomId || '');
+                
+                const finalProblemTitle = problemTitle || problemSnapshot?.title || 'CodeDuel Victory';
+                const finalDifficulty = problemDifficulty || problemSnapshot?.difficulty || 'Medium';
+                const finalOpponentName = opponent?.name || 'Anonymous Player';
+                const finalOpponentId = opponent?.id || 'unknown';
+                
+                console.log('Saving achievement with:', {
+                    winner: winner.name,
+                    opponentName: finalOpponentName,
+                    opponentId: finalOpponentId,
+                    problemTitle: finalProblemTitle,
+                    difficulty: finalDifficulty,
+                    roomId
+                });
+                
+                saveAchievement(winner, {id: finalOpponentId, name: finalOpponentName}, finalProblemTitle, finalDifficulty);
             } else {
+                console.log('❌ CURRENT USER LOST THE DUEL');
                 toast.error("You lost the duel.");
                 logCodeDuelActivity.loseDuel(roomId || '');
             }
         });
 
         newSocket.on("round-reset", ({ room }) => {
+            console.log('Round reset event received');
             setStatus("waiting");
             setProblem(null);
+            setProblemSnapshot(null);  // Clear snapshot too
             setCode("// Wait for the problem to be generated...\n");
             setTestCases([]);
             setOpponentProgress(null);
@@ -201,6 +283,89 @@ const CodeDuel = () => {
     const leaveRoom = () => {
         // Simple reload to leave and reset state
         window.location.reload();
+    };
+
+    // Achievements Functions
+    const fetchAchievements = async () => {
+        setAchievementsLoading(true);
+        try {
+            console.log('Fetching achievements for user:', user.id);
+            const response = await fetch(`http://localhost:5000/api/codeduel/achievements/${user.id}`);
+            const data = await response.json();
+            console.log('Achievement fetch response:', data);
+            if (data.success) {
+                setAchievements(data.achievements);
+                if (data.achievements.length === 0) {
+                    console.warn('No achievements found for user:', user.id);
+                }
+            } else {
+                toast.error('Failed to load achievements: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching achievements:', error);
+            toast.error('Failed to load achievements');
+        } finally {
+            setAchievementsLoading(false);
+        }
+    };
+
+    const fetchAchievementStats = async () => {
+        try {
+            console.log('Fetching stats for user:', user.id);
+            const response = await fetch(`http://localhost:5000/api/codeduel/stats/${user.id}`);
+            const data = await response.json();
+            console.log('Stats fetch response:', data);
+            if (data.success) {
+                setAchievementsStats(data);
+            } else {
+                console.error('Failed to fetch stats:', data);
+            }
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    };
+
+    const saveAchievement = async (winnerInfo: any, opponentInfo: any, problemTitle: string, difficulty: string) => {
+        try {
+            const achievementData = {
+                winner: winnerInfo?.id || 'unknown',
+                winnerName: winnerInfo?.name || 'Unknown Winner',
+                opponent: opponentInfo?.id || 'unknown',
+                opponentName: opponentInfo?.name || 'Anonymous',
+                problemTitle: problemTitle || 'CodeDuel Victory',
+                difficulty: difficulty || 'Medium',
+                roomId: roomId || 'unknown'
+            };
+            
+            console.log('=== SAVING ACHIEVEMENT ===');
+            console.log('Final safe data:', achievementData);
+            
+            const response = await fetch('http://localhost:5000/api/codeduel/achievements', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(achievementData)
+            });
+            
+            const data = await response.json();
+            console.log('Save response:', { status: response.status, success: data.success, data });
+            
+            if (data.success) {
+                console.log('✅ Achievement saved!');
+                toast.success('Achievement unlocked! 🏆');
+            } else {
+                console.warn('Save failed but continuing:', data.message);
+                toast.info('Win recorded (save optional)');
+            }
+        } catch (error) {
+            console.error('Save error (non-blocking):', error);
+            toast.info('Win recorded!');
+        }
+    };
+
+    const viewAchievements = async () => {
+        setShowAchievementsModal(true);
+        await fetchAchievements();
+        await fetchAchievementStats();
     };
 
     const saveApiKey = () => {
@@ -306,7 +471,14 @@ Return ONLY a valid JSON object:
 
             // Sync to room
             if (socket && roomId) {
+                console.log('=== EMITTING SYNC-PROBLEM ===');
+                console.log('roomId:', roomId);
+                console.log('problem:', newProblem);
+                console.log('socket connected?', socket.connected);
                 socket.emit("sync-problem", { roomId, problem: newProblem });
+                console.log('✅ sync-problem event emitted');
+            } else {
+                console.error('❌ Cannot emit sync-problem: socket or roomId missing', { socket: !!socket, roomId });
             }
 
         } catch (error) {
@@ -395,8 +567,14 @@ Return ONLY a valid JSON object:
 
             if (passCount === testCases.length) {
                 // WON!
+                console.log('✅ ALL TESTS PASSED - EMITTING DUEL-WIN');
+                console.log('roomId:', roomId);
+                console.log('user:', user);
                 if (socket && roomId) {
+                    console.log('Emitting duel-win event to backend...');
                     socket.emit("duel-win", { roomId, user });
+                } else {
+                    console.error('Cannot emit duel-win: socket or roomId missing', { socket: !!socket, roomId });
                 }
             } else {
                 toast.error(`Failed ${testCases.length - passCount} test cases.`);
@@ -466,8 +644,115 @@ Return ONLY a valid JSON object:
                         </div>
                     </GlassCard>
                 </div>
+
+                <button
+                    onClick={viewAchievements}
+                    className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors mt-8"
+                    title="View Achievements"
+                >
+                    <Trophy className="h-4 w-4" /> View Achievements
+                </button>
+
+                {/* Achievements Modal */}
+                {showAchievementsModal && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                        <div className="w-full max-w-2xl bg-[#111422] border border-white/10 rounded-2xl shadow-2xl my-8">
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-white/10">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#00F5FF]/20 to-[#7B61FF]/20 border border-[#00F5FF]/30">
+                                        <Trophy className="h-4 w-4 text-[#00F5FF]" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold">Your Achievements</h2>
+                                        <p className="text-xs text-gray-400">Your CodeDuel victories</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setShowAchievementsModal(false)}
+                                    className="p-1.5 hover:bg-white/5 rounded-md text-gray-400"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                {achievementsLoading ? (
+                                    <div className="flex items-center justify-center h-48">
+                                        <div className="text-center">
+                                            <div className="h-10 w-10 border-2 border-white/10 border-t-white/40 rounded-full animate-spin mx-auto mb-4" />
+                                            <p className="text-gray-400">Loading achievements...</p>
+                                        </div>
+                                    </div>
+                                ) : achievements.length === 0 ? (
+                                    <div className="flex items-center justify-center h-48">
+                                        <div className="text-center">
+                                            <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                                            <p className="text-gray-400">No achievements yet. Start dueling to earn achievements!</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {/* Stats Summary */}
+                                        {achievementsStats && (
+                                            <div className="grid grid-cols-4 gap-4 mb-8">
+                                                <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center">
+                                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Total Wins</p>
+                                                    <p className="text-2xl font-black text-[#00F5FF]">{achievementsStats.totalWins}</p>
+                                                </div>
+                                                <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center">
+                                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Easy</p>
+                                                    <p className="text-2xl font-black text-green-400">{achievementsStats.byDifficulty.Easy}</p>
+                                                </div>
+                                                <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center">
+                                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Medium</p>
+                                                    <p className="text-2xl font-black text-yellow-400">{achievementsStats.byDifficulty.Medium}</p>
+                                                </div>
+                                                <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center">
+                                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Hard</p>
+                                                    <p className="text-2xl font-black text-red-400">{achievementsStats.byDifficulty.Hard}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Achievements List */}
+                                        {achievements.map((achievement) => (
+                                            <div key={achievement._id} className="p-4 bg-white/5 border border-white/10 rounded-lg hover:border-[#00F5FF]/30 transition-colors">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <h3 className="text-lg font-bold text-white">{achievement.problemTitle}</h3>
+                                                    <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-full border ${
+                                                        achievement.difficulty === 'Easy' ? 'border-green-500/30 text-green-400 bg-green-500/10' : 
+                                                        achievement.difficulty === 'Medium' ? 'border-yellow-500/30 text-yellow-400 bg-yellow-500/10' : 
+                                                        'border-red-500/30 text-red-400 bg-red-500/10'
+                                                    }`}>
+                                                        {achievement.difficulty}
+                                                    </span>
+                                                </div>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mt-3">
+                                                    <div>
+                                                        <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">You</p>
+                                                        <p className="text-white font-semibold text-sm">{achievement.winnerName}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Opponent</p>
+                                                        <p className="text-white font-semibold text-sm">{achievement.opponentName}</p>
+                                                    </div>
+                                                    <div className="md:col-span-1">
+                                                        <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Date</p>
+                                                        <p className="text-white font-semibold text-sm">{new Date(achievement.winTime).toLocaleDateString()}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-        )
+        );
     }
 
     return (

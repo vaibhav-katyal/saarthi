@@ -40,6 +40,9 @@ io.on('connection', (socket) => {
 
   // Create Room
   socket.on('create-room', (user) => {
+    console.log('=== BACKEND: CREATE-ROOM ===');
+    console.log('User creating room:', user);
+    
     // Generate a simple 4 digit room code for easy sharing
     const roomId = Math.floor(1000 + Math.random() * 9000).toString();
     socket.join(roomId);
@@ -52,16 +55,23 @@ io.on('connection', (socket) => {
       timerStartTime: null,
     };
 
+    console.log('Room created:', roomId, 'with player:', { id: user.id, name: user.name });
     socket.emit('room-created', { roomId, room: rooms[roomId] });
   });
 
   // Join Room
   socket.on('join-room', ({ roomId, user }) => {
+    console.log('=== BACKEND: JOIN-ROOM ===');
+    console.log('User joining room:', roomId, 'user:', user);
+    console.log('Room exists?', !!rooms[roomId]);
+    
     if (!rooms[roomId]) {
+      console.log('Room not found, emitting error');
       return socket.emit('error', { message: 'Room not found' });
     }
     
     if (rooms[roomId].players.length >= 2) {
+      console.log('Room is full');
       return socket.emit('error', { message: 'Room is full' });
     }
 
@@ -69,19 +79,33 @@ io.on('connection', (socket) => {
     const isAlreadyIn = rooms[roomId].players.find(p => p.id === user.id);
     if (!isAlreadyIn) {
       rooms[roomId].players.push(user);
+      console.log('Player added to room. Room now has:', rooms[roomId].players.map(p => ({ id: p.id, name: p.name })));
+    } else {
+      console.log('Player already in room');
     }
 
     socket.join(roomId);
 
     // Notify room
+    console.log('Emitting player-joined event');
     io.to(roomId).emit('player-joined', { roomId, room: rooms[roomId] });
   });
 
   // Sync Problem
   socket.on('sync-problem', ({ roomId, problem }) => {
+    console.log('=== BACKEND: SYNC-PROBLEM EVENT ===');
+    console.log('roomId:', roomId);
+    console.log('room exists?', !!rooms[roomId]);
+    console.log('problem title:', problem?.title);
+    console.log('problem difficulty:', problem?.difficulty);
+    
     if (rooms[roomId]) {
       rooms[roomId].problem = problem;
+      console.log('Problem stored in room, now broadcasting problem-synced event');
       io.to(roomId).emit('problem-synced', { problem });
+      console.log('problem-synced event emitted to room');
+    } else {
+      console.log('ERROR: Room does not exist!');
     }
   });
 
@@ -103,9 +127,41 @@ io.on('connection', (socket) => {
 
   // Win
   socket.on('duel-win', ({ roomId, user }) => {
+    console.log('=== BACKEND: DUEL-WIN EVENT ===');
+    console.log('roomId:', roomId);
+    console.log('winner user:', user);
+    console.log('room exists?', !!rooms[roomId]);
+    console.log('room status:', rooms[roomId]?.status);
+    console.log('room players:', rooms[roomId]?.players?.map(p => ({ id: p.id, name: p.name })));
+    console.log('room problem:', rooms[roomId]?.problem?.title);
+    
     if (rooms[roomId] && rooms[roomId].status === 'active') {
       rooms[roomId].status = 'finished';
-      io.to(roomId).emit('duel-finished', { winner: user, message: `${user.name || 'Opponent'} has passed all test cases and won the duel!` });
+      
+      // Find opponent
+      const allPlayers = rooms[roomId].players;
+      const opponent = allPlayers.find(p => p.id !== user.id);
+      
+      console.log('Opponent found:', opponent?.name);
+      
+      // Get the problem from the room
+      const problem = rooms[roomId].problem;
+      console.log('Problem from room:', { title: problem?.title, difficulty: problem?.difficulty });
+      
+      // Prepare event data with all required fields
+      const eventData = { 
+        winner: user, 
+        opponent: opponent || null,
+        problemTitle: problem?.title || 'Unknown Problem',
+        problemDifficulty: problem?.difficulty || 'Medium',
+        roomId: roomId,
+        message: `${user.name || 'Opponent'} has passed all test cases and won the duel!` 
+      };
+      
+      console.log('Emitting duel-finished event with all data');
+      io.to(roomId).emit('duel-finished', eventData);
+    } else {
+      console.log('FAILED - room not found or not active');
     }
   });
 
@@ -130,6 +186,7 @@ app.use('/api/vault', require('./routes/vaultRoutes'));
 app.use('/api/testpad', require('./routes/testpadRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/activity', require('./routes/activityRoutes'));
+app.use('/api/codeduel', require('./routes/codeduelRoutes'));
 
 // Serve uploads folder statically
 const path = require('path');

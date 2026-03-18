@@ -106,8 +106,8 @@ const Landing = () => {
   // --- Animation Timelines based on scroll (0 to 1) --- //
 
   // 1. Initial Hero Buttons fade out instantly (0 - 0.05)
-  const initialElementsOpacity = useTransform(smoothProgress, [0, 0.05], [1, 0]);
-  const initialElementsY = useTransform(smoothProgress, [0, 0.05], [0, 20]);
+  const initialElementsOpacity = useTransform(smoothProgress, [0, 0.08], [1, 0]);
+  const initialElementsY = useTransform(smoothProgress, [0, 0.08], [0, -20]);
 
   // 2. Main Title "Your Personal AI For College."
   // Stays from 0 to 0.35, then fades out before SAARTHI
@@ -115,14 +115,14 @@ const Landing = () => {
   const mainTitleScale = useTransform(smoothProgress, [0.35, 0.4], [1, 1.1]);
 
   // 3. Sub-Phrases (Study Better -> Plan Smarter -> Achieve More)
-  const phrase1Opacity = useTransform(smoothProgress, [0.05, 0.1, 0.15, 0.2], [0, 1, 1, 0]);
-  const phrase1Y = useTransform(smoothProgress, [0.05, 0.1, 0.15, 0.2], [20, 0, 0, -20]);
+  const phrase1Opacity = useTransform(smoothProgress, [0.08, 0.13, 0.18, 0.23], [0, 1, 1, 0]);
+  const phrase1Y = useTransform(smoothProgress, [0.08, 0.13, 0.18, 0.23], [20, 0, 0, -20]);
 
-  const phrase2Opacity = useTransform(smoothProgress, [0.15, 0.2, 0.25, 0.3], [0, 1, 1, 0]);
-  const phrase2Y = useTransform(smoothProgress, [0.15, 0.2, 0.25, 0.3], [20, 0, 0, -20]);
+  const phrase2Opacity = useTransform(smoothProgress, [0.18, 0.23, 0.28, 0.33], [0, 1, 1, 0]);
+  const phrase2Y = useTransform(smoothProgress, [0.18, 0.23, 0.28, 0.33], [20, 0, 0, -20]);
 
-  const phrase3Opacity = useTransform(smoothProgress, [0.25, 0.3, 0.35, 0.4], [0, 1, 1, 0]);
-  const phrase3Y = useTransform(smoothProgress, [0.25, 0.3, 0.35, 0.4], [20, 0, 0, -20]);
+  const phrase3Opacity = useTransform(smoothProgress, [0.28, 0.33, 0.38, 0.43], [0, 1, 1, 0]);
+  const phrase3Y = useTransform(smoothProgress, [0.28, 0.33, 0.38, 0.43], [20, 0, 0, -20]);
 
   // 4. Big "SAARTHI" Text
   const saarthiOpacity = useTransform(smoothProgress, [0.38, 0.4, 0.45, 0.5], [0, 1, 1, 0]);
@@ -197,9 +197,31 @@ const Landing = () => {
               </h1>
 
               {/* Phrases Wrapper - Positioned relatively below the title */}
-              <div className="relative h-[80px] md:h-[100px] w-full mt-2 flex items-start justify-center overflow-hidden">
+              <div className="relative h-[80px] md:h-[100px] w-full mt-8 flex items-start justify-center overflow-hidden">
+                
+                {/* Initial Buttons (Visible at scroll 0, fades out upwards) */}
+                <motion.div
+                  className="absolute flex flex-col sm:flex-row items-center gap-6 pointer-events-auto"
+                  style={{ opacity: initialElementsOpacity, y: initialElementsY }}
+                >
+                  <Link
+                    to="/dashboard"
+                    className="group relative inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-bold text-white transition-all hover:scale-105"
+                  >
+                    Start Your Journey
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                  <button onClick={() => {
+                    const el = document.getElementById('details');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                    className="inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
+                  >
+                    <Play className="h-4 w-4 text-white" /> Explore Now
+                  </button>
+                </motion.div>
 
-                {/* Phrase 1 (Initial Phrase if needed, or animated ones) */}
+                {/* Phrase 1 (Study Better.) */}
                 <motion.h2
                   className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b]"
                   style={{ opacity: phrase1Opacity, y: phrase1Y }}
@@ -226,29 +248,7 @@ const Landing = () => {
               </div>
             </motion.div>
 
-            {/* Buttons (Only visible at scroll 0, fades out before phrases activate) */}
-            <motion.div
-              className="absolute top-[110%] flex flex-col items-center w-full max-w-3xl text-center pointer-events-auto"
-              style={{ opacity: initialElementsOpacity, y: initialElementsY }}
-            >
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <Link
-                  to="/dashboard"
-                  className="group relative inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-bold text-white transition-all hover:scale-105"
-                >
-                  Start Your Journey
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-                <button onClick={() => {
-                  const el = document.getElementById('details');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
-                  className="inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
-                >
-                  <Play className="h-4 w-4 text-white" /> Explore Features
-                </button>
-              </div>
-            </motion.div>
+
 
             {/* Big SAARTHI Text appearing after phrases */}
             <motion.div

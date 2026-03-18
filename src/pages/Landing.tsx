@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 
 import { Link } from 'react-router-dom';
 import { ArrowRight, GraduationCap, Play } from 'lucide-react';
 
-const FRAME_COUNT = 34;
+const FRAME_COUNT = 111;
 
 // Vite glob import for robust production bundling
 const framesGlob = import.meta.glob('../frames/*.jpg', { eager: true, import: 'default' });
@@ -51,7 +51,7 @@ const Landing = () => {
     setImages(imgArray);
   }, []);
 
-  // Canvas drawing mapping: 0.0 -> 0.4 = Frames 0 -> 33
+  // Canvas drawing mapping: 0.0 -> 0.4 = Frames 0 -> 110
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (!loaded || !canvasRef.current || images.length === 0) return;
 
@@ -59,7 +59,7 @@ const Landing = () => {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    // Map the 0-0.4 progress range to the 0-33 frames
+    // Map the 0-0.4 progress range to the 0-110 frames
     let frameProgress = latest / 0.4;
     frameProgress = Math.max(0, Math.min(1, frameProgress));
 

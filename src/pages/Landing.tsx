@@ -131,15 +131,33 @@ const Landing = () => {
   // 5. Canvas Fade Out (after SAARTHI)
   const canvasOpacity = useTransform(smoothProgress, [0.45, 0.5], [1, 0]);
 
-  // --- Story Sections (0.5 to 1.0) ---
+  // --- Cinematic Story Sections (0.5 to 1.0) ---
+  // A soft atmospheric glow that follows the journey
+  const storyGlowOpacity = useTransform(smoothProgress, [0.45, 0.5, 0.95, 1], [0, 0.15, 0.15, 0]);
+  const storyGlowColor = useTransform(
+    smoothProgress, 
+    [0.5, 0.7, 0.9], 
+    ["rgba(0,245,255,1)", "rgba(123,97,255,1)", "rgba(52,211,153,1)"]
+  );
+
+  // Section 1: Alternate Left Layout
   const section1Opacity = useTransform(smoothProgress, [0.5, 0.55, 0.65, 0.7], [0, 1, 1, 0]);
-  const section1Y = useTransform(smoothProgress, [0.5, 0.55, 0.65, 0.7], [50, 0, 0, -50]);
+  const section1X = useTransform(smoothProgress, [0.5, 0.55, 0.65, 0.7], [-100, 0, 0, -100]);
+  const s1ImageX = useTransform(smoothProgress, [0.5, 0.55, 0.65, 0.7], [100, 0, 0, 100]);
 
+  // Section 2: Alternate Right Layout
   const section2Opacity = useTransform(smoothProgress, [0.65, 0.7, 0.8, 0.85], [0, 1, 1, 0]);
-  const section2Y = useTransform(smoothProgress, [0.65, 0.7, 0.8, 0.85], [50, 0, 0, -50]);
+  const section2X = useTransform(smoothProgress, [0.65, 0.7, 0.8, 0.85], [100, 0, 0, 100]);
+  const s2ImageX = useTransform(smoothProgress, [0.65, 0.7, 0.8, 0.85], [-100, 0, 0, -100]);
 
+  // Section 3: Alternate Left Layout
   const section3Opacity = useTransform(smoothProgress, [0.8, 0.85, 0.95, 1], [0, 1, 1, 0]);
-  const section3Y = useTransform(smoothProgress, [0.8, 0.85, 0.95, 1], [50, 0, 0, -50]);
+  const section3X = useTransform(smoothProgress, [0.8, 0.85, 0.95, 1], [-100, 0, 0, -100]);
+  const s3ImageX = useTransform(smoothProgress, [0.8, 0.85, 0.95, 1], [100, 0, 0, 100]);
+
+  // Connecting Thread
+  const threadOpacity = useTransform(smoothProgress, [0.45, 0.5, 0.95, 1], [0, 1, 1, 0]);
+  const threadGlowY = useTransform(smoothProgress, [0.5, 1], ["0%", "100%"]);
 
   return (
     <main className="bg-black text-white min-h-screen font-sans selection:bg-white/20 selection:text-white">
@@ -262,50 +280,124 @@ const Landing = () => {
 
           </div>
 
-          {/* --- Project Details Story Sections --- */}
+          {/* --- Cinematic Story Journey Sections --- */}
           <div id="details" className="absolute inset-0 pointer-events-none flex items-center justify-center px-6">
-            <div className="w-full max-w-5xl relative h-full">
+            
+            {/* Connecting Cinematic Thread Line */}
+            <motion.div 
+              style={{ opacity: threadOpacity }}
+              className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 z-0" 
+            >
+              <motion.div 
+                style={{ top: threadGlowY }}
+                className="absolute w-[2px] h-[20vh] bg-gradient-to-b from-transparent via-white/40 to-transparent blur-[1px]" 
+              />
+              <motion.div 
+                style={{ top: threadGlowY }}
+                className="absolute left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-white/5 rounded-full blur-[80px]" 
+              />
+            </motion.div>
 
-              {/* Section 1 */}
+            {/* Soft Ambient Cinematic Glow */}
+            <motion.div
+              className="absolute w-[800px] h-[800px] rounded-full blur-[160px] z-0"
+              style={{ 
+                opacity: storyGlowOpacity,
+                backgroundColor: storyGlowColor,
+                left: '50%',
+                top: '50%',
+                x: '-50%',
+                y: '-50%'
+              }}
+            />
+
+            <div className="w-full max-w-7xl relative h-[70vh] flex items-center justify-center">
+
+              {/* Section 1: AI Roadmap Architect (Image Right, Text Left) */}
               <motion.div
-                className="absolute top-1/2 -translate-y-1/2 left-0 max-w-xl"
-                style={{ opacity: section1Opacity, y: section1Y }}
+                className="absolute inset-0 flex flex-col md:flex-row items-center justify-between gap-12"
+                style={{ opacity: section1Opacity }}
               >
-                <p className="text-[#00F5FF] font-semibold tracking-widest uppercase text-sm mb-3">Intelligence Layer</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-4 text-white">
-                  Your AI Roadmap <br />Architect.
-                </h2>
-                <p className="text-lg md:text-xl text-[#a1a1a6] font-normal leading-relaxed">
-                  Describe your end goal. Saarthi dynamically builds a personalized, step-by-step mastery path with milestones, resources, and adaptive difficulty. Never feel lost again.
-                </p>
+                {/* Text Content */}
+                <motion.div 
+                  className="flex-1 max-w-xl text-left"
+                  style={{ x: section1X }}
+                >
+                  <span className="text-[#00F5FF] text-xs font-bold tracking-[0.4em] uppercase mb-8 opacity-60">Intelligence — Chapter 01</span>
+                  <h2 className="text-5xl md:text-7xl lg:text-[5rem] font-bold tracking-tighter text-white leading-[1] mb-10">
+                    Your AI Roadmap <br />Architect.
+                  </h2>
+                  <p className="text-xl md:text-2xl text-neutral-400 font-medium leading-relaxed">
+                    Describe your end goal. Saarthi dynamically builds a personalized, step-by-step mastery path with milestones and resources tailored to your skill level.
+                  </p>
+                </motion.div>
+                
+                {/* Image Narrative */}
+                <motion.div 
+                  className="flex-1 w-full max-w-[500px] aspect-square relative"
+                  style={{ x: s1ImageX }}
+                >
+                  <img src="/roadmap_visual.png" alt="Roadmap Visual" className="object-cover rounded-3xl opacity-90 transition-opacity hover:opacity-100" />
+                  <div className="absolute inset-0 bg-neutral-900/10 rounded-3xl border border-white/10" />
+                </motion.div>
               </motion.div>
 
-              {/* Section 2 */}
+              {/* Section 2: Vault That Thinks (Image Left, Text Right) */}
               <motion.div
-                className="absolute top-1/2 -translate-y-1/2 right-0 max-w-xl text-left md:text-right"
-                style={{ opacity: section2Opacity, y: section2Y }}
+                className="absolute inset-0 flex flex-col md:flex-row-reverse items-center justify-between gap-12"
+                style={{ opacity: section2Opacity }}
               >
-                <p className="text-[#7B61FF] font-semibold tracking-widest uppercase text-sm mb-3">Knowledge Engine</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-4 text-white">
-                  A Vault That<br />Thinks.
-                </h2>
-                <p className="text-lg md:text-xl text-[#a1a1a6] font-normal leading-relaxed">
-                  Save links, notes, and PDFs. Our AI automatically digests, summarizes, tags, and connects ideas—turning raw data into a structured personal syllabus.
-                </p>
+                {/* Text Content */}
+                <motion.div 
+                  className="flex-1 max-w-xl text-right md:text-left"
+                  style={{ x: section2X }}
+                >
+                  <span className="text-[#7B61FF] text-xs font-bold tracking-[0.4em] uppercase mb-8 opacity-60">Synthesis — Chapter 02</span>
+                  <h2 className="text-5xl md:text-7xl lg:text-[5rem] font-bold tracking-tighter text-white leading-[1] mb-10">
+                    A Vault That<br />Thinks.
+                  </h2>
+                  <p className="text-xl md:text-2xl text-neutral-400 font-medium leading-relaxed">
+                    Save any link, PDF, or note. Our AI automatically digests and connections ideas, turning raw data into a structured personal syllabus.
+                  </p>
+                </motion.div>
+
+                {/* Image Narrative */}
+                <motion.div 
+                  className="flex-1 w-full max-w-[500px] aspect-square relative"
+                  style={{ x: s2ImageX }}
+                >
+                  <img src="/vault_visual.png" alt="Vault Visual" className="object-cover rounded-3xl opacity-90 transition-opacity hover:opacity-100" />
+                  <div className="absolute inset-0 bg-neutral-900/10 rounded-3xl border border-white/10" />
+                </motion.div>
               </motion.div>
 
-              {/* Section 3 */}
+              {/* Section 3: Practice Core (Image Right, Text Left) */}
               <motion.div
-                className="absolute top-1/2 -translate-y-1/2 left-0 max-w-xl"
-                style={{ opacity: section3Opacity, y: section3Y }}
+                className="absolute inset-0 flex flex-col md:flex-row items-center justify-between gap-12"
+                style={{ opacity: section3Opacity }}
               >
-                <p className="text-emerald-400 font-semibold tracking-widest uppercase text-sm mb-3">Practice Core</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight mb-4 text-white">
-                  Practice. Compile. <br />Improve.
-                </h2>
-                <p className="text-lg md:text-xl text-[#a1a1a6] font-normal leading-relaxed">
-                  A fully integrated lab environment. Get AI-generated problems tailored to your skill gaps, with instant execution and line-by-line evaluation.
-                </p>
+                {/* Text Content */}
+                <motion.div 
+                  className="flex-1 max-w-xl text-left"
+                  style={{ x: section3X }}
+                >
+                  <span className="text-emerald-400 text-xs font-bold tracking-[0.4em] uppercase mb-8 opacity-60">Mastery — Chapter 03</span>
+                  <h2 className="text-5xl md:text-7xl lg:text-[5rem] font-bold tracking-tighter text-white leading-[1] mb-10">
+                    Practice. Compile.<br />Improve.
+                  </h2>
+                  <p className="text-xl md:text-2xl text-neutral-400 font-medium leading-relaxed">
+                    A fully integrated lab environment. Get AI-generated problems with instant line-by-line evaluation to master anything from code to concepts.
+                  </p>
+                </motion.div>
+
+                {/* Image Narrative */}
+                <motion.div 
+                  className="flex-1 w-full max-w-[500px] aspect-square relative"
+                  style={{ x: s3ImageX }}
+                >
+                  <img src="/practice_visual.png" alt="Practice Visual" className="object-cover rounded-3xl opacity-90 transition-opacity hover:opacity-100" />
+                  <div className="absolute inset-0 bg-neutral-900/10 rounded-3xl border border-white/10" />
+                </motion.div>
               </motion.div>
 
             </div>

@@ -197,33 +197,33 @@ const Landing = () => {
               </h1>
 
               {/* Phrases Wrapper - Positioned relatively below the title */}
-              <div className="relative h-[80px] md:h-[100px] w-full mt-8 flex items-start justify-center overflow-hidden">
+              <div className="relative h-[100px] md:h-[120px] w-full mt-10 flex items-center justify-center overflow-hidden">
                 
                 {/* Initial Buttons (Visible at scroll 0, fades out upwards) */}
                 <motion.div
-                  className="absolute flex flex-col sm:flex-row items-center gap-6 pointer-events-auto"
+                  className="absolute flex flex-col sm:flex-row items-center gap-8 pointer-events-auto"
                   style={{ opacity: initialElementsOpacity, y: initialElementsY }}
                 >
                   <Link
                     to="/dashboard"
-                    className="group relative inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-bold text-white transition-all hover:scale-105"
+                    className="group relative inline-flex h-16 md:h-20 items-center justify-center gap-3 rounded-full border border-white/20 bg-black hover:bg-white/10 px-10 text-lg md:text-xl font-bold text-white transition-all hover:scale-105"
                   >
                     Start Your Journey
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                   <button onClick={() => {
                     const el = document.getElementById('details');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                    className="inline-flex h-12 lg:h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-black hover:bg-white/10 px-8 text-[15px] font-semibold text-white transition-colors"
+                    className="inline-flex h-16 md:h-20 items-center justify-center gap-3 rounded-full border border-white/20 bg-black hover:bg-white/10 px-10 text-lg md:text-xl font-semibold text-white transition-colors"
                   >
-                    <Play className="h-4 w-4 text-white" /> Explore Now
+                    <Play className="h-5 w-5 fill-white text-white" /> Explore Now
                   </button>
                 </motion.div>
 
                 {/* Phrase 1 (Study Better.) */}
                 <motion.h2
-                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b]"
+                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b] whitespace-nowrap"
                   style={{ opacity: phrase1Opacity, y: phrase1Y }}
                 >
                   Study Better.
@@ -231,7 +231,7 @@ const Landing = () => {
 
                 {/* Phrase 2 */}
                 <motion.h2
-                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b]"
+                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b] whitespace-nowrap"
                   style={{ opacity: phrase2Opacity, y: phrase2Y }}
                 >
                   Plan Smarter.
@@ -239,7 +239,7 @@ const Landing = () => {
 
                 {/* Phrase 3 */}
                 <motion.h2
-                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b]"
+                  className="absolute text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tighter text-[#86868b] whitespace-nowrap"
                   style={{ opacity: phrase3Opacity, y: phrase3Y }}
                 >
                   Achieve More.

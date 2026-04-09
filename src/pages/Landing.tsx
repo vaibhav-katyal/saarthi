@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, GraduationCap, Play, Map, BookOpen, Code2, Swords, Brain, Calculator } from 'lucide-react';
+import { ArrowRight, GraduationCap, Play, Map, BookOpen, Code2, Swords, Brain, Calculator, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 const FRAME_COUNT = 111;
 
@@ -130,22 +130,24 @@ const Landing = () => {
 
   // 5. Canvas Fade Out (after SAARTHI)
   const canvasOpacity = useTransform(smoothProgress, [0.9, 1.0], [1, 0]);
-
+  
   return (
     <main className="bg-black text-white min-h-screen font-sans selection:bg-white/20 selection:text-white">
 
       {/* Minimal Apple-style Nav */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between mix-blend-difference pointer-events-none">
-        <div className="flex items-center gap-3">
-          <GraduationCap className="h-6 w-6 text-white" />
-          <span className="font-semibold text-xl tracking-tight text-white">Saarthi</span>
+      <header className="fixed top-0 left-0 right-0 z-50 mix-blend-difference pointer-events-none">
+        <div className="max-w-[1600px] mx-auto px-6 md:px-8 lg:px-16 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GraduationCap className="h-6 w-6 text-white" />
+            <span className="font-semibold text-xl tracking-tight text-white">Saarthi</span>
+          </div>
+          <Link
+            to="/login"
+            className="text-sm font-medium text-white transition-opacity hover:opacity-70 flex items-center gap-1.5 pointer-events-auto"
+          >
+            Login <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-        <Link
-          to="/login"
-          className="text-sm font-medium text-white transition-opacity hover:opacity-70 flex items-center gap-1.5 pointer-events-auto"
-        >
-          Login <ArrowRight className="h-4 w-4" />
-        </Link>
       </header>
 
       {/* Global Loading Spinner */}
@@ -475,48 +477,70 @@ const Landing = () => {
       </section>
 
       {/* --- Massive Footer --- */}
-      <footer className="bg-black text-white pt-32 pb-8 border-t border-white/10 relative overflow-hidden flex flex-col justify-between z-20">
-        <div className="w-full">
-            {/* Top row */}
-            <div className="flex flex-col md:flex-row justify-between items-start gap-16 md:gap-0 max-w-[1600px] mx-auto w-full px-8 lg:px-16">
-               <div>
-                  <h3 className="text-3xl md:text-4xl font-semibold tracking-tight">Supercharge your<br/>college journey.</h3>
-               </div>
-               
-               <div className="flex gap-20 sm:gap-32">
-                  <div className="flex flex-col gap-4">
-                     <Link to="/dashboard" className="text-neutral-400 hover:text-white transition-colors font-medium">Dashboard</Link>
-                     <Link to="/vault" className="text-neutral-400 hover:text-white transition-colors font-medium">Knowledge Vault</Link>
-                     <Link to="/roadmap" className="text-neutral-400 hover:text-white transition-colors font-medium">AI Roadmap</Link>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                     <Link to="/testpad" className="text-neutral-400 hover:text-white transition-colors font-medium">Testpad</Link>
-                     <Link to="/duel" className="text-neutral-400 hover:text-white transition-colors font-medium">Code Duel</Link>
-                     <Link to="/leave" className="text-neutral-400 hover:text-white transition-colors font-medium">Leave Manager</Link>
-                  </div>
-               </div>
+      {/* --- Compact Aesthetic Footer --- */}
+      <footer className="bg-black text-white pt-20 pb-12 border-t border-white/5 relative z-20">
+        <div className="max-w-[1600px] mx-auto px-8 lg:px-16">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start mb-16">
+            
+            {/* Brand Section */}
+            <div className="md:col-span-5 flex flex-col gap-6">
+              <div className="w-14 h-14 bg-white flex items-center justify-center rounded-sm">
+                 <span className="text-black font-black text-2xl tracking-tighter">S.</span>
+              </div>
+              <div className="max-w-xs">
+                 <h3 className="text-2xl font-bold tracking-tight leading-tight text-white/90">
+                   The ultimate companion for your academic journey.
+                 </h3>
+              </div>
             </div>
 
-            {/* Giant text */}
-            <div className="mt-24 md:mt-32 w-full flex justify-center items-center overflow-hidden px-4 select-none">
-                <h1 className="text-[20vw] font-bold tracking-tighter leading-none text-white text-center pb-2">
-                   Saarthi.
-                </h1>
+            {/* Navigation Links */}
+            <div className="md:col-span-4 grid grid-cols-2 gap-8">
+              <div className="flex flex-col gap-4">
+                 <span className="text-[10px] text-neutral-500 font-bold tracking-[0.4em] uppercase mb-2">Platform</span>
+                 <Link to="/dashboard" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">Dashboard</Link>
+                 <Link to="/vault" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">Knowledge Vault</Link>
+                 <Link to="/roadmap" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">AI Roadmap</Link>
+              </div>
+              <div className="flex flex-col gap-4">
+                 <span className="text-[10px] text-neutral-500 font-bold tracking-[0.4em] uppercase mb-2">Practice</span>
+                 <Link to="/testpad" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">Testpad</Link>
+                 <Link to="/duel" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">Code Duel</Link>
+                 <Link to="/leave" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium tracking-tight">Leave Manager</Link>
+              </div>
             </div>
-        </div>
 
-        {/* Bottom row */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-12 md:mt-24 max-w-[1600px] mx-auto w-full px-8 lg:px-16 gap-6">
-            <div className="flex items-center gap-2">
-               <GraduationCap className="h-6 w-6 text-neutral-400" />
-               <span className="font-semibold text-xl text-neutral-400">Saarthi</span>
+            <div className="md:col-span-3 flex flex-col md:items-end gap-6">
+              <span className="text-[10px] text-white font-bold tracking-[0.4em] uppercase">Connect</span>
+              <div className="flex items-center gap-6 md:gap-8 -mr-2">
+                 <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Twitter className="w-5 h-5"/></a>
+                 <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Github className="w-5 h-5"/></a>
+                 <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Linkedin className="w-5 h-5"/></a>
+                 <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Instagram className="w-5 h-5"/></a>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-8 gap-y-4 text-sm text-neutral-500 font-medium">
-               <span className="hover:text-white cursor-pointer transition-colors">About Saarthi</span>
-               <span className="hover:text-white cursor-pointer transition-colors">Contact</span>
-               <span className="hover:text-white cursor-pointer transition-colors">Privacy</span>
-               <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
-            </div>
+          </div>
+
+          {/* Giant Branding - Left Aligned */}
+          <div className="relative w-full overflow-hidden select-none mb-10">
+              <h1 className="text-[18vw] font-bold tracking-normal leading-none text-white text-left opacity-100 relative z-10 -ml-[0.05em]">
+                 Saarthi.
+              </h1>
+              {/* Background Glow */}
+              <div className="absolute left-0 bottom-0 w-[40vw] h-[20vw] bg-[#00F5FF]/5 blur-[120px] -z-10 rounded-full" />
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 gap-6">
+             <div className="flex items-center gap-3">
+                <GraduationCap className="h-5 w-5 text-neutral-600" />
+                <span className="text-[11px] font-bold text-neutral-600 tracking-[0.1em] uppercase">© 2026 Saarthi AI. For the next generation of builders.</span>
+             </div>
+             <div className="flex gap-10 text-[10px] text-neutral-600 font-bold uppercase tracking-[0.3em]">
+                <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
+                <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
+             </div>
+          </div>
         </div>
       </footer>
 

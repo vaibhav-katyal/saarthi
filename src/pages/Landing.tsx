@@ -625,7 +625,7 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 gap-6">
              <div className="flex items-center gap-3">
                 <GraduationCap className="h-5 w-5 text-neutral-600" />
-                <span className="text-[11px] font-bold text-neutral-600 tracking-[0.1em] uppercase">© 2026 Saarthi AI. For the next generation of builders.</span>
+                <span className="text-[11px] font-bold text-neutral-600 tracking-[0.1em] uppercase">© 2026 Saarthi.</span>
              </div>
              <div className="flex gap-10 text-[10px] text-neutral-600 font-bold uppercase tracking-[0.3em]">
                 <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>

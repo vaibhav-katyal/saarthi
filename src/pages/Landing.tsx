@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, GraduationCap, Play, Map, BookOpen, Code2, Swords, Brain, Calculator, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
+import ShaderLines from '../components/ShaderLines';
 
 const FRAME_COUNT = 111;
 
@@ -130,6 +131,9 @@ const Landing = () => {
 
   // 5. Canvas Fade Out (after SAARTHI)
   const canvasOpacity = useTransform(smoothProgress, [0.9, 1.0], [1, 0]);
+
+  // 6. ShaderLines Intro Background fades when user starts scrolling
+  const shaderLinesOpacity = useTransform(smoothProgress, [0, 0.05], [1, 0]);
   
   return (
     <main className="bg-black text-white min-h-screen font-sans selection:bg-white/20 selection:text-white">
@@ -169,6 +173,14 @@ const Landing = () => {
             className="absolute inset-0 w-full h-full object-cover z-0"
             style={{ width: '100%', height: '100%', opacity: canvasOpacity }}
           />
+
+          {/* ShaderLines Intro Background */}
+          <motion.div
+            className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+            style={{ opacity: shaderLinesOpacity }}
+          >
+            <ShaderLines speed={0.4} bandWidth={0.05} colorMode="single" color="#ffffff" backgroundColor="transparent" blendMode="additive" flow="in-out" preview={true} />
+          </motion.div>
 
           {/* Dark overlay for readability */}
           <motion.div

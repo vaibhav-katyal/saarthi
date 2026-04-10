@@ -22,6 +22,20 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/GlassCard";
 
+// Icon mapping for activities
+const iconMap: Record<string, any> = {
+    Code2,
+    Swords,
+    Brain,
+    FileText,
+    Map,
+    CheckCircle2,
+};
+
+const getIcon = (iconName: string) => {
+    return iconMap[iconName] || Code2;
+};
+
 const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -81,49 +95,6 @@ const quickAccess = [
 ];
 
 
-const recentActivity = [
-    {
-        action: "Completed MCQ set",
-        subject: "Data Structures — Trees & Graphs",
-        time: "2 hours ago",
-        icon: Brain,
-        color: "text-pink-400",
-        iconBg: "bg-pink-400/10",
-    },
-    {
-        action: "Submitted solution",
-        subject: "Two Sum — Testpad",
-        time: "5 hours ago",
-        icon: Code2,
-        color: "text-emerald-400",
-        iconBg: "bg-emerald-400/10",
-    },
-    {
-        action: "Saved note",
-        subject: "DBMS Normalization Summary",
-        time: "Yesterday",
-        icon: FileText,
-        color: "text-accent",
-        iconBg: "bg-accent/10",
-    },
-    {
-        action: "Generated roadmap",
-        subject: "Full-Stack Development Path",
-        time: "2 days ago",
-        icon: Map,
-        color: "text-primary",
-        iconBg: "bg-primary/10",
-    },
-    {
-        action: "Won Code Duel",
-        subject: "vs @rahul — Array Problem",
-        time: "3 days ago",
-        icon: Swords,
-        color: "text-orange-400",
-        iconBg: "bg-orange-400/10",
-    },
-];
-
 const performanceBars = [
     { label: "DSA Progress", value: 72, color: "bg-accent" },
     { label: "MCQ Accuracy", value: 85, color: "bg-primary" },
@@ -136,6 +107,7 @@ const Dashboard = () => {
     const greeting = getGreeting();
     const firstName = user?.name?.split(" ")[0] || "Student";
     const [submissionsCount, setSubmissionsCount] = useState<number | string>("...");
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
     // Course Stats State
     const [attendancePercent, setAttendancePercent] = useState<number | string>("...");
@@ -147,6 +119,28 @@ const Dashboard = () => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
+
+                // Fetch Recent Activities
+                try {
+                    const activityRes = await fetch("http://localhost:5000/api/activity/recent", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    console.log("[Dashboard] Activity Response OK:", activityRes.ok);
+                    if (activityRes.ok) {
+                        const activityData = await activityRes.json();
+                        console.log("[Dashboard] Activity Data:", activityData);
+                        if (activityData.success && Array.isArray(activityData.data)) {
+                            console.log("[Dashboard] Setting recent activity with", activityData.data.length, "items");
+                            setRecentActivity(activityData.data);
+                        } else {
+                            console.warn("[Dashboard] Unexpected activity data format:", activityData);
+                        }
+                    } else {
+                        console.error("[Dashboard] Activity fetch failed with status:", activityRes.status);
+                    }
+                } catch (error) {
+                    console.error("[Dashboard] Failed to fetch recent activities:", error);
+                }
 
                 // Fetch Submissions
                 const subRes = await fetch("http://localhost:5000/api/testpad", {
@@ -299,28 +293,38 @@ const Dashboard = () => {
                                     Last 7 days
                                 </span>
                             </div>
-                            <div className="space-y-1">
-                                {recentActivity.map((item, i) => (
-                                    <div
-                                        key={i}
-                                        className="flex items-center gap-4 rounded-xl px-3 py-3 hover:bg-white/5 transition-colors cursor-default"
-                                    >
-                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconBg}`}>
-                                            <item.icon className={`h-4 w-4 ${item.color}`} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-foreground truncate">
-                                                {item.action}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground truncate">
-                                                {item.subject}
-                                            </p>
-                                        </div>
-                                        <span className="text-[11px] text-muted-foreground shrink-0">
-                                            {item.time}
-                                        </span>
+                            <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent hover:scrollbar-thumb-slate-500">
+                                {recentActivity && recentActivity.length > 0 ? (
+                                    recentActivity.map((item, i) => {
+                                        const IconComponent = getIcon(item.icon);
+                                        return (
+                                            <div
+                                                key={i}
+                                                className="flex items-center gap-4 rounded-xl px-3 py-3 hover:bg-white/5 transition-colors cursor-default"
+                                            >
+                                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconBg}`}>
+                                                    <IconComponent className={`h-4 w-4 ${item.color}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-foreground truncate">
+                                                        {item.action}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground truncate">
+                                                        {item.subject}
+                                                    </p>
+                                                </div>
+                                                <span className="text-[11px] text-muted-foreground shrink-0">
+                                                    {item.time}
+                                                </span>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                                        <Activity className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                                        <p className="text-sm text-muted-foreground">No recent activities</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </GlassCard>
                     </div>

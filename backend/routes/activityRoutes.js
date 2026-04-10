@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
-const { logActivity } = require('../utils/logger');
+const { logActivity, getRecentActivities } = require('../utils/logger');
 
 // Log activity endpoint - handles frontend activities that don't have backend routes
-router.use(protect);
-
-router.post('/log', (req, res) => {
+router.post('/log', protect, (req, res) => {
   try {
     const { section, action, details } = req.body;
     
@@ -29,6 +27,26 @@ router.post('/log', (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to log activity'
+    });
+  }
+});
+
+// Get recent activities for the logged-in user
+router.get('/recent', protect, (req, res) => {
+  try {
+    console.log('[Activity Route] GET /recent - User:', req.user._id);
+    const activities = getRecentActivities(req.user._id);
+    console.log('[Activity Route] Returning', activities.length, 'activities');
+
+    res.json({
+      success: true,
+      data: activities
+    });
+  } catch (error) {
+    console.error('Error fetching recent activities:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch recent activities'
     });
   }
 });

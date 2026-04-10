@@ -363,8 +363,7 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
         setGeneratedGuide(response);
         toast({ title: `Generated guide for ${topic}` });
         logRoadmapActivity.generateGuide(topic);
-        setGenerateTopic("");
-      }
+        setGenerateTopic("");      }
     } else {
       setIsGenerating(true);
       setTimeout(() => {

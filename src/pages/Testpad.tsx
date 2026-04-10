@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import confetti from "canvas-confetti";
 import {
   Play,
   Sparkles,
@@ -465,6 +466,36 @@ ENFORCED RULES:
         }
       } catch (err) {
         console.error("Failed to save testpad results:", err);
+      }
+
+      // Confetti victory animation - only when all tests pass
+      if (failCount === 0) {
+        // Victory confetti burst
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#00F5FF', '#7B61FF', '#10B981', '#FFD700', '#FF6B6B', '#4ECDC4']
+        });
+        
+        // Multiple bursts for celebration effect
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.6 }
+          });
+        }, 250);
+        
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.6 }
+          });
+        }, 500);
       }
 
       toast({

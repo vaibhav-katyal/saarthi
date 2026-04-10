@@ -187,9 +187,6 @@ Make sure:
       setCurrentQuestion(0);
       setPageState("quiz");
       
-      // Log the quiz generation activity
-      logMCQActivity.generate(topic, parsedQuestions.length, difficulty);
-      
       toast({ title: `Generated ${parsedQuestions.length} MCQ questions!` });
     } catch (err) {
       console.error("Error parsing MCQs:", err);

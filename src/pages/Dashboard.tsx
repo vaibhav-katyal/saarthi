@@ -6,11 +6,8 @@ import {
     Map,
     Brain,
     Code2,
-    Users,
-    Calculator,
     Swords,
     TrendingUp,
-    CheckCircle2,
     Clock,
     Activity,
     Sparkles,
@@ -19,8 +16,9 @@ import {
     FileText,
     BarChart3,
     LayoutDashboard,
+    CheckCircle2,
 } from "lucide-react";
-import { GlassCard } from "@/components/GlassCard";
+import { motion } from "framer-motion";
 
 // Icon mapping for activities
 const iconMap: Record<string, any> = {
@@ -49,23 +47,26 @@ const quickAccess = [
         desc: "AI-powered notes & summaries",
         path: "/vault",
         icon: BookOpen,
-        color: "text-accent",
-        iconBg: "bg-accent/10",
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(123,97,255,0.3)]",
+        iconColor: "text-[#7B61FF]",
+        iconBg: "bg-[#7B61FF]/10",
     },
     {
         title: "AI Roadmap",
         desc: "Personalized learning paths",
         path: "/roadmap",
         icon: Map,
-        color: "text-primary",
-        iconBg: "bg-primary/10",
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(0,245,255,0.3)]",
+        iconColor: "text-[#00F5FF]",
+        iconBg: "bg-[#00F5FF]/10",
     },
     {
         title: "MCQ Generator",
         desc: "AI-generated practice tests",
         path: "/mcq",
         icon: Brain,
-        color: "text-pink-400",
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]",
+        iconColor: "text-pink-400",
         iconBg: "bg-pink-400/10",
     },
     {
@@ -73,7 +74,8 @@ const quickAccess = [
         desc: "Code & compile in-browser",
         path: "/testpad",
         icon: Code2,
-        color: "text-emerald-400",
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(52,211,153,0.3)]",
+        iconColor: "text-emerald-400",
         iconBg: "bg-emerald-400/10",
     },
     {
@@ -81,25 +83,26 @@ const quickAccess = [
         desc: "1v1 coding challenges",
         path: "/duel",
         icon: Swords,
-        color: "text-orange-400",
-        iconBg: "bg-orange-400/10",
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]",
+        iconColor: "text-red-400",
+        iconBg: "bg-red-400/10",
     },
     {
         title: "Leave Manager",
         desc: "Attendance & leave tracker",
         path: "/leave",
-        icon: Calculator,
-        color: "text-yellow-400",
-        iconBg: "bg-yellow-400/10",
+        icon: CalendarDays,
+        glowColor: "group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]",
+        iconColor: "text-amber-400",
+        iconBg: "bg-amber-400/10",
     },
 ];
 
-
 const performanceBars = [
-    { label: "DSA Progress", value: 72, color: "bg-accent" },
-    { label: "MCQ Accuracy", value: 85, color: "bg-primary" },
-    { label: "Code Quality", value: 68, color: "bg-emerald-400" },
-    { label: "Consistency", value: 91, color: "bg-orange-400" },
+    { label: "DSA Progress", value: 72, gradient: "bg-gradient-to-r from-[#00F5FF]/40 to-[#00F5FF]" },
+    { label: "MCQ Accuracy", value: 85, gradient: "bg-gradient-to-r from-[#7B61FF]/40 to-[#7B61FF]" },
+    { label: "Code Quality", value: 68, gradient: "bg-gradient-to-r from-emerald-500/40 to-emerald-500" },
+    { label: "Consistency", value: 91, gradient: "bg-gradient-to-r from-amber-500/40 to-amber-500" },
 ];
 
 const Dashboard = () => {
@@ -125,18 +128,11 @@ const Dashboard = () => {
                     const activityRes = await fetch("http://localhost:5000/api/activity/recent", {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    console.log("[Dashboard] Activity Response OK:", activityRes.ok);
                     if (activityRes.ok) {
                         const activityData = await activityRes.json();
-                        console.log("[Dashboard] Activity Data:", activityData);
                         if (activityData.success && Array.isArray(activityData.data)) {
-                            console.log("[Dashboard] Setting recent activity with", activityData.data.length, "items");
                             setRecentActivity(activityData.data);
-                        } else {
-                            console.warn("[Dashboard] Unexpected activity data format:", activityData);
                         }
-                    } else {
-                        console.error("[Dashboard] Activity fetch failed with status:", activityRes.status);
                     }
                 } catch (error) {
                     console.error("[Dashboard] Failed to fetch recent activities:", error);
@@ -169,8 +165,7 @@ const Dashboard = () => {
                             courses.forEach((course: any) => {
                                 totalDelivered += course.delivered || 0;
                                 totalAttended += course.attended || 0;
-
-                                // Calculate safe skips for this course
+                                
                                 const req = course.requiredAttendance || 75;
                                 const del = course.delivered || 0;
                                 const att = course.attended || 0;
@@ -185,11 +180,9 @@ const Dashboard = () => {
                             const overallPercent = totalDelivered === 0 ? 0 : (totalAttended / totalDelivered) * 100;
                             setAttendancePercent(overallPercent.toFixed(1) + "%");
 
-                            // Let's summarize leave balance as total safe skips
                             setLeaveBalance(totalSafeSkips.toString() + (totalSafeSkips === 1 ? " class" : " classes"));
                             setSkipClasses("Can skip " + totalSafeSkips);
                         } else {
-                            // No courses yet
                             setAttendancePercent("N/A");
                             setLeaveBalance("0 classes");
                             setSkipClasses("Add some courses");
@@ -209,195 +202,220 @@ const Dashboard = () => {
             value: submissionsCount.toString(),
             change: "Total Solved",
             icon: Code2,
-            color: "text-emerald-400",
-            iconBg: "bg-emerald-400/10",
+            iconBg: "bg-[#00F5FF]/10",
+            colorClass: "text-[#00F5FF]",
         },
         {
             label: "Attendance",
             value: attendancePercent.toString(),
             change: skipClasses.toString(),
             icon: Activity,
-            color: "text-primary",
-            iconBg: "bg-primary/10",
+            iconBg: "bg-[#7B61FF]/10",
+            colorClass: "text-[#7B61FF]",
         },
         {
             label: "Leave Balance",
             value: leaveBalance.toString(),
             change: "Available Skips",
             icon: CalendarDays,
-            color: "text-orange-400",
-            iconBg: "bg-orange-400/10",
+            iconBg: "bg-emerald-500/10",
+            colorClass: "text-emerald-400",
         },
     ];
 
     return (
-        <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
-            {/* Background Noise & Gradient — same as PageWrapper */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin bg-black min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+            {/* Cinematic Background Layer */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
-                <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[150px]" />
-                <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[50%] rounded-full bg-accent/10 blur-[180px]" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.10] mix-blend-screen" />
+                <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] rounded-full bg-[#00F5FF]/5 blur-[150px]" />
+                <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[50%] rounded-full bg-[#7B61FF]/5 blur-[180px]" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 py-4 md:py-6 relative z-10 space-y-6">
-                {/* Header — matches PageWrapper pattern */}
-                <div className="mb-8 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary shadow-[0_0_20px_rgba(0,245,255,0.15)] mb-1">
+            <div className="max-w-7xl mx-auto px-6 py-6 md:py-8 relative z-10 space-y-6 md:space-y-8">
+                
+                {/* Header */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="mb-8 space-y-3"
+                >
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neutral-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] mb-1">
                         <LayoutDashboard className="h-3 w-3" />
-                        Dashboard
+                        Command Center
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground font-heading">
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white font-heading">
                         {greeting},{" "}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
                             {firstName}
                         </span>
-                        ! 👋
+                        .
                     </h1>
-                    <p className="text-muted-foreground text-sm max-w-xl leading-relaxed">
-                        Here's what's happening across your Saarthi workspace.
+                    <p className="text-sm text-neutral-400 font-medium max-w-xl leading-relaxed">
+                        Your academic progress mapped in real-time.
                     </p>
-                </div>
+                </motion.div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in zoom-in-95 duration-500">
-                    {statsCards.map((stat) => (
-                        <GlassCard key={stat.label} hover>
-                            <div className="flex items-start justify-between mb-4">
-                                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.iconBg}`}>
-                                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {statsCards.map((stat, i) => (
+                        <motion.div
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1 * i }}
+                            className="relative group rounded-[1.25rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 p-5 shadow-lg overflow-hidden flex flex-col hover:border-white/20 hover:-translate-y-[2px] transition-all"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className={`w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>
+                                    <stat.icon className={`h-5 w-5 ${stat.colorClass}`} />
                                 </div>
-                                <TrendingUp className="h-4 w-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <TrendingUp className="h-4 w-4 text-emerald-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                             </div>
-                            <p className="text-2xl font-extrabold text-foreground tracking-tight">
+                            
+                            <p className="text-3xl font-black text-white tracking-tight mb-1 group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] transition-all">
                                 {stat.value}
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-                            <p className={`text-xs mt-2 ${stat.color}`}>{stat.change}</p>
-                        </GlassCard>
+                            <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-widest">{stat.label}</p>
+                            <p className={`text-[11px] font-bold mt-2 ${stat.colorClass}`}>{stat.change}</p>
+                        </motion.div>
                     ))}
                 </div>
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-in fade-in zoom-in-95 duration-500">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                     {/* Recent Activity */}
-                    <div className="lg:col-span-2">
-                        <GlassCard>
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-2.5">
-                                    <Clock className="h-4 w-4 text-primary" />
-                                    <h2 className="text-sm font-semibold text-foreground">
-                                        Recent Activity
-                                    </h2>
-                                </div>
-                                <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-                                    Last 7 days
-                                </span>
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.2 }}
+                        className="lg:col-span-2 rounded-[1.5rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 shadow-lg p-5 flex flex-col"
+                    >
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-[#00F5FF]" />
+                                <h2 className="text-sm font-semibold text-white tracking-tight">System Logs</h2>
                             </div>
-                            <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent hover:scrollbar-thumb-slate-500">
-                                {recentActivity && recentActivity.length > 0 ? (
+                            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-sm">7 Days</span>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto max-h-[320px] scrollbar-thin pr-2 space-y-1">
+                            {recentActivity && recentActivity.length > 0 ? (
                                     recentActivity.map((item, i) => {
                                         const IconComponent = getIcon(item.icon);
                                         return (
                                             <div
                                                 key={i}
-                                                className="flex items-center gap-4 rounded-xl px-3 py-3 hover:bg-white/5 transition-colors cursor-default"
+                                                className="flex items-center gap-4 rounded-xl px-3 py-3 hover:bg-white/[0.04] transition-colors group cursor-default"
                                             >
-                                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.iconBg}`}>
-                                                    <IconComponent className={`h-4 w-4 ${item.color}`} />
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black border border-white/10 shadow-inner group-hover:border-white/20 transition-colors">
+                                                    <IconComponent className="h-4 w-4 text-white opacity-60 group-hover:opacity-100 transition-opacity" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-foreground truncate">
+                                                    <p className="text-sm font-semibold text-white truncate mb-0.5">
                                                         {item.action}
                                                     </p>
-                                                    <p className="text-xs text-muted-foreground truncate">
+                                                    <p className="text-[11px] text-neutral-500 font-medium truncate">
                                                         {item.subject}
                                                     </p>
                                                 </div>
-                                                <span className="text-[11px] text-muted-foreground shrink-0">
+                                                <div className="text-[10px] text-neutral-500 font-medium shrink-0">
                                                     {item.time}
-                                                </span>
+                                                </div>
                                             </div>
                                         );
                                     })
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                                        <Activity className="h-8 w-8 text-muted-foreground/50 mb-2" />
-                                        <p className="text-sm text-muted-foreground">No recent activities</p>
-                                    </div>
-                                )}
-                            </div>
-                        </GlassCard>
-                    </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                                    <Activity className="h-8 w-8 text-neutral-700 mb-3" />
+                                    <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-widest">No recent operations</p>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
 
-                    {/* Performance Overview */}
-                    <GlassCard>
-                        <div className="flex items-center gap-2.5 mb-5">
-                            <BarChart3 className="h-4 w-4 text-accent" />
-                            <h2 className="text-sm font-semibold text-foreground">
-                                Performance
-                            </h2>
+                    {/* Neural Performance */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.3 }}
+                        className="rounded-[1.5rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 shadow-lg p-5 flex flex-col"
+                    >
+                        <div className="flex items-center gap-2 mb-6">
+                            <BarChart3 className="h-4 w-4 text-[#7B61FF]" />
+                            <h2 className="text-sm font-semibold text-white tracking-tight">Performance</h2>
                         </div>
 
-                        <div className="space-y-5">
-                            {performanceBars.map((bar) => (
+                        <div className="space-y-5 flex-1">
+                            {performanceBars.map((bar, i) => (
                                 <div key={bar.label}>
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-xs font-medium text-muted-foreground">
+                                        <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
                                             {bar.label}
                                         </span>
-                                        <span className="text-xs font-bold text-foreground">
+                                        <span className="text-[11px] font-black text-white">
                                             {bar.value}%
                                         </span>
                                     </div>
-                                    <div className="h-2 rounded-full bg-black/40 overflow-hidden border border-white/5">
-                                        <div
-                                            className={`h-full rounded-full ${bar.color} transition-all duration-1000 ease-out`}
-                                            style={{ width: `${bar.value}%` }}
+                                    <div className="h-2 rounded-full bg-black/60 overflow-hidden border border-white/5">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${bar.value}%` }}
+                                            transition={{ duration: 1, delay: 0.4 + (i * 0.1), ease: "easeOut" }}
+                                            className={`h-full rounded-full ${bar.gradient}`}
                                         />
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-2 text-xs text-emerald-400">
+                        <div className="mt-6 pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-2 text-xs font-medium text-emerald-400">
                                 <TrendingUp className="h-3.5 w-3.5" />
-                                <span className="font-medium">12% improvement this month</span>
+                                12% overall improvement
                             </div>
                         </div>
-                    </GlassCard>
+                    </motion.div>
                 </div>
 
-                {/* Quick Access Grid */}
-                <div className="animate-in fade-in zoom-in-95 duration-500">
-                    <div className="flex items-center gap-2.5 mb-4 px-1">
-                        <Sparkles className="h-4 w-4 text-pink-400" />
-                        <h2 className="text-sm font-semibold text-foreground">
-                            Quick Access
+                {/* Modules Grid */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.4 }}
+                >
+                    <div className="flex items-center gap-2 mb-4 px-1">
+                        <Sparkles className="h-4 w-4 text-neutral-400" />
+                        <h2 className="text-sm font-semibold text-white tracking-tight">
+                            Platform Modules
                         </h2>
                     </div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {quickAccess.map((item) => (
                             <Link key={item.path} to={item.path} className="block group">
-                                <GlassCard hover className="h-full">
-                                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${item.iconBg} mb-4`}>
-                                        <item.icon className={`h-5 w-5 ${item.color}`} />
+                                <div 
+                                    className={`h-full rounded-[1.25rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 p-5 shadow-lg overflow-hidden flex flex-col transition-all hover:bg-white/[0.04] hover:border-white/20 hover:-translate-y-1 ${item.glowColor}`}
+                                >
+                                    <div className={`w-10 h-10 mb-4 rounded-xl ${item.iconBg} flex items-center justify-center`}>
+                                        <item.icon className={`h-5 w-5 ${item.iconColor}`} />
                                     </div>
-                                    <h3 className="text-sm font-semibold text-foreground mb-1">
+                                    <h3 className="text-sm font-bold text-white mb-1">
                                         {item.title}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+                                    <p className="text-xs font-medium text-neutral-500 leading-relaxed mb-4">
                                         {item.desc}
                                     </p>
-                                    <div className={`flex items-center gap-1 text-xs font-medium ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+                                    <div className={`mt-auto flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest ${item.iconColor} opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0`}>
                                         Open
                                         <ArrowRight className="h-3 w-3" />
                                     </div>
-                                </GlassCard>
+                                </div>
                             </Link>
                         ))}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

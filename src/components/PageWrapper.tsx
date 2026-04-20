@@ -15,12 +15,15 @@ export function PageWrapper({ children, title, subtitle, icon, badge }: PageWrap
   const restOfTitle = titleWords.join(' ');
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
-      {/* Background Noise & Gradient */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
-        <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[150px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[50%] rounded-full bg-accent/10 blur-[180px]" />
+    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#02040A] min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+      {/* Cinematic Background Layer */}
+      <div className="sticky top-0 left-0 w-full h-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-screen" />
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#00F5FF]/20 blur-[180px] mix-blend-screen" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#7B61FF]/20 blur-[180px] mix-blend-screen" />
+          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/15 blur-[150px] mix-blend-screen" />
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-4 md:py-6 relative z-10 space-y-6">
@@ -31,9 +34,9 @@ export function PageWrapper({ children, title, subtitle, icon, badge }: PageWrap
               {badge || "Feature"}
             </div>
           )}
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground font-heading">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white font-heading">
             {restOfTitle ? <>{restOfTitle} </> : null}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">{lastWord}</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60">{lastWord}</span>
           </h1>
           {subtitle && (
             <p className="text-muted-foreground text-sm max-w-xl leading-relaxed">

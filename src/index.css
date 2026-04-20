@@ -106,7 +106,7 @@
 
 @layer components {
   .glass-panel {
-    @apply rounded-[1.5rem] border border-white/10 bg-background/30 backdrop-blur-xl shadow-lg relative;
+    @apply rounded-[1.25rem] border border-white/[0.08] bg-white/[0.03] backdrop-blur-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] relative;
   }
 
   .glass-panel-hover {
@@ -114,7 +114,7 @@
   }
 
   .glass-panel-hover:hover {
-    @apply bg-background/50 border-white/20 shadow-[0_0_30px_rgba(0,245,255,0.1)];
+    @apply bg-white/[0.06] border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.4)];
     transform: translateY(-2px);
   }
 

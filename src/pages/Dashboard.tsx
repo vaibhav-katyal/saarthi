@@ -224,12 +224,15 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="flex-1 overflow-y-auto scrollbar-thin bg-black min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+        <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#02040A] min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
             {/* Cinematic Background Layer */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.10] mix-blend-screen" />
-                <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] rounded-full bg-[#00F5FF]/5 blur-[150px]" />
-                <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[50%] rounded-full bg-[#7B61FF]/5 blur-[180px]" />
+            <div className="sticky top-0 left-0 w-full h-0 pointer-events-none z-0">
+                <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-screen" />
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#00F5FF]/20 blur-[180px] mix-blend-screen" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#7B61FF]/20 blur-[180px] mix-blend-screen" />
+                    <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/15 blur-[150px] mix-blend-screen" />
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 py-6 md:py-8 relative z-10 space-y-6 md:space-y-8">
@@ -247,7 +250,7 @@ const Dashboard = () => {
                     </div>
                     <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white font-heading">
                         {greeting},{" "}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60">
                             {firstName}
                         </span>
                         .
@@ -265,7 +268,7 @@ const Dashboard = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, delay: 0.1 * i }}
-                            className="relative group rounded-[1.25rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 p-5 shadow-lg overflow-hidden flex flex-col hover:border-white/20 hover:-translate-y-[2px] transition-all"
+                            className="relative group rounded-[1.25rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex flex-col hover:border-white/20 hover:bg-white/[0.06] hover:-translate-y-[2px] transition-all"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className={`w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>
@@ -290,7 +293,7 @@ const Dashboard = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: 0.2 }}
-                        className="lg:col-span-2 rounded-[1.5rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 shadow-lg p-5 flex flex-col"
+                        className="lg:col-span-2 rounded-[1.5rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-5 flex flex-col"
                     >
                         <div className="flex items-center justify-between mb-5">
                             <div className="flex items-center gap-2">
@@ -340,7 +343,7 @@ const Dashboard = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: 0.3 }}
-                        className="rounded-[1.5rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 shadow-lg p-5 flex flex-col"
+                        className="rounded-[1.5rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-5 flex flex-col"
                     >
                         <div className="flex items-center gap-2 mb-6">
                             <BarChart3 className="h-4 w-4 text-[#7B61FF]" />
@@ -396,7 +399,7 @@ const Dashboard = () => {
                         {quickAccess.map((item) => (
                             <Link key={item.path} to={item.path} className="block group">
                                 <div 
-                                    className={`h-full rounded-[1.25rem] bg-[#0A0E17]/80 backdrop-blur-xl border border-white/10 p-5 shadow-lg overflow-hidden flex flex-col transition-all hover:bg-white/[0.04] hover:border-white/20 hover:-translate-y-1 ${item.glowColor}`}
+                                    className={`h-full rounded-[1.25rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden flex flex-col transition-all hover:bg-white/[0.08] hover:border-white/30 hover:-translate-y-1 ${item.glowColor}`}
                                 >
                                     <div className={`w-10 h-10 mb-4 rounded-xl ${item.iconBg} flex items-center justify-center`}>
                                         <item.icon className={`h-5 w-5 ${item.iconColor}`} />

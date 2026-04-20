@@ -213,12 +213,15 @@ export default function LeaveManager() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#070B14] min-h-screen text-white font-sans relative pb-10">
-      {/* Background Noise & Gradient */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
-        <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[150px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[50%] rounded-full bg-accent/10 blur-[180px]" />
+    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#02040A] min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+      {/* Cinematic Background Layer */}
+      <div className="sticky top-0 left-0 w-full h-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-screen" />
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#00F5FF]/20 blur-[180px] mix-blend-screen" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#7B61FF]/20 blur-[180px] mix-blend-screen" />
+          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/15 blur-[150px] mix-blend-screen" />
+        </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-4 md:py-6 relative z-10 space-y-6">
@@ -229,8 +232,8 @@ export default function LeaveManager() {
             <CalendarCheck className="h-3 w-3" />
             Smart Attendance
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground font-heading">
-            Leave <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Manager</span>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white font-heading">
+            Leave <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60">Manager</span>
           </h1>
           <p className="text-muted-foreground text-sm max-w-xl mx-auto leading-relaxed">
             Quickly calculate secure skips or track your subjects long-term.
@@ -259,7 +262,7 @@ export default function LeaveManager() {
         {/* View Routing */}
         {viewMode === "calculator" ? (
           /* QUICK CALCULATOR MODE */
-          <div className="w-full max-w-4xl mx-auto relative rounded-[2rem] border border-white/5 bg-background/40 p-5 md:p-6 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-full max-w-4xl mx-auto relative glass-panel p-5 md:p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-500">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 mix-blend-overlay pointer-events-none" />
 
             <div className="relative z-10 grid md:grid-cols-[1fr_1.5fr] gap-6 md:gap-8">
@@ -420,7 +423,7 @@ export default function LeaveManager() {
                 </div>
 
                 {isAddingCourse && (
-                  <div className="bg-background/40 backdrop-blur-xl border border-primary/30 rounded-[1.5rem] p-6 shadow-2xl relative overflow-hidden">
+                  <div className="glass-panel p-6 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                     <div className="relative z-10">
                       <div className="flex justify-between items-center mb-5">
@@ -473,7 +476,7 @@ export default function LeaveManager() {
                     const colors = getStatusColors(stats.status);
 
                     return (
-                      <div key={course.id || course._id} className="bg-background/30 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-5 shadow-lg relative group">
+                      <div key={course.id || course._id} className="glass-panel p-5 relative group">
 
                         {/* Status Glow */}
                         <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[80px] opacity-20 pointer-events-none ${colors.bg}`} />

@@ -13,6 +13,7 @@ import {
     Zap,
     BarChart3,
     ChevronRight,
+    X,
 } from "lucide-react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
@@ -284,6 +285,66 @@ Make sure:
         icon={<Brain className="h-3 w-3" />}
         badge="Quizzes"
       >
+        {/* API Settings Modal */}
+        {showApiSettings && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <GlassCard className="w-full max-w-md border border-border/50">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Groq API Configuration
+                </h2>
+                <button
+                  onClick={() => setShowApiSettings(false)}
+                  className="p-1 hover:bg-muted rounded-md transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Groq API Key
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="gsk_..."
+                    className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/40 transition-colors"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Get your free API key from{" "}
+                    <a
+                      href="https://console.groq.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      console.groq.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowApiSettings(false)}
+                  className="flex-1 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveApiKey}
+                  className="flex-1 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  Save
+                </button>
+              </div>
+            </GlassCard>
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto space-y-4">
           {/* Header Section */}
           <div className="relative overflow-hidden rounded-[1.5rem] border border-border/50 bg-gradient-to-br from-primary/15 via-transparent to-transparent p-5">
@@ -302,46 +363,6 @@ Make sure:
 
           {/* Main Form Card */}
           <GlassCard className="space-y-5 border border-border/50 p-5">
-            {/* API Settings Panel */}
-            {showApiSettings && (
-              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 backdrop-blur-sm">
-                <div className="mb-3 flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-blue-500" />
-                  <h3 className="text-sm font-semibold text-foreground">API Configuration</h3>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-semibold mb-2 text-foreground">
-                      Groq API Key
-                    </label>
-                    <input
-                      type="password"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="gsk_..."
-                      className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-blue-500/30 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent transition"
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1.5">
-                      Get your free API key at{" "}
-                      <a
-                        href="https://console.groq.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-400 font-medium"
-                      >
-                        console.groq.com
-                      </a>
-                    </p>
-                  </div>
-                  <button
-                    onClick={saveApiKey}
-                    className="w-full px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition duration-200"
-                  >
-                    Save & Continue
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Topic and Subtopic Section */}
             <div className="space-y-4">
@@ -415,7 +436,7 @@ Make sure:
             {/* Action Buttons */}
             <div className="flex gap-2 pt-2">
               <button
-                onClick={() => setShowApiSettings(!showApiSettings)}
+                onClick={() => setShowApiSettings(true)}
                 className="px-3 py-2 text-sm rounded-lg bg-secondary/50 text-foreground font-medium hover:bg-secondary transition duration-200 flex items-center gap-2"
               >
                 <Settings className="h-3.5 w-3.5" />

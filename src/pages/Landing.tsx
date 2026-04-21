@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 
 import { Link } from 'react-router-dom';
 import { ArrowRight, GraduationCap, Play, Map, BookOpen, Code2, Swords, Brain, Calculator, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
 import ShaderLines from '../components/ShaderLines';
+import { CustomCursor } from '../components/CustomCursor';
 
 const FRAME_COUNT = 111;
 
@@ -137,6 +138,16 @@ const Landing = () => {
   
   return (
     <main className="bg-black text-white min-h-screen font-sans selection:bg-white/20 selection:text-white">
+      <CustomCursor />
+      <style>
+        {`
+          @media (min-width: 768px) {
+            * {
+              cursor: none !important;
+            }
+          }
+        `}
+      </style>
 
       {/* Minimal Apple-style Nav */}
       <header className="fixed top-0 left-0 right-0 z-50 mix-blend-difference pointer-events-none">

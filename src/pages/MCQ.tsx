@@ -15,9 +15,11 @@ import {
     BarChart3,
     ChevronRight,
     X,
+    HelpCircle,
 } from "lucide-react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
+import { ApiGuideModal } from "@/components/ApiGuideModal";
 import { toast } from "@/hooks/use-toast";
 import { logMCQActivity } from "@/lib/activityLogger";
 
@@ -48,6 +50,7 @@ type PageState = "form" | "quiz" | "results";
 export default function MCQ() {
     const [apiKey, setApiKey] = useState("");
     const [showApiSettings, setShowApiSettings] = useState(false);
+    const [showApiGuide, setShowApiGuide] = useState(false);
     const [pageState, setPageState] = useState<PageState>("form");
 
   // Form state
@@ -312,6 +315,9 @@ Make sure:
         icon={<Brain className="h-3 w-3" />}
         badge="Quizzes"
       >
+        {/* API Guide Modal */}
+        <ApiGuideModal isOpen={showApiGuide} onClose={() => setShowApiGuide(false)} />
+
         {/* API Settings Modal */}
         {showApiSettings && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -340,17 +346,26 @@ Make sure:
                     placeholder="gsk_..."
                     className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/40 transition-colors"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Get your free API key from{" "}
-                    <a
-                      href="https://console.groq.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-muted-foreground">
+                      Get your free API key from{" "}
+                      <a
+                        href="https://console.groq.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        console.groq.com
+                      </a>
+                    </p>
+                    <button
+                      onClick={() => setShowApiGuide(true)}
+                      className="text-xs font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-2 flex items-center gap-1"
                     >
-                      console.groq.com
-                    </a>
-                  </p>
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      How to get API key?
+                    </button>
+                  </div>
                 </div>
               </div>
 

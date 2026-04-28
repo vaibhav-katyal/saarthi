@@ -3,10 +3,11 @@ import confetti from "canvas-confetti";
 import { Editor } from "@monaco-editor/react";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
-import { Play, User, Swords, CheckCircle2, Clock, Copy, Plus, Sparkles, Settings, X, LogOut, Code2, AlertCircle, Trophy, ArrowLeft } from "lucide-react";
+import { Play, User, Swords, CheckCircle2, Clock, Copy, Plus, Sparkles, Settings, X, LogOut, Code2, AlertCircle, Trophy, ArrowLeft, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/PageWrapper";
 import { GlassCard } from "@/components/GlassCard";
+import { ApiGuideModal } from "@/components/ApiGuideModal";
 import { extractUserCode, buildFinalCode, normalizeOutput } from "@/lib/codeExecution";
 import { logCodeDuelActivity } from "@/lib/activityLogger";
 
@@ -83,6 +84,7 @@ const CodeDuel = () => {
     // AI Generation State
     const [apiKey, setApiKey] = useState("");
     const [showApiSettings, setShowApiSettings] = useState(false);
+    const [showApiGuide, setShowApiGuide] = useState(false);
     const [topic, setTopic] = useState("");
     const [generating, setGenerating] = useState(false);
 
@@ -833,6 +835,9 @@ Return ONLY a valid JSON object:
                 </div>
             </div>
 
+            {/* API Guide Modal */}
+            <ApiGuideModal isOpen={showApiGuide} onClose={() => setShowApiGuide(false)} />
+
             {/* API Settings Modal */}
             {showApiSettings && isOwner && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -846,9 +851,18 @@ Return ONLY a valid JSON object:
                         <div className="p-5">
                             <label className="text-xs font-medium text-gray-400 mb-2 block uppercase tracking-wider">Groq API Key</label>
                             <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="gsk_..." className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-3 text-sm outline-none focus:border-[#7B61FF] transition-colors font-mono" />
-                            <p className="text-xs text-gray-500 mt-3 flex items-start gap-1">
-                                <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5"/> Get your free API key from console.groq.com
-                            </p>
+                            <div className="flex items-center justify-between mt-3">
+                                <p className="text-xs text-gray-500 flex items-start gap-1">
+                                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5"/> Get your free API key from console.groq.com
+                                </p>
+                                <button
+                                    onClick={() => setShowApiGuide(true)}
+                                    className="text-xs font-medium text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors underline underline-offset-2 flex items-center gap-1"
+                                >
+                                    <HelpCircle className="w-3.5 h-3.5" />
+                                    How to get API key?
+                                </button>
+                            </div>
                         </div>
                         <div className="flex gap-3 p-4 border-t border-white/10 bg-white/5">
                             <button onClick={() => setShowApiSettings(false)} className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-sm font-bold hover:bg-white/5 transition-colors">Cancel</button>

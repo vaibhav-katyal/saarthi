@@ -17,11 +17,15 @@ import {
   ChevronRight,
   AlignLeft,
   Copy,
-  FolderPlus
+  FolderPlus,
+  Settings,
+  HelpCircle,
+  AlertCircle
 } from "lucide-react";
 import { generateAISummary } from "@/lib/ai";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { ApiGuideModal } from "@/components/ApiGuideModal";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -80,6 +84,10 @@ export default function KnowledgeVault() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [apiKey, setApiKey] = useState("");
+  const [showApiSettings, setShowApiSettings] = useState(false);
+  const [showApiGuide, setShowApiGuide] = useState(false);
+
   // Modals state
   const [showFabMenu, setShowFabMenu] = useState(false);
   const [showFolderModal, setShowFolderModal] = useState(false);
@@ -119,6 +127,21 @@ export default function KnowledgeVault() {
   useEffect(() => {
     fetchVaultData(currentFolder);
   }, [currentFolder]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("groq_api_key");
+    if (saved) setApiKey(saved);
+  }, []);
+
+  const saveApiKey = () => {
+    if (!apiKey.trim()) {
+      toast({ title: "Please enter a valid API key", variant: "destructive" });
+      return;
+    }
+    localStorage.setItem("groq_api_key", apiKey);
+    toast({ title: "API key saved successfully" });
+    setShowApiSettings(false);
+  };
 
   const navigateToFolder = (folderId: string | null, folderName: string) => {
     setCurrentFolder(folderId);
@@ -295,6 +318,67 @@ export default function KnowledgeVault() {
         </div>
       </div>
 
+      {/* API Guide Modal */}
+      <ApiGuideModal isOpen={showApiGuide} onClose={() => setShowApiGuide(false)} />
+
+      {/* API Settings Modal */}
+      <AnimatePresence>
+        {showApiSettings && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4" 
+            onClick={() => setShowApiSettings(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0A0E17] p-6 md:p-8 shadow-2xl flex flex-col" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-bold flex items-center gap-3 text-white tracking-tight">
+                  <Settings className="w-5 h-5 text-[#00F5FF]" /> API Settings
+                </h2>
+                <button onClick={() => setShowApiSettings(false)} className="p-2 rounded-lg text-neutral-500 hover:text-white hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Groq API Key</label>
+                  <input 
+                    type="password" 
+                    value={apiKey} 
+                    onChange={e => setApiKey(e.target.value)} 
+                    placeholder="gsk_..." 
+                    className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white focus:border-[#00F5FF]/50 outline-none transition-all font-mono" 
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-3">
+                  <p className="text-xs text-neutral-400 flex items-start gap-1">
+                      <AlertCircle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-neutral-500"/> Get your free API key from console.groq.com
+                  </p>
+                  <button
+                      onClick={() => setShowApiGuide(true)}
+                      className="text-xs font-medium text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors underline underline-offset-2 flex items-center gap-1 shrink-0"
+                  >
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      How to get API key?
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-auto pt-6 border-t border-white/10">
+                <button onClick={() => setShowApiSettings(false)} className="rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
+                <button onClick={saveApiKey} className="rounded-xl bg-white/10 border border-white/10 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">Save</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto px-6 py-6 md:py-8 relative z-10 space-y-6 md:space-y-8">
         
         {/* Header */}
@@ -372,6 +456,13 @@ export default function KnowledgeVault() {
                 className="p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-all shrink-0"
               >
                 {view === "grid" ? <List className="h-4 w-4" /> : <Grid3X3 className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={() => setShowApiSettings(true)}
+                className="p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-all shrink-0"
+                title="API Settings"
+              >
+                <Settings className="h-4 w-4" />
               </button>
             </div>
           </div>

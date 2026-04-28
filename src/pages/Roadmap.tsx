@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { toast } from "@/hooks/use-toast";
-import { Sparkles, Map, BookOpen, Search, Settings, X, AlertCircle, ChevronDown } from "lucide-react";
+import { Sparkles, Map, BookOpen, Search, Settings, X, AlertCircle, ChevronDown, HelpCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { logRoadmapActivity } from "@/lib/activityLogger";
+import { ApiGuideModal } from "@/components/ApiGuideModal";
 
 const ROLE_BASED = [
   "Frontend", "Backend", "Full Stack",
@@ -228,6 +229,7 @@ export default function Roadmap() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiSettings, setShowApiSettings] = useState(false);
+  const [showApiGuide, setShowApiGuide] = useState(false);
   const [generatedGuide, setGeneratedGuide] = useState("");
   const [selectedRoadmapPdf, setSelectedRoadmapPdf] = useState("");
   const [isLibraryExpanded, setIsLibraryExpanded] = useState(false);
@@ -411,6 +413,8 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
   return (
     <PageWrapper title="Roadmaps & Guides" icon={<Map className="w-3 h-3" />} badge="AI Powered">
       <div className={`mx-auto w-full space-y-6 pb-2 ${generatedGuide || selectedRoadmapPdf ? "max-w-7xl" : "max-w-5xl"}`}>
+        {/* API Guide Modal */}
+        <ApiGuideModal isOpen={showApiGuide} onClose={() => setShowApiGuide(false)} />
 
         {/* API Settings Modal */}
         {showApiSettings && (
@@ -432,12 +436,21 @@ Ensure that the output includes the exact markdown tags shown above (e.g., "#", 
                     placeholder="gsk_..."
                     className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary/40 transition-colors shadow-sm"
                   />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Get your free API key from{" "}
-                    <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      console.groq.com
-                    </a>
-                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-muted-foreground">
+                      Get your free API key from{" "}
+                      <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        console.groq.com
+                      </a>
+                    </p>
+                    <button
+                      onClick={() => setShowApiGuide(true)}
+                      className="text-xs font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-2 flex items-center gap-1"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      How to get API key?
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2 p-4 border-t border-border">

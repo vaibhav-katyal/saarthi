@@ -1,7 +1,4 @@
-const VaultFolder = require('../models/VaultFolder');
-const VaultItem = require('../models/VaultItem');
-const fs = require('fs');
-const path = require('path');
+const vaultService = require('../services/vaultService');
 
 // @desc    Get all vault items and folders for the current user and folder
 // @route   GET /api/vault
@@ -9,26 +6,10 @@ const path = require('path');
 exports.getVaultContent = async (req, res) => {
   try {
     const { folderId } = req.query;
-    
-    // Convert 'null' string or empty to actual null
-    const parentFolder = (!folderId || folderId === 'null') ? null : folderId;
-
-    const folders = await VaultFolder.find({ 
-      user: req.user.id, 
-      parentFolder: parentFolder 
-    }).sort('-createdAt');
-
-    const items = await VaultItem.find({ 
-      user: req.user.id, 
-      folder: parentFolder 
-    }).sort('-createdAt');
-
+    const data = await vaultService.getVaultContent(req.user.id, folderId);
     res.status(200).json({
       success: true,
-      data: {
-        folders,
-        items
-      }
+      data
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
@@ -40,14 +21,7 @@ exports.getVaultContent = async (req, res) => {
 // @access  Private
 exports.createFolder = async (req, res) => {
   try {
-    const { name, parentFolder } = req.body;
-
-    const folder = await VaultFolder.create({
-      name,
-      user: req.user.id,
-      parentFolder: parentFolder || null,
-    });
-
+    const folder = await vaultService.createFolder(req.user.id, req.body);
     res.status(201).json({
       success: true,
       data: folder
@@ -62,36 +36,7 @@ exports.createFolder = async (req, res) => {
 // @access  Private
 exports.createItem = async (req, res) => {
   try {
-    const { type, title, description, url, preview, folder, tags, summary } = req.body;
-    
-    let fileData = null;
-    let fileName = null;
-    let fileSize = null;
-
-    if (req.file) {
-      // Create a URL path to the file
-      fileData = `/uploads/vault/${req.file.filename}`;
-      fileName = req.file.originalname;
-      fileSize = req.file.size;
-    }
-
-    const itemTags = tags ? (Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim()).filter(Boolean)) : [];
-
-    const item = await VaultItem.create({
-      type,
-      title,
-      description,
-      url,
-      preview,
-      fileName,
-      fileData,
-      fileSize,
-      summary,
-      tags: itemTags,
-      folder: (!folder || folder === 'null') ? null : folder,
-      user: req.user.id
-    });
-
+    const item = await vaultService.createItem(req.user.id, req.body, req.file);
     res.status(201).json({
       success: true,
       data: item
@@ -107,27 +52,14 @@ exports.createItem = async (req, res) => {
 // @access  Private
 exports.updateItem = async (req, res) => {
   try {
-    let item = await VaultItem.findById(req.params.id);
-
-    if (!item) {
-      return res.status(404).json({ success: false, error: 'Item not found' });
-    }
-
-    if (item.user.toString() !== req.user.id) {
-      return res.status(401).json({ success: false, error: 'Not authorized' });
-    }
-
-    item = await VaultItem.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
-
+    const item = await vaultService.updateItem(req.params.id, req.user.id, req.body);
     res.status(200).json({
       success: true,
       data: item
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    const statusCode = error.message === 'Not authorized' ? 401 : 404;
+    res.status(statusCode).json({ success: false, error: error.message });
   }
 };
 
@@ -136,32 +68,14 @@ exports.updateItem = async (req, res) => {
 // @access  Private
 exports.deleteItem = async (req, res) => {
   try {
-    const item = await VaultItem.findById(req.params.id);
-
-    if (!item) {
-      return res.status(404).json({ success: false, error: 'Item not found' });
-    }
-
-    if (item.user.toString() !== req.user.id) {
-      return res.status(401).json({ success: false, error: 'Not authorized' });
-    }
-
-    // Delete file if it exists
-    if (item.fileData) {
-      const filePath = path.join(__dirname, '..', item.fileData);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    }
-
-    await item.deleteOne();
-
+    await vaultService.deleteItem(req.params.id, req.user.id);
     res.status(200).json({
       success: true,
       data: {}
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    const statusCode = error.message === 'Not authorized' ? 401 : 404;
+    res.status(statusCode).json({ success: false, error: error.message });
   }
 };
 
@@ -170,41 +84,13 @@ exports.deleteItem = async (req, res) => {
 // @access  Private
 exports.deleteFolder = async (req, res) => {
   try {
-    const folder = await VaultFolder.findById(req.params.id);
-
-    if (!folder) {
-      return res.status(404).json({ success: false, error: 'Folder not found' });
-    }
-
-    if (folder.user.toString() !== req.user.id) {
-      return res.status(401).json({ success: false, error: 'Not authorized' });
-    }
-
-    // A real app should also delete all child items and folders recursively.
-    // For simplicity, we just delete the folder itself or throw an error if not empty.
-    
-    // Simple deletion:
-    await folder.deleteOne();
-
-    // Also delete any direct children items to prevent orphans
-    const items = await VaultItem.find({ folder: req.params.id });
-    for (const item of items) {
-      if (item.fileData) {
-        const filePath = path.join(__dirname, '..', item.fileData);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      }
-      await item.deleteOne();
-    }
-    
-    // (Optional: recursively delete child folders too, omitting for brevity)
-
+    await vaultService.deleteFolder(req.params.id, req.user.id);
     res.status(200).json({
       success: true,
       data: {}
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    const statusCode = error.message === 'Not authorized' ? 401 : 404;
+    res.status(statusCode).json({ success: false, error: error.message });
   }
 };

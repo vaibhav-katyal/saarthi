@@ -1,16 +1,12 @@
-const CodeDuelAchievement = require('../models/CodeDuelAchievement');
+const codeduelService = require('../services/codeduelService');
 
 // Get all achievements for a user
 exports.getUserAchievements = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log('Backend: Fetching achievements for user:', userId);
+    console.log('Controller: Fetching achievements for user:', userId);
 
-    const achievements = await CodeDuelAchievement.find({ winner: userId })
-      .sort({ winTime: -1 })
-      .lean();
-
-    console.log('Backend: Found', achievements.length, 'achievements');
+    const achievements = await codeduelService.getUserAchievements(userId);
 
     res.json({
       success: true,
@@ -18,7 +14,7 @@ exports.getUserAchievements = async (req, res) => {
       achievements
     });
   } catch (error) {
-    console.error('Backend: Error fetching user achievements:', error);
+    console.error('Controller: Error fetching user achievements:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch achievements',
@@ -31,47 +27,10 @@ exports.getUserAchievements = async (req, res) => {
 exports.saveAchievement = async (req, res) => {
   try {
     console.log('===============================================');
-    console.log('🎯 SAVE ACHIEVEMENT REQUEST RECEIVED');
+    console.log('🎯 SAVE ACHIEVEMENT CONTROLLER');
     console.log('===============================================');
-    console.log('Raw request body:', req.body);
-    console.log('Body keys:', Object.keys(req.body || {}));
-    
-    const { winner, winnerName, opponent, opponentName, problemTitle, difficulty, roomId } = req.body;
 
-    console.log('Destructured values:');
-    console.log('- winner:', winner);
-    console.log('- winnerName:', winnerName);
-    console.log('- opponent:', opponent);
-    console.log('- opponentName:', opponentName);
-    console.log('- problemTitle:', problemTitle);
-    console.log('- difficulty:', difficulty);
-    console.log('- roomId:', roomId);
-
-    console.log('Backend: Saving achievement with data:', { winner, winnerName, opponent, opponentName, problemTitle, difficulty, roomId });
-
-    // Relaxed validation - use fallbacks for missing fields
-    const safeWinner = winner || 'unknown';
-    const safeOpponent = opponent || 'unknown';
-    const safeProblemTitle = problemTitle || 'CodeDuel Victory';
-    const safeRoomId = roomId || 'solo';
-    
-    console.log('Backend: Using safe values:', { safeWinner, safeOpponent, safeProblemTitle, safeRoomId });
-
-    const achievement = new CodeDuelAchievement({
-      winner: safeWinner,
-      winnerName: winnerName || 'Champion',
-      opponent: safeOpponent,
-      opponentName: opponentName || 'Rival',
-      problemTitle: safeProblemTitle,
-      difficulty: difficulty || 'Medium',
-      roomId: safeRoomId
-    });
-
-    console.log('Backend: Created achievement object:', achievement.toObject());
-    
-    const savedAchievement = await achievement.save();
-    console.log('Backend: Achievement saved successfully to MongoDB:', savedAchievement._id);
-    console.log('Backend: Saved achievement data:', savedAchievement.toObject());
+    const savedAchievement = await codeduelService.saveAchievement(req.body);
 
     res.json({
       success: true,
@@ -79,8 +38,8 @@ exports.saveAchievement = async (req, res) => {
       achievement: savedAchievement
     });
   } catch (error) {
-    console.error('Backend: Error saving achievement:', error);
-    console.error('Backend: Error details:', {
+    console.error('Controller: Error saving achievement:', error);
+    console.error('Controller: Error details:', {
       name: error.name,
       message: error.message,
       code: error.code,
@@ -99,28 +58,16 @@ exports.saveAchievement = async (req, res) => {
 exports.getUserStats = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log('Backend: Fetching stats for user:', userId);
+    console.log('Controller: Fetching stats for user:', userId);
 
-    const achievements = await CodeDuelAchievement.find({ winner: userId }).lean();
-    const totalWins = achievements.length;
-
-    const byDifficulty = {
-      Easy: achievements.filter(a => a.difficulty === 'Easy').length,
-      Medium: achievements.filter(a => a.difficulty === 'Medium').length,
-      Hard: achievements.filter(a => a.difficulty === 'Hard').length
-    };
-
-    console.log('Backend: Stats for user:', { totalWins, byDifficulty });
+    const stats = await codeduelService.getUserStats(userId);
 
     res.json({
       success: true,
-      userId,
-      totalWins,
-      byDifficulty,
-      achievements
+      ...stats
     });
   } catch (error) {
-    console.error('Backend: Error fetching user stats:', error);
+    console.error('Controller: Error fetching user stats:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch stats',

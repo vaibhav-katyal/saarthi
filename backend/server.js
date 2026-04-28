@@ -4,10 +4,11 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to database
 connectDB();
@@ -17,6 +18,10 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+
+// Set EJS as view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Body parser
 app.use(express.json());
@@ -189,7 +194,6 @@ app.use('/api/activity', require('./routes/activityRoutes'));
 app.use('/api/codeduel', require('./routes/codeduelRoutes'));
 
 // Serve uploads folder statically
-const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
@@ -204,9 +208,25 @@ server.listen(
   () => console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`)
 );
 
+// Start email scheduler after server starts
+const { scheduleWeeklyEmails } = require('./utils/emailScheduler');
+scheduleWeeklyEmails();
+
+// Verify email service on startup
+const { verifyConnection } = require('./utils/emailService');
+verifyConnection().then((ready) => {
+  if (ready) {
+    console.log('✅ Email service is ready for sending');
+  } else {
+    console.error('❌ Email service is NOT ready. Password reset emails will fail.');
+    console.error('   Check your SMTP credentials in backend/.env and restart the server.');
+  }
+});
+
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
   // Close server & exit process
   server.close(() => process.exit(1));
 });
+

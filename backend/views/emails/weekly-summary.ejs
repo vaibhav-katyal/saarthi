@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Summary - Saarthi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #0a0e1a;
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00F5FF, #7B61FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.greeting {
+  font-size: 16px;
+  color: #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.greeting span {
+  color: #00F5FF;
+  font-weight: 600;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #00F5FF;
+  margin-bottom: 4px;
+}
+
+.stat-value.purple {
+  color: #7B61FF;
+}
+
+.stat-value.pink {
+  color: #ec4899;
+}
+
+.stat-value.amber {
+  color: #f59e0b;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.full-width-stat {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+.full-width-stat .stat-info {
+  text-align: left;
+}
+
+.best-day {
+  font-size: 18px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.progress-bar {
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #00F5FF, #7B61FF);
+  height: 100%;
+  border-radius: 8px;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.1);
+  margin: 28px 0;
+}
+
+.cta-container {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #00F5FF, #00d4e0);
+  color: #0f172a;
+  padding: 12px 28px;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 32px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.encouragement {
+  background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(123, 97, 255, 0.1));
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+
+  <div class="logo">
+    <div class="logo-text">SAARTHI</div>
+  </div>
+
+  <h1>📊 Weekly Progress Report</h1>
+
+  <p class="subtitle">
+    <%= weekStart %> — <%= weekEnd %>
+  </p>
+
+  <p class="greeting">
+    Hi <span><%= name %></span>, here's how you performed this week! 🚀
+  </p>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon">💻</div>
+      <div class="stat-value"><%= stats.problemsSolved %></div>
+      <div class="stat-label">Problems Solved</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🧠</div>
+      <div class="stat-value purple"><%= stats.mcqsAttempted %></div>
+      <div class="stat-label">MCQs Attempted</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value pink"><%= stats.accuracy %>%</div>
+      <div class="stat-label">Accuracy</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: <%= progressWidth %>%"></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value amber"><%= stats.activeDays %>/7</div>
+      <div class="stat-label">Active Days</div>
+    </div>
+
+    <div class="stat-card full-width-stat">
+      <div class="stat-info">
+        <div class="stat-label">⭐ Best Day</div>
+        <div class="best-day"><%= stats.bestDay %></div>
+      </div>
+      <div class="stat-icon">🏆</div>
+    </div>
+
+  </div>
+
+  <div class="encouragement">
+    <% if (stats.activeDays >= 5) { %>
+      <p>🔥 Incredible consistency! You're on fire this week! Keep the momentum going!</p>
+    <% } else if (stats.activeDays >= 3) { %>
+      <p>💪 Great effort! You're building a solid habit.</p>
+    <% } else if (stats.problemsSolved > 0 || stats.mcqsAttempted > 0) { %>
+      <p>🌱 Every step counts! Try to practice daily.</p>
+    <% } else { %>
+      <p>🚀 Ready to start your learning journey?</p>
+    <% } %>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="cta-container">
+    <a href="<%= dashboardLink %>" class="cta-btn">Open Dashboard</a>
+  </div>
+
+  <div class="footer">
+    <p>You're receiving this because you're subscribed to weekly summaries.</p>
+    <p style="margin-top: 8px;">
+      © <%= new Date().getFullYear() %> Saarthi
+    </p>
+  </div>
+
+</div>
+
+  </div>
+</body>
+
+</html>

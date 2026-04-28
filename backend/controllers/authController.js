@@ -1,7 +1,9 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const https = require('https');
+const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -187,3 +189,144 @@ exports.googleAuth = async (req, res) => {
     res.status(500).json({ success: false, error: 'Google authentication failed: ' + (error.message || 'Unknown error') });
   }
 };
+
+// @desc    Forgot password - send reset email
+// @route   POST /api/auth/forgot-password
+// @access  Public
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Please provide an email' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Return success even if user not found to prevent email enumeration
+      return res.status(200).json({ 
+        success: true, 
+        message: 'If an account exists with this email, a reset link has been sent.' 
+      });
+    }
+
+    // Check if user has a password (not Google-only)
+    const userWithPassword = await User.findById(user._id).select('+password');
+    if (!userWithPassword.password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'This account uses Google login. Please sign in with Google.' 
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    // Save token to user
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = resetTokenExpiry;
+    await user.save();
+
+    // Send email using EJS template
+    const emailResult = await sendPasswordResetEmail(user.email, user.name, resetToken);
+
+    if (!emailResult.success) {
+      console.error('Failed to send reset email:', emailResult.error);
+      return res.status(500).json({
+        success: false,
+        error: emailResult.error || 'Failed to send reset email. Please try again later.'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset link sent to your email.'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Reset password with token
+// @route   POST /api/auth/reset-password
+// @access  Public
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Please provide reset token and new password' 
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Password must be at least 6 characters' 
+      });
+    }
+
+    // Find user with valid token (explicitly select token fields since they have select: false)
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() }
+    }).select('+resetToken +resetTokenExpiry');
+
+    if (!user) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid or expired reset token' 
+      });
+    }
+
+    // Update password and clear token
+    user.password = password;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Password reset successful. Please login with your new password.' 
+    });
+  } catch (error) {
+    console.error('Reset password error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Verify reset token
+// @route   GET /api/auth/verify-reset-token/:token
+// @access  Public
+exports.verifyResetToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid or expired reset token' 
+      });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Token is valid',
+      email: user.email 
+    });
+  } catch (error) {
+    console.error('Verify token error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+

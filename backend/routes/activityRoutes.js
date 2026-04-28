@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
 const { logActivity, getRecentActivities } = require('../utils/logger');
+const { getWeeklySummary } = require('../controllers/testpadController');
+const { sendWeeklySummaryToUser, sendWeeklyEmailsToAllUsers } = require('../utils/emailScheduler');
 
 // Log activity endpoint - handles frontend activities that don't have backend routes
 router.post('/log', protect, (req, res) => {
@@ -51,5 +53,58 @@ router.get('/recent', protect, (req, res) => {
   }
 });
 
-module.exports = router;
+// Get weekly summary for current user
+router.get('/weekly-summary', protect, getWeeklySummary);
 
+// TEST ENDPOINT: Send weekly summary email to current user
+router.post('/test-weekly-email', protect, async (req, res) => {
+  try {
+    console.log(`[Test] Sending weekly email to ${req.user.email}...`);
+    const result = await sendWeeklySummaryToUser(req.user._id);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Weekly summary email sent',
+        messageId: result.messageId,
+        previewUrl: result.previewUrl || null
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to send email'
+      });
+    }
+  } catch (error) {
+    console.error('Error in test-weekly-email:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// TEST ENDPOINT: Trigger full weekly email batch (development only)
+router.post('/test-weekly-batch', protect, async (req, res) => {
+  try {
+    // Optional: add a simple check to prevent accidental production use
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({
+        success: false,
+        error: 'This endpoint is disabled in production'
+      });
+    }
+
+    console.log('[Test] Triggering full weekly email batch...');
+    
+    // Don't await — run in background so we can respond immediately
+    sendWeeklyEmailsToAllUsers();
+    
+    res.json({
+      success: true,
+      message: 'Weekly email batch job started. Check server console for progress.'
+    });
+  } catch (error) {
+    console.error('Error in test-weekly-batch:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+module.exports = router;

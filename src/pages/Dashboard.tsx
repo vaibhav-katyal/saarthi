@@ -98,19 +98,22 @@ const quickAccess = [
     },
 ];
 
-const performanceBars = [
-    { label: "DSA Progress", value: 72, gradient: "bg-gradient-to-r from-[#00F5FF]/40 to-[#00F5FF]" },
-    { label: "MCQ Accuracy", value: 85, gradient: "bg-gradient-to-r from-[#7B61FF]/40 to-[#7B61FF]" },
-    { label: "Code Quality", value: 68, gradient: "bg-gradient-to-r from-emerald-500/40 to-emerald-500" },
-    { label: "Consistency", value: 91, gradient: "bg-gradient-to-r from-amber-500/40 to-amber-500" },
-];
-
 const Dashboard = () => {
     const { user } = useAuth();
     const greeting = getGreeting();
     const firstName = user?.name?.split(" ")[0] || "Student";
     const [submissionsCount, setSubmissionsCount] = useState<number | string>("...");
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
+
+    // Weekly Summary State
+    const [weeklySummary, setWeeklySummary] = useState({
+        problemsSolved: "...",
+        mcqsAttempted: "...",
+        accuracy: "...",
+        activeDays: "...",
+        bestDay: "...",
+        loading: true
+    });
 
     // Course Stats State
     const [attendancePercent, setAttendancePercent] = useState<number | string>("...");
@@ -122,6 +125,29 @@ const Dashboard = () => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
+
+                // Fetch Weekly Summary
+                try {
+                    const summaryRes = await fetch("http://localhost:5000/api/activity/weekly-summary", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (summaryRes.ok) {
+                        const summaryData = await summaryRes.json();
+                        if (summaryData.success && summaryData.data) {
+                            setWeeklySummary({
+                                problemsSolved: summaryData.data.problemsSolved,
+                                mcqsAttempted: summaryData.data.mcqsAttempted,
+                                accuracy: summaryData.data.accuracy,
+                                activeDays: summaryData.data.activeDays,
+                                bestDay: summaryData.data.bestDay,
+                                loading: false
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error("[Dashboard] Failed to fetch weekly summary:", error);
+                    setWeeklySummary(prev => ({ ...prev, loading: false }));
+                }
 
                 // Fetch Recent Activities
                 try {
@@ -295,7 +321,7 @@ const Dashboard = () => {
                         transition={{ duration: 0.4, delay: 0.2 }}
                         className="lg:col-span-2 rounded-[1.5rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-5 flex flex-col"
                     >
-                        <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center justify-between mb-5 flex-shrink-0">
                             <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-[#00F5FF]" />
                                 <h2 className="text-sm font-semibold text-white tracking-tight">System Logs</h2>
@@ -303,7 +329,7 @@ const Dashboard = () => {
                             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-sm">7 Days</span>
                         </div>
                         
-                        <div className="flex-1 overflow-y-auto max-h-[320px] scrollbar-thin pr-2 space-y-1">
+                        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pr-2 space-y-1 min-h-0 max-h-[448px]">
                             {recentActivity && recentActivity.length > 0 ? (
                                     recentActivity.map((item, i) => {
                                         const IconComponent = getIcon(item.icon);
@@ -338,7 +364,7 @@ const Dashboard = () => {
                         </div>
                     </motion.div>
 
-                    {/* Neural Performance */}
+                    {/* Weekly Summary */}
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -346,37 +372,80 @@ const Dashboard = () => {
                         className="rounded-[1.5rem] bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-5 flex flex-col"
                     >
                         <div className="flex items-center gap-2 mb-6">
-                            <BarChart3 className="h-4 w-4 text-[#7B61FF]" />
-                            <h2 className="text-sm font-semibold text-white tracking-tight">Performance</h2>
+                            <CalendarDays className="h-4 w-4 text-emerald-400" />
+                            <h2 className="text-sm font-semibold text-white tracking-tight">Weekly Summary</h2>
                         </div>
 
-                        <div className="space-y-5 flex-1">
-                            {performanceBars.map((bar, i) => (
-                                <div key={bar.label}>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
-                                            {bar.label}
-                                        </span>
-                                        <span className="text-[11px] font-black text-white">
-                                            {bar.value}%
-                                        </span>
+                        {weeklySummary.loading ? (
+                            <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border border-white/20 border-t-emerald-400 mb-3" />
+                                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-widest">Loading...</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 flex-1">
+                                {/* Problems Solved */}
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Problems Solved</p>
+                                        <p className="text-2xl font-black text-[#00F5FF] mt-1">{weeklySummary.problemsSolved}</p>
                                     </div>
-                                    <div className="h-2 rounded-full bg-black/60 overflow-hidden border border-white/5">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${bar.value}%` }}
-                                            transition={{ duration: 1, delay: 0.4 + (i * 0.1), ease: "easeOut" }}
-                                            className={`h-full rounded-full ${bar.gradient}`}
-                                        />
+                                    <div className="w-12 h-12 rounded-lg bg-[#00F5FF]/10 flex items-center justify-center">
+                                        <Code2 className="h-5 w-5 text-[#00F5FF]" />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+
+                                {/* MCQs Attempted */}
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">MCQs Attempted</p>
+                                        <p className="text-2xl font-black text-[#7B61FF] mt-1">{weeklySummary.mcqsAttempted}</p>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-lg bg-[#7B61FF]/10 flex items-center justify-center">
+                                        <Brain className="h-5 w-5 text-[#7B61FF]" />
+                                    </div>
+                                </div>
+
+                                {/* Accuracy */}
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Accuracy</p>
+                                        <p className="text-2xl font-black text-pink-400 mt-1">{weeklySummary.accuracy}%</p>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-lg bg-pink-400/10 flex items-center justify-center">
+                                        <CheckCircle2 className="h-5 w-5 text-pink-400" />
+                                    </div>
+                                </div>
+
+                                {/* Active Days */}
+                                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Active Days</p>
+                                        <p className="text-sm font-black text-amber-400 mt-1">{weeklySummary.activeDays}<span className="text-[10px] text-neutral-500"> / 7</span></p>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-lg bg-amber-400/10 flex items-center justify-center">
+                                        <Activity className="h-5 w-5 text-amber-400" />
+                                    </div>
+                                </div>
+
+                                {/* Best Day */}
+                                <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <CalendarDays className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                                        <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                                            Best Day
+                                        </p>
+                                    </div>
+                                    <p className="text-xs font-semibold text-emerald-400 truncate">
+                                        {weeklySummary.bestDay === "N/A" ? "No activity yet" : weeklySummary.bestDay}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="mt-6 pt-4 border-t border-white/5">
                             <div className="flex items-center gap-2 text-xs font-medium text-emerald-400">
                                 <TrendingUp className="h-3.5 w-3.5" />
-                                12% overall improvement
+                                Current Week Summary
                             </div>
                         </div>
                     </motion.div>

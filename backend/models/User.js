@@ -28,6 +28,14 @@ const UserSchema = new mongoose.Schema({
   avatar: {
     type: String
   },
+  resetToken: {
+    type: String,
+    select: false
+  },
+  resetTokenExpiry: {
+    type: Date,
+    select: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -51,3 +59,4 @@ UserSchema.methods.matchPassword = async function(enteredPassword) {
 };
 
 module.exports = mongoose.model('User', UserSchema);
+

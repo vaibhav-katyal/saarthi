@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 import {
     Brain,
     Play,
@@ -69,6 +70,32 @@ export default function MCQ() {
     const savedKey = localStorage.getItem("groq_api_key");
     if (savedKey) setApiKey(savedKey);
   }, []);
+
+  // Trigger confetti when all MCQs are correct
+  useEffect(() => {
+    if (results && results.score === 100) {
+      // Celebrate with confetti! 🎉
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+
+      // Extra burst after a short delay
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          spread: 100,
+          origin: { x: 0.1, y: 0.6 },
+        });
+        confetti({
+          particleCount: 50,
+          spread: 100,
+          origin: { x: 0.9, y: 0.6 },
+        });
+      }, 250);
+    }
+  }, [results]);
 
   const saveApiKey = () => {
     localStorage.setItem("groq_api_key", apiKey);

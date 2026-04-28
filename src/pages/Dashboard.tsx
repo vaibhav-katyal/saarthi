@@ -324,7 +324,7 @@ const Dashboard = () => {
                         <div className="flex items-center justify-between mb-5 flex-shrink-0">
                             <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-[#00F5FF]" />
-                                <h2 className="text-sm font-semibold text-white tracking-tight">System Logs</h2>
+                                <h2 className="text-sm font-semibold text-white tracking-tight">Recent Activity</h2>
                             </div>
                             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-sm">7 Days</span>
                         </div>

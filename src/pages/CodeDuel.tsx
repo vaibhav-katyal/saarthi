@@ -632,9 +632,9 @@ Return ONLY a valid JSON object:
                 icon={<Swords className="h-3 w-3" />}
                 badge="Multiplayer"
             >
-                <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6 mt-8">
+                <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6 mt-20">
                     <GlassCard className="flex-1 flex flex-col group p-8">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-50"></div>
+                        {/* <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-50"></div> */}
                         <h2 className="text-2xl font-bold mb-2">Create Room</h2>
                         <p className="text-sm text-muted-foreground mb-8">Generate a custom AI problem and invite an opponent to battle.</p>
                         
@@ -671,6 +671,7 @@ Return ONLY a valid JSON object:
                         </div>
                     </GlassCard>
                 </div>
+
                 <div className="max-w-4xl mx-auto flex justify-center mt-6">
                     <button
                         onClick={viewAchievements}

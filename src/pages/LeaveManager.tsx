@@ -275,7 +275,7 @@ export default function LeaveManager() {
                     <input
                       type="number"
                       value={calcDelivered}
-                      onChange={e => setCalcDelivered(e.target.value)}
+                      onChange={e => setCalcDelivered(e.target.value === "" ? "" : Number(e.target.value).toString())}
                       className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
                     />
                   </div>
@@ -284,7 +284,7 @@ export default function LeaveManager() {
                     <input
                       type="number"
                       value={calcAttended}
-                      onChange={e => setCalcAttended(e.target.value)}
+                      onChange={e => setCalcAttended(e.target.value === "" ? "" : Number(e.target.value).toString())}
                       className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
                     />
                   </div>
@@ -293,7 +293,7 @@ export default function LeaveManager() {
                     <input
                       type="number"
                       value={calcRequired}
-                      onChange={e => setCalcRequired(e.target.value)}
+                      onChange={e => setCalcRequired(e.target.value === "" ? "" : Number(e.target.value).toString())}
                       className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
                     />
                   </div>
@@ -445,8 +445,9 @@ export default function LeaveManager() {
                           <label className="text-xs font-semibold text-muted-foreground uppercase">Total Planned</label>
                           <input
                             type="number"
-                            value={newCourse.totalPlannedLectures}
-                            onChange={e => setNewCourse({ ...newCourse, totalPlannedLectures: Number(e.target.value) })}
+                            value={newCourse.totalPlannedLectures === 0 ? "" : newCourse.totalPlannedLectures.toString()}
+                            onChange={e => setNewCourse({ ...newCourse, totalPlannedLectures: e.target.value === "" ? 0 : Number(e.target.value) })}
+                            placeholder="0"
                             className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
                           />
                         </div>
@@ -454,8 +455,9 @@ export default function LeaveManager() {
                           <label className="text-xs font-semibold text-muted-foreground uppercase">Required %</label>
                           <input
                             type="number"
-                            value={newCourse.requiredAttendance}
-                            onChange={e => setNewCourse({ ...newCourse, requiredAttendance: Number(e.target.value) })}
+                            value={newCourse.requiredAttendance === 0 ? "" : newCourse.requiredAttendance.toString()}
+                            onChange={e => setNewCourse({ ...newCourse, requiredAttendance: e.target.value === "" ? 0 : Number(e.target.value) })}
+                            placeholder="0"
                             className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
                           />
                         </div>
@@ -512,8 +514,9 @@ export default function LeaveManager() {
                               <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: Math.max(0, course.delivered - 1) })} className="bg-white/5 p-1 rounded hover:bg-white/10">-</button>
                               <input
                                 type="number"
-                                value={course.delivered}
-                                onChange={e => handleUpdateCourse((course.id || course._id) as string, { delivered: Number(e.target.value) })}
+                                value={course.delivered === 0 ? "" : course.delivered.toString()}
+                                onChange={e => handleUpdateCourse((course.id || course._id) as string, { delivered: e.target.value === "" ? 0 : Number(e.target.value) })}
+                                placeholder="0"
                                 className="w-full bg-transparent text-center font-bold text-lg outline-none"
                               />
                               <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: course.delivered + 1 })} className="bg-white/5 p-1 rounded hover:bg-white/10">+</button>
@@ -525,8 +528,9 @@ export default function LeaveManager() {
                               <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: Math.max(0, course.attended - 1) })} className="bg-white/5 p-1 rounded hover:bg-white/10">-</button>
                               <input
                                 type="number"
-                                value={course.attended}
-                                onChange={e => handleUpdateCourse((course.id || course._id) as string, { attended: Number(e.target.value) })}
+                                value={course.attended === 0 ? "" : course.attended.toString()}
+                                onChange={e => handleUpdateCourse((course.id || course._id) as string, { attended: e.target.value === "" ? 0 : Number(e.target.value) })}
+                                placeholder="0"
                                 className="w-full bg-transparent text-center font-bold text-lg outline-none"
                               />
                               <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: course.attended + 1 })} className="bg-white/5 p-1 rounded hover:bg-white/10">+</button>

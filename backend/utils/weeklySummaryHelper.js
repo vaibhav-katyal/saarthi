@@ -47,6 +47,7 @@ const getWeeklySummaryForUser = async (userId) => {
 
     // Count MCQ attempts from log files
     let mcqsAttempted = 0;
+    const mcqTimestamps = [];
     try {
       const mcqLogPath = path.join(__dirname, '../public/logs/mcq.log');
       if (fs.existsSync(mcqLogPath)) {
@@ -61,6 +62,7 @@ const getWeeklySummaryForUser = async (userId) => {
             const timestamp = new Date(timestampMatch[1]);
             if (timestamp >= startOfWeek && timestamp <= endOfWeek) {
               mcqsAttempted++;
+              mcqTimestamps.push(timestamp);
             }
           }
         }
@@ -70,7 +72,8 @@ const getWeeklySummaryForUser = async (userId) => {
     }
 
     // Calculate metrics
-    const problemsSolved = testpadResults.length;
+    // Include both testpad problems and CodeDuel wins as problems solved
+    const problemsSolved = testpadResults.length + codeDuelWins.length;
 
     // Calculate accuracy
     let totalAccuracy = 0;
@@ -91,6 +94,9 @@ const getWeeklySummaryForUser = async (userId) => {
     codeDuelWins.forEach(w => {
       activeDays.add(new Date(w.winTime).toDateString());
     });
+    mcqTimestamps.forEach(ts => {
+      activeDays.add(new Date(ts).toDateString());
+    });
     const activeDaysCount = activeDays.size;
 
     // Find best day
@@ -101,6 +107,10 @@ const getWeeklySummaryForUser = async (userId) => {
     });
     codeDuelWins.forEach(w => {
       const dateStr = new Date(w.winTime).toDateString();
+      dayActivityMap[dateStr] = (dayActivityMap[dateStr] || 0) + 1;
+    });
+    mcqTimestamps.forEach(ts => {
+      const dateStr = new Date(ts).toDateString();
       dayActivityMap[dateStr] = (dayActivityMap[dateStr] || 0) + 1;
     });
 

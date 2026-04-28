@@ -48,17 +48,17 @@ const getUserResults = async (userId) => {
 const getWeeklySummary = async (userId) => {
   const userObjId = userId.toString();
   
-  // Get PREVIOUS week's start (last Sunday 00:00) and end (last Saturday 23:59)
-  // The cron runs Sunday at 9 AM, so we want the week that just ended
+  // Get CURRENT week's start (this Sunday 00:00) and end (this Saturday 23:59)
+  // Dashboard shows "Current Week Summary", so we look at the ongoing week
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = Sunday
   
-  // startOfWeek = last Sunday (7 days ago if today is Sunday, otherwise dayOfWeek days ago)
+  // startOfWeek = this Sunday (dayOfWeek days ago)
   const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - dayOfWeek - 7);
+  startOfWeek.setDate(now.getDate() - dayOfWeek);
   startOfWeek.setHours(0, 0, 0, 0);
   
-  // endOfWeek = last Saturday (6 days after startOfWeek)
+  // endOfWeek = this Saturday (6 days after startOfWeek)
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
@@ -72,7 +72,7 @@ const getWeeklySummary = async (userId) => {
     }
   });
 
-  // Fetch CodeDuel achievements (MCQ-like activity) from this week
+  // Fetch CodeDuel achievements from this week
   // Note: winner is stored as String, so we convert userId to String for comparison
   const codeDuelWins = await CodeDuelAchievement.find({
     winner: userObjId,
@@ -84,6 +84,7 @@ const getWeeklySummary = async (userId) => {
 
   // Count MCQ attempts from log files (since MCQ is logged, not in DB)
   let mcqsAttempted = 0;
+  const mcqTimestamps = [];
   try {
     const mcqLogPath = path.join(__dirname, '../public/logs/mcq.log');
     if (fs.existsSync(mcqLogPath)) {
@@ -96,6 +97,7 @@ const getWeeklySummary = async (userId) => {
           const timestamp = new Date(timestampMatch[1]);
           if (timestamp >= startOfWeek && timestamp <= endOfWeek) {
             mcqsAttempted++;
+            mcqTimestamps.push(timestamp);
           }
         }
       }
@@ -105,7 +107,8 @@ const getWeeklySummary = async (userId) => {
   }
 
   // Calculate metrics
-  const problemsSolved = testpadResults.length;
+  // Include both testpad problems and CodeDuel wins as problems solved
+  const problemsSolved = testpadResults.length + codeDuelWins.length;
 
   // Calculate accuracy: average pass rate across testpad problems
   let totalAccuracy = 0;
@@ -126,6 +129,9 @@ const getWeeklySummary = async (userId) => {
   codeDuelWins.forEach(w => {
     activeDays.add(new Date(w.winTime).toDateString());
   });
+  mcqTimestamps.forEach(ts => {
+    activeDays.add(new Date(ts).toDateString());
+  });
   const activeDaysCount = activeDays.size;
 
   // Find best day (day with most activity)
@@ -136,6 +142,10 @@ const getWeeklySummary = async (userId) => {
   });
   codeDuelWins.forEach(w => {
     const dateStr = new Date(w.winTime).toDateString();
+    dayActivityMap[dateStr] = (dayActivityMap[dateStr] || 0) + 1;
+  });
+  mcqTimestamps.forEach(ts => {
+    const dateStr = new Date(ts).toDateString();
     dayActivityMap[dateStr] = (dayActivityMap[dateStr] || 0) + 1;
   });
 
@@ -166,3 +176,4 @@ module.exports = {
   getUserResults,
   getWeeklySummary
 };
+

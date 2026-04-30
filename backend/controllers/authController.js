@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const User = require('../models/User');
 
 // @desc    Register a user
 // @route   POST /api/auth/register
@@ -77,7 +78,7 @@ exports.verifyResetToken = async (req, res) => {
     const user = await User.findOne({
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() }
-    });
+    }).select('+resetToken +resetTokenExpiry');
 
     if (!user) {
       return res.status(400).json({ 

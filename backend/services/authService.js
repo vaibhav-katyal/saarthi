@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const PGUser = require('../models/PGUser');
 const jwt = require('jsonwebtoken');
 const https = require('https');
 const crypto = require('crypto');
@@ -79,6 +80,19 @@ const registerUser = async (name, email, password) => {
     password,
   });
 
+  // Store new user in PostgreSQL
+  try {
+    await PGUser.create({
+      name: user.name,
+      email: user.email,
+      password: user.password
+    });
+    console.log('User stored in PostgreSQL:', email);
+  } catch (pgError) {
+    console.error('Failed to store user in PostgreSQL:', pgError.message);
+    // Don't throw error - MongoDB user is already created
+  }
+
   return formatTokenResponse(user);
 };
 
@@ -153,6 +167,20 @@ const googleAuth = async (credential, userInfo) => {
         googleId,
         avatar: picture,
       });
+
+      // Store new user in PostgreSQL
+      try {
+        await PGUser.create({
+          name: user.name,
+          email: user.email,
+          googleId: user.googleId,
+          avatar: user.avatar
+        });
+        console.log('New Google user stored in PostgreSQL:', email);
+      } catch (pgError) {
+        console.error('Failed to store Google user in PostgreSQL:', pgError.message);
+        // Don't throw error - MongoDB user is already created
+      }
     }
   } else {
     // Update avatar if changed

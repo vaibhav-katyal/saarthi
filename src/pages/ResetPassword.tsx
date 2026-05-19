@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ArrowLeft, Eye, EyeOff, GraduationCap, Lock, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { API_BASE_URL } from "@/lib/api";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -27,7 +28,7 @@ const ResetPassword = () => {
 
     const verifyToken = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/auth/verify-reset-token/${token}`);
+        const response = await fetch(`${API_BASE_URL}/auth/verify-reset-token/${token}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -62,7 +63,7 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

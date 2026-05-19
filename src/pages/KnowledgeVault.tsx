@@ -23,6 +23,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { generateAISummary } from "@/lib/ai";
+import { API_BASE_URL } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { ApiGuideModal } from "@/components/ApiGuideModal";
@@ -108,7 +109,7 @@ export default function KnowledgeVault() {
     try {
       const token = localStorage.getItem("token");
       const qs = folderId ? `?folderId=${folderId}` : "";
-      const res = await fetch(`http://localhost:5000/api/vault${qs}`, {
+      const res = await fetch(`${API_BASE_URL}/vault${qs}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
@@ -161,7 +162,7 @@ export default function KnowledgeVault() {
     if (!newFolderName.trim()) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/vault/folders`, {
+      const res = await fetch(`${API_BASE_URL}/vault/folders`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newFolderName, parentFolder: currentFolder })
@@ -256,7 +257,7 @@ export default function KnowledgeVault() {
         }
       }
 
-      const res = await fetch(`http://localhost:5000/api/vault`, {
+      const res = await fetch(`${API_BASE_URL}/vault`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -279,7 +280,7 @@ export default function KnowledgeVault() {
     try {
       const token = localStorage.getItem("token");
       const endpoint = isFolder ? `folders/${id}` : `${id}`;
-      const res = await fetch(`http://localhost:5000/api/vault/${endpoint}`, {
+      const res = await fetch(`${API_BASE_URL}/vault/${endpoint}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -840,7 +841,7 @@ export default function KnowledgeVault() {
                     <div className="h-full flex flex-col">
                       {viewPdf.fileData ? (
                         <iframe
-                          src={`http://localhost:5000${viewPdf.fileData}#toolbar=0`}
+                          src={`${API_BASE_URL.replace('/api', '')}/vault/${viewPdf.fileData}#toolbar=0`}
                           className="w-full h-full rounded-xl border border-white/10 bg-white"
                           title={viewPdf.fileName}
                         />

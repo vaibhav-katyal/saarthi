@@ -19,6 +19,7 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { API_BASE_URL } from "@/lib/api";
 
 // Icon mapping for activities
 const iconMap: Record<string, any> = {
@@ -128,7 +129,7 @@ const Dashboard = () => {
 
                 // Fetch Weekly Summary
                 try {
-                    const summaryRes = await fetch("http://localhost:5000/api/activity/weekly-summary", {
+                    const summaryRes = await fetch(`${API_BASE_URL}/activity/weekly-summary`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     if (summaryRes.ok) {
@@ -151,7 +152,7 @@ const Dashboard = () => {
 
                 // Fetch Recent Activities
                 try {
-                    const activityRes = await fetch("http://localhost:5000/api/activity/recent", {
+                    const activityRes = await fetch(`${API_BASE_URL}/activity/recent`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     if (activityRes.ok) {
@@ -165,7 +166,7 @@ const Dashboard = () => {
                 }
 
                 // Fetch Submissions
-                const subRes = await fetch("http://localhost:5000/api/testpad", {
+                const subRes = await fetch(`${API_BASE_URL}/testpad`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (subRes.ok) {
@@ -176,7 +177,7 @@ const Dashboard = () => {
                 }
 
                 // Fetch Courses for Attendance & Leave
-                const courseRes = await fetch("http://localhost:5000/api/courses", {
+                const courseRes = await fetch(`${API_BASE_URL}/courses`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (courseRes.ok) {

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, GraduationCap, ArrowLeft, BrainCircuit, BookOpen, Code2, Sparkles, ArrowRight } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { motion } from "framer-motion";
+import { API_BASE_URL } from "@/lib/api";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -20,8 +21,8 @@ const Login = () => {
     setLoading(true);
 
     const endpoint = isSignUp
-      ? "http://localhost:5000/api/auth/register"
-      : "http://localhost:5000/api/auth/login";
+      ? `${API_BASE_URL}/auth/register`
+      : `${API_BASE_URL}/auth/login`;
 
     const body = isSignUp
       ? JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, password })
@@ -62,7 +63,7 @@ const Login = () => {
       });
       const userInfo = await userInfoRes.json();
 
-      const response = await fetch("http://localhost:5000/api/auth/google", {
+      const response = await fetch(`${API_BASE_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

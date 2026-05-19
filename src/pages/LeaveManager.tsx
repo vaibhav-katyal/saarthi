@@ -3,6 +3,7 @@ import {
   Calculator, TrendingDown, TrendingUp, AlertTriangle, BookOpen, PartyPopper,
   CalendarCheck, Plus, Trash2, Edit2, LayoutGrid, CheckCircle2, Save, X
 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 type Course = {
   _id?: string;
@@ -45,7 +46,7 @@ export default function LeaveManager() {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await fetch("http://localhost:5000/api/courses", {
+        const res = await fetch(`${API_BASE_URL}/courses`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -112,7 +113,7 @@ export default function LeaveManager() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/courses", {
+      const res = await fetch(`${API_BASE_URL}/courses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +151,7 @@ export default function LeaveManager() {
     setIsSaving(prev => ({ ...prev, [id]: true }));
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/courses/${courseToSave._id}`, {
+      const res = await fetch(`${API_BASE_URL}/courses/${courseToSave._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -182,7 +183,7 @@ export default function LeaveManager() {
     if (confirm("Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:5000/api/courses/${courseToDelete._id}`, {
+        const res = await fetch(`${API_BASE_URL}/courses/${courseToDelete._id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });

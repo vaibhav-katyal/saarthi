@@ -30,6 +30,7 @@ import {
   buildFinalCode,
   normalizeOutput,
 } from "@/lib/codeExecution";
+import { API_BASE_URL } from "@/lib/api";
 
 interface TestCase {
   id: number;
@@ -453,7 +454,7 @@ ENFORCED RULES:
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          fetch("http://localhost:5000/api/testpad", {
+          fetch(`${API_BASE_URL}/testpad`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -583,7 +584,7 @@ ENFORCED RULES:
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        const res = await fetch("http://localhost:5000/api/testpad", {
+        const res = await fetch(`${API_BASE_URL}/testpad`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();

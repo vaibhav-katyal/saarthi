@@ -10,6 +10,7 @@ import { GlassCard } from "@/components/GlassCard";
 import { ApiGuideModal } from "@/components/ApiGuideModal";
 import { extractUserCode, buildFinalCode, normalizeOutput } from "@/lib/codeExecution";
 import { logCodeDuelActivity } from "@/lib/activityLogger";
+import { API_BASE_URL, SOCKET_URL } from "@/lib/api";
 
 interface TestCase {
     id: number;
@@ -106,7 +107,7 @@ const CodeDuel = () => {
         const saved = localStorage.getItem("groq_api_key");
         if (saved) setApiKey(saved);
 
-        const newSocket = io("http://localhost:5000");
+        const newSocket = io(SOCKET_URL);
         setSocket(newSocket);
 
         newSocket.on("room-created", ({ roomId, room }) => {
@@ -326,7 +327,7 @@ const CodeDuel = () => {
         setAchievementsLoading(true);
         try {
             console.log('Fetching achievements for user:', user.id);
-            const response = await fetch(`http://localhost:5000/api/codeduel/achievements/${user.id}`);
+            const response = await fetch(`${API_BASE_URL}/codeduel/achievements/${user.id}`);
             const data = await response.json();
             console.log('Achievement fetch response:', data);
             if (data.success) {
@@ -348,7 +349,7 @@ const CodeDuel = () => {
     const fetchAchievementStats = async () => {
         try {
             console.log('Fetching stats for user:', user.id);
-            const response = await fetch(`http://localhost:5000/api/codeduel/stats/${user.id}`);
+            const response = await fetch(`${API_BASE_URL}/codeduel/stats/${user.id}`);
             const data = await response.json();
             console.log('Stats fetch response:', data);
             if (data.success) {
@@ -376,7 +377,7 @@ const CodeDuel = () => {
             console.log('=== SAVING ACHIEVEMENT ===');
             console.log('Final safe data:', achievementData);
             
-            const response = await fetch('http://localhost:5000/api/codeduel/achievements', {
+            const response = await fetch(`${API_BASE_URL}/codeduel/achievements`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(achievementData)

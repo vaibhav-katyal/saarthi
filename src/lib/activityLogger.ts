@@ -3,7 +3,9 @@
  * Logs user activities to the backend for tracking in log files
  */
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from './api';
+
+const API_BASE = API_BASE_URL;
 
 /**
  * Log an activity to the backend

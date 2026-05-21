@@ -841,7 +841,7 @@ export default function KnowledgeVault() {
                     <div className="h-full flex flex-col">
                       {viewPdf.fileData ? (
                         <iframe
-                          src={`${API_BASE_URL.replace('/api', '')}/vault/${viewPdf.fileData}#toolbar=0`}
+                          src={`${viewPdf.fileData.startsWith('http') ? viewPdf.fileData : `${API_BASE_URL.replace('/api', '')}/vault/${viewPdf.fileData}`}#toolbar=0`}
                           className="w-full h-full rounded-xl border border-white/10 bg-white"
                           title={viewPdf.fileName}
                         />

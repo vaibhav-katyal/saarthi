@@ -12,7 +12,25 @@ exports.getVaultContent = async (req, res) => {
       data
     });
   } catch (error) {
+    console.error('getVaultContent error:', error);
     res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+// @desc    Get a single vault item by ID
+// @route   GET /api/vault/:id
+// @access  Private
+exports.getVaultItem = async (req, res) => {
+  try {
+    const item = await vaultService.getVaultItem(req.params.id, req.user.id);
+    res.status(200).json({
+      success: true,
+      data: item
+    });
+  } catch (error) {
+    console.error('getVaultItem error:', error);
+    const statusCode = error.message === 'Not authorized' ? 401 : 404;
+    res.status(statusCode).json({ success: false, error: error.message });
   }
 };
 
@@ -36,14 +54,18 @@ exports.createFolder = async (req, res) => {
 // @access  Private
 exports.createItem = async (req, res) => {
   try {
+    console.log('createItem called with file:', req.file ? { name: req.file.filename, size: req.file.size } : 'no file');
+    console.log('request body:', req.body);
+    
     const item = await vaultService.createItem(req.user.id, req.body, req.file);
+    
     res.status(201).json({
       success: true,
       data: item
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error('createItem error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Server Error' });
   }
 };
 

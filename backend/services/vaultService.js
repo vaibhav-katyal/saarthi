@@ -1,7 +1,28 @@
 const VaultFolder = require('../models/VaultFolder');
 const VaultItem = require('../models/VaultItem');
-const fs = require('fs');
-const path = require('path');
+const { v2: cloudinary } = require('cloudinary');
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Get a single vault item by ID
+const getVaultItem = async (itemId, userId) => {
+  const item = await VaultItem.findById(itemId);
+
+  if (!item) {
+    throw new Error('Item not found');
+  }
+
+  if (item.user.toString() !== userId) {
+    throw new Error('Not authorized');
+  }
+
+  return item;
+};
 
 // Get all vault items and folders for the current user and folder
 const getVaultContent = async (userId, folderId) => {
@@ -46,10 +67,21 @@ const createItem = async (userId, itemData, fileInfo) => {
   let fileSize = null;
 
   if (fileInfo) {
-    // Create a URL path to the file
-    fileData = `/uploads/vault/${fileInfo.filename}`;
-    fileName = fileInfo.originalname;
-    fileSize = fileInfo.size;
+    console.log('📁 File Info received:', JSON.stringify(fileInfo, null, 2));
+    
+    // Try multiple field names for Cloudinary
+    fileData = fileInfo.secure_url || fileInfo.url || fileInfo.path;
+    fileName = fileInfo.original_filename || fileInfo.originalname || fileInfo.filename;
+    fileSize = fileInfo.bytes || fileInfo.size;
+    
+    // For PDFs, add transformation flags for better delivery
+    if (fileInfo.format === 'pdf' && fileData) {
+      fileData = fileData.replace('/upload/', '/upload/fl_attachment/');
+    }
+    
+    console.log('💾 Data to save:', { fileData, fileName, fileSize });
+  } else {
+    console.log('⚠️  No file info received');
   }
 
   const itemTags = tags ? (Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim()).filter(Boolean)) : [];
@@ -104,11 +136,20 @@ const deleteItem = async (itemId, userId) => {
     throw new Error('Not authorized');
   }
 
-  // Delete file if it exists
+  // Delete file from Cloudinary if it exists
   if (item.fileData) {
-    const filePath = path.join(__dirname, '..', item.fileData);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    try {
+      // Extract public_id from Cloudinary URL
+      // URL format: https://res.cloudinary.com/[cloud_name]/image/upload/v[version]/[public_id]
+      const urlParts = item.fileData.split('/');
+      const fileNameWithExtension = urlParts[urlParts.length - 1];
+      const fileName = fileNameWithExtension.split('.')[0];
+      const publicId = `saarthi-vault/${fileName}`;
+      
+      await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+      console.error('Error deleting file from Cloudinary:', error);
+      // Continue with item deletion even if Cloudinary deletion fails
     }
   }
 
@@ -139,9 +180,17 @@ const deleteFolder = async (folderId, userId) => {
   const items = await VaultItem.find({ folder: folderId });
   for (const item of items) {
     if (item.fileData) {
-      const filePath = path.join(__dirname, '..', item.fileData);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      try {
+        // Extract public_id from Cloudinary URL
+        const urlParts = item.fileData.split('/');
+        const fileNameWithExtension = urlParts[urlParts.length - 1];
+        const fileName = fileNameWithExtension.split('.')[0];
+        const publicId = `saarthi-vault/${fileName}`;
+        
+        await cloudinary.uploader.destroy(publicId);
+      } catch (error) {
+        console.error('Error deleting file from Cloudinary:', error);
+        // Continue with item deletion even if Cloudinary deletion fails
       }
     }
     await item.deleteOne();
@@ -154,6 +203,7 @@ const deleteFolder = async (folderId, userId) => {
 
 module.exports = {
   getVaultContent,
+  getVaultItem,
   createFolder,
   createItem,
   updateItem,

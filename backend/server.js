@@ -193,8 +193,7 @@ app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/activity', require('./routes/activityRoutes'));
 app.use('/api/codeduel', require('./routes/codeduelRoutes'));
 
-// Serve uploads folder statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Note: File uploads now use Cloudinary - no local static file serving needed
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Saarthi API' });

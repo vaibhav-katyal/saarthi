@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const {
   getVaultContent,
+  getVaultItem,
   createFolder,
   createItem,
   deleteItem,
@@ -15,21 +16,27 @@ const {
 const { protect } = require('../middlewares/authMiddleware');
 const { logActivity } = require('../utils/logger');
 
-// Set up Multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = './uploads/vault';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Set up Multer with Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'saarthi-vault',
+    resource_type: 'auto',
+    type: 'upload',
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+});
 
 router.use(protect); // All vault routes require authentication
 
@@ -101,6 +108,7 @@ router.route('/folders/:id')
   }, deleteFolder);
 
 router.route('/:id')
+  .get(getVaultItem)
   .put((req, res, next) => {
     const originalSend = res.send;
     res.send = function(body) {

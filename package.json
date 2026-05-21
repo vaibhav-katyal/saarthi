@@ -10,7 +10,6 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest --config jest.config.cjs --runInBand",
-
     "test:watch": "jest --watch",
     "coverage": "jest --coverage"
   },

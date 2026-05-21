@@ -67,21 +67,16 @@ const createItem = async (userId, itemData, fileInfo) => {
   let fileSize = null;
 
   if (fileInfo) {
-    console.log('📁 File Info received:', JSON.stringify(fileInfo, null, 2));
+    // File was uploaded to Cloudinary in controller
+    fileData = fileInfo.secure_url;
+    fileName = fileInfo.original_filename;
+    fileSize = fileInfo.bytes;
     
-    // Try multiple field names for Cloudinary
-    fileData = fileInfo.secure_url || fileInfo.url || fileInfo.path;
-    fileName = fileInfo.original_filename || fileInfo.originalname || fileInfo.filename;
-    fileSize = fileInfo.bytes || fileInfo.size;
-    
-    // For PDFs, add transformation flags for better delivery
-    if (fileInfo.format === 'pdf' && fileData) {
-      fileData = fileData.replace('/upload/', '/upload/fl_attachment/');
-    }
-    
-    console.log('💾 Data to save:', { fileData, fileName, fileSize });
-  } else {
-    console.log('⚠️  No file info received');
+    console.log('💾 Creating vault item with Cloudinary URL:', {
+      fileData,
+      fileName,
+      fileSize
+    });
   }
 
   const itemTags = tags ? (Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim()).filter(Boolean)) : [];

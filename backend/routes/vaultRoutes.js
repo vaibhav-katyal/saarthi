@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { v2: cloudinary } = require('cloudinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const {
   getVaultContent,
@@ -16,25 +14,9 @@ const {
 const { protect } = require('../middlewares/authMiddleware');
 const { logActivity } = require('../utils/logger');
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// Set up Multer with Cloudinary storage
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'saarthi-vault',
-    resource_type: 'auto',
-    type: 'upload',
-  },
-});
-
+// Set up Multer for memory storage (file will be uploaded to Cloudinary in controller)
 const upload = multer({ 
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
 });
 

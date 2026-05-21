@@ -1,4 +1,12 @@
 const vaultService = require('../services/vaultService');
+const { v2: cloudinary } = require('cloudinary');
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // @desc    Get all vault items and folders for the current user and folder
 // @route   GET /api/vault
@@ -54,11 +62,52 @@ exports.createFolder = async (req, res) => {
 // @access  Private
 exports.createItem = async (req, res) => {
   try {
-    console.log('createItem called with file:', req.file ? { name: req.file.filename, size: req.file.size } : 'no file');
-    console.log('request body:', req.body);
+    console.log('createItem called');
+    console.log('File:', req.file ? { fieldname: req.file.fieldname, mimetype: req.file.mimetype, size: req.file.size } : 'no file');
+    console.log('Body:', req.body);
     
+    // If file exists, upload to Cloudinary
+    if (req.file) {
+      try {
+        // Upload file to Cloudinary from buffer
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'saarthi-vault',
+              resource_type: 'auto',
+              public_id: `${req.user.id}-${Date.now()}`,
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          stream.end(req.file.buffer);
+        });
+
+        console.log('✅ Cloudinary upload success:', {
+          secure_url: result.secure_url,
+          public_id: result.public_id,
+          format: result.format,
+          bytes: result.bytes,
+        });
+
+        // Attach Cloudinary result to req.file for service to use
+        req.file.secure_url = result.secure_url;
+        req.file.original_filename = req.file.originalname;
+        req.file.bytes = result.bytes;
+        req.file.format = result.format;
+      } catch (uploadError) {
+        console.error('❌ Cloudinary upload failed:', uploadError);
+        return res.status(500).json({ 
+          success: false, 
+          error: `File upload failed: ${uploadError.message}` 
+        });
+      }
+    }
+
     const item = await vaultService.createItem(req.user.id, req.body, req.file);
-    
+
     res.status(201).json({
       success: true,
       data: item

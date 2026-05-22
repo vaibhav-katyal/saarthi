@@ -616,9 +616,9 @@ const Landing = () => {
               <span className="text-[10px] text-white font-bold tracking-[0.4em] uppercase">Connect</span>
               <div className="flex items-center gap-6 md:gap-8 -mr-2">
                  <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Twitter className="w-5 h-5"/></a>
-                 <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Github className="w-5 h-5"/></a>
-                 <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Linkedin className="w-5 h-5"/></a>
-                 <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Instagram className="w-5 h-5"/></a>
+                 <a href="https://github.com/vaibhav-katyal/saarthi" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Github className="w-5 h-5"/></a>
+                 <a href="https://www.linkedin.com/in/visheshjha11/" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><Linkedin className="w-5 h-5"/></a>
+                 <a href="https://github.com/vaibhav-katyal/saarthi" target="_blank" rel="noopener noreferrer" className="p-2 text-neutral-400 hover:text-white transition-all hover:scale-110"><API Documentation className="w-5 h-5"/></a>
               </div>
             </div>
           </div>

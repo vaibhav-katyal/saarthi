@@ -1,4 +1,6 @@
 const courseService = require('../services/courseService');
+const ragService = require('../services/ragService');
+const userStatsService = require('../services/userStatsService');
 
 // @desc    Get all courses for current user
 // @route   GET /api/courses
@@ -30,6 +32,22 @@ exports.createCourse = async (req, res) => {
 exports.updateCourse = async (req, res) => {
   try {
     const course = await courseService.updateCourse(req.params.id, req.user.id, req.body);
+
+    // Auto-index course/attendance stats to Pinecone (non-blocking)
+    try {
+      const stats = await userStatsService.getUserStats(req.user.id);
+      await ragService.indexUserStats(
+        req.user.id,
+        stats.testpadResults || [],
+        stats.codeduelAchievements || [],
+        course
+      );
+      console.log(`✅ Indexed course/attendance stats to Pinecone for user ${req.user.id}`);
+    } catch (indexError) {
+      console.error('⚠️ Indexing error (non-blocking):', indexError.message);
+      // Don't fail the request if indexing fails
+    }
+
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     const statusCode = error.message === 'Not authorized' ? 401 : 404;

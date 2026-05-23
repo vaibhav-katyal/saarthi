@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   LogOut,
   Swords,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +31,7 @@ const navItems = [
   { title: "MCQ Generator", path: "/mcq", icon: Brain },
   { title: "Testpad", path: "/testpad", icon: Code2 },
   { title: "Code Duel", path: "/duel", icon: Swords },
+  { title: "AI Chat", path: "/chat", icon: MessageCircle },
   { title: "Leave Manager", path: "/leave", icon: Calculator },
 ];
 

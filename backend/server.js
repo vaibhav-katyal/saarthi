@@ -185,6 +185,12 @@ io.on('connection', (socket) => {
   });
 });
 
+// Initialize Pinecone
+const { initializePinecone } = require('./config/pinecone');
+initializePinecone().catch((error) => {
+  console.error('Failed to initialize Pinecone:', error);
+});
+
 // Mount routers
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/vault', require('./routes/vaultRoutes'));
@@ -192,6 +198,7 @@ app.use('/api/testpad', require('./routes/testpadRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/activity', require('./routes/activityRoutes'));
 app.use('/api/codeduel', require('./routes/codeduelRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
 
 // Note: File uploads now use Cloudinary - no local static file serving needed
 

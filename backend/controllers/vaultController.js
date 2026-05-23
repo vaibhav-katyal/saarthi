@@ -1,4 +1,5 @@
 const vaultService = require('../services/vaultService');
+const ragService = require('../services/ragService');
 const { v2: cloudinary } = require('cloudinary');
 
 // Configure Cloudinary
@@ -107,6 +108,15 @@ exports.createItem = async (req, res) => {
     }
 
     const item = await vaultService.createItem(req.user.id, req.body, req.file);
+
+    // Auto-index to Pinecone (non-blocking)
+    try {
+      await ragService.indexUserVault(req.user.id, [item]);
+      console.log(`✅ Indexed vault item ${item._id} to Pinecone`);
+    } catch (indexError) {
+      console.error('⚠️ Indexing error (non-blocking):', indexError.message);
+      // Don't fail the request if indexing fails
+    }
 
     res.status(201).json({
       success: true,

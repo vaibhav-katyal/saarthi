@@ -11,6 +11,7 @@ import MCQ from "@/pages/MCQ";
 import Testpad from "@/pages/Testpad";
 import LeaveManager from "@/pages/LeaveManager";
 import CodeDuel from "@/pages/CodeDuel";
+import Chat from "@/pages/Chat";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -76,6 +77,7 @@ function AppLayout() {
           <Route path="/testpad" element={<Testpad />} />
           <Route path="/duel" element={<CodeDuel />} />
           <Route path="/leave" element={<LeaveManager />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

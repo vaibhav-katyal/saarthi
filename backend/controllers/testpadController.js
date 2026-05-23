@@ -1,4 +1,5 @@
 const testpadService = require('../services/testpadService');
+const { indexTestpadResult } = require('../services/ragService');
 
 // @desc    Save or update a testpad result
 // @route   POST /api/testpad
@@ -6,6 +7,13 @@ const testpadService = require('../services/testpadService');
 exports.saveResult = async (req, res) => {
   try {
     const result = await testpadService.saveResult(req.user.id, req.body);
+    
+    // Index to Pinecone for RAG (non-blocking, async)
+    indexTestpadResult(req.user.id, result).catch((err) => {
+      console.error('Failed to index testpad result to Pinecone:', err);
+      // Don't throw - user's save should succeed even if indexing fails
+    });
+    
     res.status(200).json({
       success: true,
       data: result

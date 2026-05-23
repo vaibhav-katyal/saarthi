@@ -330,48 +330,97 @@ export default function Roadmap() {
       setGeneratedGuide("");
       const topic = generateTopic.trim();
 
-      const prompt = `Create a visually appealing, highly-structured Markdown guide for the topic: "${topic}".
+      const prompt = `Create a comprehensive, professional, and actionable Markdown guide for: "${topic}".
 
-Please strictly adhere to the following Markdown format. DO NOT use plain text for headings.
+Use this exact structure with clear headings and practical content. NO CODE EXAMPLES.
 
 # ${topic} Guide
 
-[Write a 1-line catchy tagline]
+[Write a compelling 1-line tagline that captures the essence]
 
-[Write a short 2-sentence intro paragraph]
+[Write a 3-sentence introduction explaining what this topic is about and why it matters]
 
-## Overview
-### What It Is
-[2 line description]
+## 1. Profession Overview
+Explain what professionals in this field do. Describe the role, responsibilities, and what makes this profession valuable in today's market.
 
-### Why It Matters
-[2 line description]
+## 2. Career Fit Analysis
+Help readers understand if this is the right path for them. Include:
+- Ideal personality traits and strengths
+- Prerequisites and prior knowledge needed
+- Time commitment required
+- Work environment types (remote, office, hybrid, etc.)
 
-## Core Concepts
-- **[Concept 1]**: [1-sentence explanation]
-- **[Concept 2]**: [1-sentence explanation]
-- **[Concept 3]**: [1-sentence explanation]
-- **[Concept 4]**: [1-sentence explanation]
+## 3. Career Paths & Specializations
+List 3-4 different career paths or specializations within this field. For each, briefly explain the focus area and what type of work is involved.
 
-## Architecture / How It Works
-1. [Step 1 description]
-2. [Step 2 description]
-3. [Step 3 description]
+## 4. Skill Requirements
+Divide skills into categories:
+### Technical Skills
+- [Key technical skill and why it matters]
+- [Key technical skill and why it matters]
+- [Key technical skill and why it matters]
 
-## Code Example
-[Short paragraph explaining the code below]
-\`\`\`
-// Example code
-\`\`\`
+### Soft Skills
+- [Important soft skill and why it matters]
+- [Important soft skill and why it matters]
+- [Important soft skill and why it matters]
+
+## 5. Learning Roadmap
+Create a structured progression:
+- **Phase 1 (Months 1-3)**: [Learning goals and what to focus on]
+- **Phase 2 (Months 4-6)**: [Building intermediate knowledge]
+- **Phase 3 (Months 7-9)**: [Advanced concepts and specialization]
+- **Phase 4 (Months 10-12)**: [Professional preparation and real-world application]
+
+## 6. Tools & Technologies
+List the essential tools and technologies:
+- [Tool/Technology]: [Brief description of what it does and why it's important]
+- [Tool/Technology]: [Brief description of what it does and why it's important]
+- [Tool/Technology]: [Brief description of what it does and why it's important]
+
+## 7. Step-by-Step Action Plan
+Give a clear, actionable plan:
+1. [Immediate first step - what to do this week]
+2. [Short-term goal - accomplish this within 2 weeks]
+3. [Near-term milestone - achieve this in 1 month]
+4. [Intermediate goal - target for 3 months]
+5. [Long-term objective - where you should be in 6-12 months]
+
+## 8. Projects & Portfolio
+Describe what projects aspiring professionals should build:
+- **Project 1**: [Project idea and what it demonstrates]
+- **Project 2**: [Project idea and what it demonstrates]
+- **Project 3**: [Project idea and what it demonstrates]
+
+Explain how to showcase these in a portfolio and why they matter to employers.
+
+## 9. Job Preparation
+Cover everything needed to land a job:
+- Resume tips (what to emphasize, what employers look for)
+- Interview preparation (common questions, how to prepare)
+- Portfolio and GitHub presence
+- Networking strategies
+- Salary expectations and negotiation basics
+
+## 10. Growth Opportunities
+Explain how to advance in this field:
+- Certifications that add value
+- Advanced specializations to pursue
+- Leadership and advancement paths
+- Continuous learning and staying current
+- Communities and conferences to join
 
 ## Common Interview Questions
-- [Question 1]
-- [Question 2]
-- [Question 3]
-- [Question 4]
-- [Question 5]
+List 5-7 questions commonly asked in interviews for this field:
+- [Question 1 - relevant to this topic]
+- [Question 2 - relevant to this topic]
+- [Question 3 - relevant to this topic]
+- [Question 4 - relevant to this topic]
+- [Question 5 - relevant to this topic]
+- [Question 6 - relevant to this topic]
+- [Question 7 - relevant to this topic]
 
-Ensure that the output includes the exact markdown tags shown above (e.g., "#", "##", "###", "-", "\`\`\`", "**"). DO NOT omit the markdown symbols. WRITE IN A DIRECT, PROFESSIONAL TONE.`;
+Ensure the guide is practical, actionable, and reads naturally. Use professional language and focus on helping readers understand the complete journey from beginner to professional. DO NOT include code examples or technical snippets.`;
 
       const response = await callGroqAPI(prompt);
       setIsGenerating(false);

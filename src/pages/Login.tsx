@@ -395,7 +395,7 @@ const Login = () => {
                         }
                         placeholder="Last Name"
                         className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:bg-white/10 focus:border-white/20 transition-all duration-300 ease-out hover:border-white/20 focus:scale-[1.01]"
-                        required={isSignUp}
+                        // required={isSignUp}
                       />
                     </div>
                   </div>
@@ -413,7 +413,7 @@ const Login = () => {
                     onChange={(e) =>
                       setEmail(e.target.value)
                     }
-                    placeholder="e.g. saarthi@gmail.com"
+                    placeholder="saarthi@gmail.com"
                     className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:bg-white/10 focus:border-white/20 transition-all duration-300 ease-out hover:border-white/20 focus:scale-[1.01]"
                     required
                   />

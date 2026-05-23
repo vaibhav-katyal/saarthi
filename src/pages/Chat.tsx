@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Trash2, Plus } from 'lucide-react';
+import { Loader2, Send, Trash2, Plus, MessageCircle, ArrowRight } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -134,43 +133,46 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-background">
       {/* Sidebar - Conversations List */}
-      <div className="w-64 border-r bg-gray-50 flex flex-col">
-        <div className="p-4 border-b">
-          <Button
+      <div className="w-64 border-r border-white/10 bg-black/40 backdrop-blur-md flex flex-col">
+        <div className="p-4 border-b border-white/10 bg-gradient-to-r from-cyan-500/10 to-violet-500/10">
+          <button
             onClick={startNewChat}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-background font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 group"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
             New Chat
-          </Button>
+          </button>
         </div>
 
-        <ScrollArea className="flex-1 px-2 py-4">
+        <ScrollArea className="flex-1 px-3 py-4">
           {loadingConversations ? (
             <div className="flex items-center justify-center h-32">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              <Loader2 className="w-6 h-6 animate-spin text-cyan-500/50" />
             </div>
           ) : conversations.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-8">No conversations yet</p>
+            <p className="text-sm text-muted-foreground text-center py-8">No conversations yet</p>
           ) : (
             <div className="space-y-2">
               {conversations.map((conv) => (
                 <div
                   key={conv._id}
-                  className={`p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between group ${
+                  className={`p-3 rounded-lg cursor-pointer transition-all duration-300 flex items-start justify-between group backdrop-blur-sm border ${
                     currentConversation === conv._id
-                      ? 'bg-blue-100 text-blue-900'
-                      : 'hover:bg-gray-200 text-gray-800'
+                      ? 'bg-cyan-500/20 border-cyan-500/30 text-cyan-100'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-foreground'
                   }`}
                 >
                   <div
                     className="flex-1 min-w-0"
                     onClick={() => fetchConversation(conv._id)}
                   >
-                    <p className="text-sm font-medium truncate">{conv.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                      <p className="text-sm font-medium truncate">{conv.title}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
                       {new Date(conv.updatedAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -179,9 +181,9 @@ export default function Chat() {
                       e.stopPropagation();
                       deleteConversation(conv._id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 ml-2 p-1 hover:bg-red-200 rounded transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 ml-2 p-1.5 hover:bg-red-500/20 rounded transition-all duration-300 hover:border hover:border-red-500/30"
                   >
-                    <Trash2 className="w-3 h-3 text-red-600" />
+                    <Trash2 className="w-3.5 h-3.5 text-red-400" />
                   </button>
                 </div>
               ))}
@@ -191,63 +193,76 @@ export default function Chat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-background via-background to-violet-950/10">
         {/* Header */}
-        <div className="border-b bg-white px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {currentConversation
-              ? conversations.find((c) => c._id === currentConversation)?.title || 'Chat'
-              : 'New Chat'}
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Ask me anything about your studies, performance, or DSA questions
-          </p>
+        <div className="border-b border-white/10 bg-black/40 backdrop-blur-sm px-6 py-4 bg-gradient-to-r from-black/50 to-violet-950/20">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-lg border border-cyan-500/30">
+              <MessageCircle className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                {currentConversation
+                  ? conversations.find((c) => c._id === currentConversation)?.title || 'Chat'
+                  : 'New Chat'}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ask me about your studies, performance, or learning materials
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Messages Area */}
         <ScrollArea ref={scrollRef} className="flex-1 px-6 py-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="text-6xl mb-4">💬</div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Start a Conversation</h2>
-                <p className="text-gray-500 max-w-md">
-                  Ask me about your uploaded PDFs, your performance stats, or request DSA questions
+              <div className="text-center max-w-md">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
+                  <MessageCircle className="w-8 h-8 text-cyan-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Start a Conversation</h2>
+                <p className="text-muted-foreground">
+                  Ask me about your uploaded materials, performance stats, or DSA concepts
                 </p>
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 pb-4">
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xl px-4 py-3 rounded-lg ${
+                    className={`max-w-2xl px-5 py-3.5 rounded-2xl backdrop-blur-sm transition-all duration-300 ${
                       msg.role === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none'
-                        : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                        ? 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-background rounded-br-none shadow-lg shadow-cyan-500/20 ml-12'
+                        : 'bg-white/10 border border-white/20 text-foreground rounded-bl-none hover:bg-white/15 mr-12'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
 
                     {msg.metadata?.sources && msg.metadata.sources.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-opacity-30 border-current">
-                        <p className="text-xs font-semibold mb-1 opacity-75">Sources:</p>
-                        <div className="space-y-1">
+                      <div className="mt-3 pt-3 border-t border-current/20">
+                        <p className="text-xs font-semibold mb-2 opacity-75 flex items-center gap-1">
+                          <span>📚 Sources</span>
+                        </p>
+                        <div className="space-y-1.5">
                           {msg.metadata.sources.map((source, sidx) => (
-                            <p key={sidx} className="text-xs opacity-75">
-                              📄 {source}
-                            </p>
+                            <div key={sidx} className="flex items-start gap-2 text-xs opacity-75 bg-black/20 px-2 py-1 rounded">
+                              <span className="flex-shrink-0 mt-0.5">📄</span>
+                              <span>{source}</span>
+                            </div>
                           ))}
                         </div>
                       </div>
                     )}
 
                     {msg.metadata?.intent && (
-                      <p className="text-xs opacity-60 mt-2">
-                        Intent: {msg.metadata.intent.replace(/_/g, ' ')}
+                      <p className="text-xs opacity-60 mt-2 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-current/40 rounded-full"></span>
+                        {msg.metadata.intent.replace(/_/g, ' ').toLowerCase()}
                       </p>
                     )}
                   </div>
@@ -256,8 +271,8 @@ export default function Chat() {
 
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-900 px-4 py-3 rounded-lg rounded-bl-none">
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                  <div className="bg-white/10 border border-white/20 text-foreground px-5 py-3.5 rounded-2xl rounded-bl-none backdrop-blur-sm">
+                    <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
                   </div>
                 </div>
               )}
@@ -266,32 +281,37 @@ export default function Chat() {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t bg-white px-6 py-4">
-          <div className="flex gap-3">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              placeholder="Type your message... (Shift+Enter for new line)"
-              className="flex-1 min-h-12 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-              disabled={loading}
-            />
-            <Button
+        <div className="border-t border-white/10 bg-black/40 backdrop-blur-sm px-6 py-4 bg-gradient-to-t from-black/50 to-transparent">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 relative">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder="Type your message... (Shift+Enter for new line)"
+                className="w-full min-h-12 max-h-32 p-3.5 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/30 text-foreground placeholder-muted-foreground resize-none transition-all duration-300 disabled:bg-white/5 disabled:cursor-not-allowed"
+                disabled={loading}
+              />
+            </div>
+            <button
               onClick={sendMessage}
               disabled={loading || !input.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+              className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 disabled:from-cyan-500/50 disabled:to-violet-500/50 text-background font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/30"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <>
+                  <Send className="w-4 h-4" />
+                  <span className="hidden sm:inline">Send</span>
+                </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </div>

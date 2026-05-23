@@ -193,7 +193,7 @@ const sendMessage = async (userId, conversationId, userMessage) => {
       try {
         const userStats = await getUserStats(userId);
         if (userStats) {
-          context = `User Statistics:\n- Testpad Results: ${userStats.testpadResults?.length || 0} completed\n- Codeduel Achievements: ${userStats.codeduelAchievements?.length || 0}\n- Attendance: ${userStats.courseData?.attended || 0}/${userStats.courseData?.totalPlannedLectures || 0} lectures`;
+          context = `User Statistics:\n- Testpad Results: ${userStats.testpadResults?.length || 0} completed\n- Codeduel Achievements: ${userStats.codeduelAchievements?.length || 0}\n- Attendance: ${userStats.attendance?.attended || 0}/${userStats.attendance?.delivered || 0} lectures (${userStats.attendance?.percentage || 0}%)`;
           sources = ['User Statistics'];
         }
       } catch (statsError) {

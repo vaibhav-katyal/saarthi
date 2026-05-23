@@ -9,7 +9,6 @@ type Course = {
   _id?: string;
   id?: string;
   name: string;
-  totalPlannedLectures: number;
   requiredAttendance: number;
   delivered: number;
   attended: number;
@@ -37,7 +36,7 @@ export default function LeaveManager() {
 
   // New Course Form
   const [newCourse, setNewCourse] = useState({
-    name: "", totalPlannedLectures: 60, requiredAttendance: 75, delivered: 0, attended: 0
+    name: "", requiredAttendance: 75, delivered: 0, attended: 0
   });
 
   // Load from backend
@@ -125,7 +124,7 @@ export default function LeaveManager() {
         const data = await res.json();
         setCourses([...courses, { ...data.data, id: data.data._id }]);
         setIsAddingCourse(false);
-        setNewCourse({ name: "", totalPlannedLectures: 60, requiredAttendance: 75, delivered: 0, attended: 0 });
+        setNewCourse({ name: "", requiredAttendance: 75, delivered: 0, attended: 0 });
       }
     } catch (e) {
       console.error("Failed to add course", e);
@@ -432,23 +431,13 @@ export default function LeaveManager() {
                         <button onClick={() => setIsAddingCourse(false)} className="text-muted-foreground hover:text-white"><X className="w-5 h-5" /></button>
                       </div>
 
-                      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div className="space-y-1.5 lg:col-span-2">
                           <label className="text-xs font-semibold text-muted-foreground uppercase">Course Name</label>
                           <input
                             value={newCourse.name}
                             onChange={e => setNewCourse({ ...newCourse, name: e.target.value })}
                             placeholder="e.g. Operating Systems"
-                            className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs font-semibold text-muted-foreground uppercase">Total Planned</label>
-                          <input
-                            type="number"
-                            value={newCourse.totalPlannedLectures === 0 ? "" : newCourse.totalPlannedLectures.toString()}
-                            onChange={e => setNewCourse({ ...newCourse, totalPlannedLectures: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            placeholder="0"
                             className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
                           />
                         </div>
@@ -488,7 +477,6 @@ export default function LeaveManager() {
                           <div>
                             <h3 className="text-lg font-bold text-white mb-1 truncate max-w-[200px]">{course.name}</h3>
                             <div className="flex gap-2 text-xs font-medium">
-                              <span className="bg-white/5 py-1 px-2 rounded-md border border-white/5 text-muted-foreground">Planned: {course.totalPlannedLectures}</span>
                               <span className="bg-white/5 py-1 px-2 rounded-md border border-white/5 text-muted-foreground">Req: {course.requiredAttendance}%</span>
                             </div>
                           </div>

@@ -10,11 +10,6 @@ const CourseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  totalPlannedLectures: {
-    type: Number,
-    required: true,
-    default: 60
-  },
   requiredAttendance: {
     type: Number,
     required: true,

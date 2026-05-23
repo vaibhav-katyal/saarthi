@@ -106,15 +106,20 @@ const indexUserVault = async (userId, vaultItems) => {
       if (item.type === 'pdf' && item.fileData) {
         textContent = await extractPdfText(item.fileData);
       } else if (item.type === 'snippet') {
-        textContent = item.content || item.url || '';
+        textContent = item.preview || item.content || item.url || '';
       } else if (item.type === 'link') {
-        textContent = item.url || '';
+        textContent = item.url || item.preview || '';
+      } else if (item.type === 'other' || item.type === 'note') {
+        // For notes and other items, use preview (content) or description
+        textContent = item.preview || item.description || item.content || '';
       }
 
       if (!textContent || textContent.trim().length === 0) {
         console.warn(`Skipping vault item ${item._id} - no text content`);
         continue;
       }
+
+      console.log(`✓ Found ${textContent.length} chars of content for vault item ${item._id} (${item.title})`);
 
       const chunks = chunkText(textContent);
 
@@ -151,7 +156,7 @@ const indexUserVault = async (userId, vaultItems) => {
 
     console.log(`Preparing to upsert ${records.length} vault vectors for user ${userId}`);
     await index.upsert({ records });
-    console.log(`✓ Indexed ${records.length} vault vectors for user ${userId}`);
+    console.log(`✅ Successfully indexed ${records.length} vault vector chunks to Pinecone`);
 
     return records.length;
   } catch (error) {
@@ -168,7 +173,8 @@ const indexUserStats = async (userId, testpadResults, codeduelAchievements, cour
     const index = await getPineconeIndex();
     const records = [];
 
-    let statsText = `User Statistics for ${userId}\n\n`;
+    // Index testpad and codeduel in shared stats chunks
+    let statsText = `User Statistics\n\n`;
 
     if (testpadResults && Array.isArray(testpadResults) && testpadResults.length > 0) {
       statsText += `Test Results:\n`;
@@ -184,37 +190,102 @@ const indexUserStats = async (userId, testpadResults, codeduelAchievements, cour
       });
     }
 
-    if (courseData) {
-      statsText += `\nCourse Attendance:\n`;
-      statsText += `- Total Planned Lectures: ${courseData.totalPlannedLectures}\n`;
-      statsText += `- Delivered: ${courseData.delivered}\n`;
-      statsText += `- Attended: ${courseData.attended}\n`;
-      statsText += `- Required Attendance: ${courseData.requiredAttendance}%\n`;
+    // Index test/codeduel stats if they exist
+    if (statsText !== `User Statistics\n\n`) {
+      const chunks = chunkText(statsText);
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunkContent = chunks[i];
+        const statsChunkId = `${userId}-stats-chunk-${i}`;
+        const vectorValues = getEmbedding(chunkContent);
+
+        if (!vectorValues || !Array.isArray(vectorValues) || vectorValues.length === 0) {
+          console.warn(`Skipping invalid vector for stats chunk ${i}`);
+          continue;
+        }
+
+        records.push({
+          id: statsChunkId,
+          values: vectorValues,
+          metadata: {
+            userId: userId.toString(),
+            dataType: 'user_stats',
+            chunkIndex: i,
+            text: truncateForMetadata(chunkContent),
+            createdAt: new Date().toISOString(),
+          },
+        });
+      }
     }
 
-    const chunks = chunkText(statsText);
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkContent = chunks[i];
-      const statsChunkId = `${userId}-stats-chunk-${i}`;
-      const vectorValues = getEmbedding(chunkContent);
-
-      if (!vectorValues || !Array.isArray(vectorValues) || vectorValues.length === 0) {
-        console.warn(`Skipping invalid vector for stats chunk ${i}`);
-        continue;
+    // Index course attendance with SEPARATE, COURSE-SPECIFIC chunks
+    if (courseData && courseData._id) {
+      const courseName = courseData.name || 'Course';
+      const attended = courseData.attended || 0;
+      const delivered = courseData.delivered || 0;
+      const required = courseData.requiredAttendance || 75;
+      
+      const currentAttendancePercent = delivered > 0 
+        ? Math.round((attended / delivered) * 100) 
+        : 0;
+      
+      let lecturesCanSkip = 0;
+      let lecturesNeedToAttend = 0;
+      let attendanceStatus = '';
+      
+      if (delivered > 0) {
+        if (currentAttendancePercent >= required) {
+          lecturesCanSkip = Math.floor(Math.max(0, (100 * attended - required * delivered) / required));
+          attendanceStatus = `Safe - Can skip ${lecturesCanSkip} more lecture${lecturesCanSkip !== 1 ? 's' : ''} and still maintain ${required}% attendance`;
+        } else {
+          lecturesNeedToAttend = Math.ceil(Math.max(0, (required * delivered - 100 * attended) / (100 - required)));
+          attendanceStatus = `Critical - Need to attend ${lecturesNeedToAttend} more lecture${lecturesNeedToAttend !== 1 ? 's' : ''} to reach ${required}% attendance`;
+        }
+      }
+      
+      let courseAttendanceText = `Course Attendance for ${courseName}:\n`;
+      courseAttendanceText += `- Total Delivered Lectures: ${delivered}\n`;
+      courseAttendanceText += `- Lectures Attended: ${attended}\n`;
+      courseAttendanceText += `- Current Attendance: ${currentAttendancePercent}%\n`;
+      courseAttendanceText += `- Required Attendance: ${required}%\n`;
+      courseAttendanceText += `- ${attendanceStatus}\n`;
+      
+      if (lecturesCanSkip > 0) {
+        courseAttendanceText += `- Can skip: ${lecturesCanSkip} lecture${lecturesCanSkip !== 1 ? 's' : ''}\n`;
+      }
+      if (lecturesNeedToAttend > 0) {
+        courseAttendanceText += `- Must attend: ${lecturesNeedToAttend} more lecture${lecturesNeedToAttend !== 1 ? 's' : ''}\n`;
       }
 
-      records.push({
-        id: statsChunkId,
-        values: vectorValues,
-        metadata: {
-          userId: userId.toString(),
-          dataType: 'user_stats',
-          chunkIndex: i,
-          text: truncateForMetadata(chunkContent),
-          createdAt: new Date().toISOString(),
-        },
-      });
+      const courseChunks = chunkText(courseAttendanceText);
+      
+      for (let i = 0; i < courseChunks.length; i++) {
+        const chunkContent = courseChunks[i];
+        // Use course-specific ID: userId-course-{courseId}-attendance-chunk-{index}
+        const courseChunkId = `${userId}-course-${courseData._id.toString()}-attendance-chunk-${i}`;
+        const vectorValues = getEmbedding(chunkContent);
+
+        if (!vectorValues || !Array.isArray(vectorValues) || vectorValues.length === 0) {
+          console.warn(`Skipping invalid vector for course chunk ${i}`);
+          continue;
+        }
+
+        records.push({
+          id: courseChunkId,
+          values: vectorValues,
+          metadata: {
+            userId: userId.toString(),
+            courseId: courseData._id.toString(),
+            courseName: courseName,
+            dataType: 'course_attendance',
+            chunkIndex: i,
+            text: truncateForMetadata(chunkContent),
+            createdAt: new Date().toISOString(),
+          },
+        });
+      }
+
+      console.log(`✓ Created ${courseChunks.length} chunks for course "${courseName}"`);
     }
 
     if (!records.length) {
@@ -224,7 +295,7 @@ const indexUserStats = async (userId, testpadResults, codeduelAchievements, cour
 
     console.log(`Preparing to upsert ${records.length} stats vectors for user ${userId}`);
     await index.upsert({ records });
-    console.log(`✓ Indexed ${records.length} stats vectors for user ${userId}`);
+    console.log(`✅ Successfully indexed ${records.length} stats vector chunks to Pinecone`);
 
     return records.length;
   } catch (error) {

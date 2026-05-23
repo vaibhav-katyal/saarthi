@@ -68,10 +68,10 @@ const getUserStats = async (userId) => {
     const attendance = courseData
       ? {
           attended: courseData.attended,
-          total: courseData.totalPlannedLectures,
-          percentage: Math.round(
-            (courseData.attended / courseData.totalPlannedLectures) * 100
-          ),
+          delivered: courseData.delivered,
+          percentage: courseData.delivered > 0
+            ? Math.round((courseData.attended / courseData.delivered) * 100)
+            : 0,
           required: courseData.requiredAttendance,
         }
       : null;

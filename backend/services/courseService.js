@@ -8,12 +8,11 @@ const getCourses = async (userId) => {
 
 // Create a new course
 const createCourse = async (userId, courseData) => {
-  const { name, totalPlannedLectures, requiredAttendance, delivered, attended } = courseData;
+  const { name, requiredAttendance, delivered, attended } = courseData;
   
   const course = await Course.create({
     user: userId,
     name,
-    totalPlannedLectures,
     requiredAttendance,
     delivered,
     attended

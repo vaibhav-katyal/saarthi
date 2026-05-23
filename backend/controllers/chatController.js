@@ -53,6 +53,13 @@ const detectIntent = (query) => {
   const lowerQuery = query.toLowerCase();
 
   if (
+    lowerQuery.includes('mcq') ||
+    lowerQuery.includes('multiple choice')
+  ) {
+    return 'mcq_request';
+  }
+
+  if (
     lowerQuery.includes('roadmap')
   ) {
     return 'roadmap_request';
@@ -161,6 +168,45 @@ const extractQuestionQuery = (message) => {
   let query = message.replace(/^(write|find|solve|i want|i need)\s+/i, '');
   query = query.replace(/^(question|problem|a|the)\s+/i, '');
   return query.trim();
+};
+
+/**
+ * Extract MCQ parameters from user message
+ */
+const extractMCQParams = (message) => {
+  const lowerMsg = message.toLowerCase();
+  
+  // Extract topic
+  let topic = '';
+  const topicMatch = message.match(/(?:on|for|about|of)\s+([A-Za-z\s]+?)(?:\s+on\s+|\s+for\s+|$)/i);
+  if (topicMatch) {
+    topic = topicMatch[1].trim();
+  }
+  
+  // Extract subtopic if mentioned with "on" after topic
+  let subtopic = '';
+  const subtopicMatch = message.match(/on\s+([A-Za-z\s]+?)(?:\s+(?:intermediate|easy|hard|advanced|beginner|expert|5|10|15|20|25|30)\b|$)/i);
+  if (subtopicMatch && subtopicMatch[1].toLowerCase() !== topic.toLowerCase()) {
+    subtopic = subtopicMatch[1].trim();
+  }
+  
+  // Extract difficulty level
+  let level = 'Intermediate'; // default
+  if (lowerMsg.includes('easy')) level = 'Easy';
+  else if (lowerMsg.includes('hard')) level = 'Hard';
+  else if (lowerMsg.includes('advanced')) level = 'Advanced';
+  else if (lowerMsg.includes('beginner')) level = 'Beginner';
+  else if (lowerMsg.includes('expert')) level = 'Expert';
+  
+  // Extract number of questions
+  let numQuestions = 5; // default
+  const numMatch = message.match(/(\d+)\s*(?:questions?|qs?|mcqs?)/i);
+  if (numMatch) {
+    const num = parseInt(numMatch[1]);
+    if (num > 0 && num <= 50) numQuestions = num;
+  }
+  
+  return { topic, subtopic, level, numQuestions };
 };
 
 /**
@@ -279,6 +325,36 @@ const sendMessage = async (userId, conversationId, userMessage, agenticMode = fa
         action: {
           type: 'navigate_to_guide',
           topic,
+        },
+        sources: [],
+      };
+    }
+
+    // If agentic mode and MCQ request, return navigation action
+    if (agenticMode && intent === 'mcq_request') {
+      const { topic, subtopic, level, numQuestions } = extractMCQParams(userMessage);
+      console.log(`❓ MCQ MODE TRIGGERED! Topic: "${topic}", Subtopic: "${subtopic}", Level: "${level}", Questions: ${numQuestions}`);
+      
+      const aiResponse = {
+        role: 'assistant',
+        content: `Opening MCQ for "${topic}"${subtopic ? ` - ${subtopic}` : ''}...`,
+        timestamp: new Date(),
+        metadata: { intent },
+      };
+      
+      conversation.messages.push(aiResponse);
+      await conversation.save();
+      
+      return {
+        conversationId: conversation._id,
+        message: `Opening MCQ for "${topic}"${subtopic ? ` - ${subtopic}` : ''}...`,
+        intent,
+        action: {
+          type: 'navigate_to_mcq',
+          topic,
+          subtopic,
+          level,
+          numQuestions,
         },
         sources: [],
       };

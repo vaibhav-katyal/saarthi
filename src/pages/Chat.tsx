@@ -136,6 +136,19 @@ export default function Chat() {
         setTimeout(() => {
           navigate(`/roadmap?topic=${encodeURIComponent(topic)}&tab=guide`);
         }, 500);
+      } else if (response.data.action?.type === 'navigate_to_mcq') {
+        const { topic, subtopic, level, numQuestions } = response.data.action;
+        console.log(`❓ Navigating to MCQ with topic: "${topic}"`);
+        toast.success('Opening MCQ...');
+        const params = new URLSearchParams({
+          topic: topic || '',
+          subtopic: subtopic || '',
+          difficulty: level || 'Intermediate',
+          numQuestions: numQuestions?.toString() || '5',
+        });
+        setTimeout(() => {
+          navigate(`/mcq?${params.toString()}`);
+        }, 500);
       } else {
         console.log(`📨 No action in response. action:`, response.data.action);
       }

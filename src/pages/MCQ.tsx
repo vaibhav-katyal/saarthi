@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
     Brain,
@@ -48,6 +49,7 @@ interface MCQResult {
 type PageState = "form" | "quiz" | "results";
 
 export default function MCQ() {
+    const [searchParams] = useSearchParams();
     const [apiKey, setApiKey] = useState("");
     const [showApiSettings, setShowApiSettings] = useState(false);
     const [showApiGuide, setShowApiGuide] = useState(false);
@@ -73,6 +75,19 @@ export default function MCQ() {
     const savedKey = localStorage.getItem("groq_api_key");
     if (savedKey) setApiKey(savedKey);
   }, []);
+
+  // Load MCQ parameters from URL (from agentic mode)
+  useEffect(() => {
+    const urlTopic = searchParams.get('topic');
+    const urlSubtopic = searchParams.get('subtopic');
+    const urlDifficulty = searchParams.get('difficulty');
+    const urlNumQuestions = searchParams.get('numQuestions');
+
+    if (urlTopic) setTopic(decodeURIComponent(urlTopic));
+    if (urlSubtopic) setSubtopic(decodeURIComponent(urlSubtopic));
+    if (urlDifficulty) setDifficulty(urlDifficulty);
+    if (urlNumQuestions) setNumQuestions(parseInt(urlNumQuestions));
+  }, [searchParams]);
 
   // Trigger confetti when all MCQs are correct
   useEffect(() => {

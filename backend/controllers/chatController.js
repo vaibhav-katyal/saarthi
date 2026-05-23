@@ -53,6 +53,19 @@ const detectIntent = (query) => {
   const lowerQuery = query.toLowerCase();
 
   if (
+    lowerQuery.includes('roadmap')
+  ) {
+    return 'roadmap_request';
+  }
+
+  if (
+    lowerQuery.includes('guide') ||
+    lowerQuery.includes('tutorial')
+  ) {
+    return 'guide_request';
+  }
+
+  if (
     lowerQuery.includes('attendance') ||
     lowerQuery.includes('lectures') ||
     lowerQuery.includes('present')
@@ -212,6 +225,60 @@ const sendMessage = async (userId, conversationId, userMessage, agenticMode = fa
         action: {
           type: 'navigate_to_testpad',
           questionQuery,
+        },
+        sources: [],
+      };
+    }
+
+    // If agentic mode and roadmap request, return navigation action
+    if (agenticMode && intent === 'roadmap_request') {
+      const topic = extractQuestionQuery(userMessage);
+      console.log(`🗺️ ROADMAP MODE TRIGGERED! Topic: "${topic}"`);
+      
+      const aiResponse = {
+        role: 'assistant',
+        content: `Opening roadmap for "${topic}"...`,
+        timestamp: new Date(),
+        metadata: { intent },
+      };
+      
+      conversation.messages.push(aiResponse);
+      await conversation.save();
+      
+      return {
+        conversationId: conversation._id,
+        message: `Opening roadmap for "${topic}"...`,
+        intent,
+        action: {
+          type: 'navigate_to_roadmap',
+          topic,
+        },
+        sources: [],
+      };
+    }
+
+    // If agentic mode and guide request, return navigation action
+    if (agenticMode && intent === 'guide_request') {
+      const topic = extractQuestionQuery(userMessage);
+      console.log(`📖 GUIDE MODE TRIGGERED! Topic: "${topic}"`);
+      
+      const aiResponse = {
+        role: 'assistant',
+        content: `Opening guide for "${topic}"...`,
+        timestamp: new Date(),
+        metadata: { intent },
+      };
+      
+      conversation.messages.push(aiResponse);
+      await conversation.save();
+      
+      return {
+        conversationId: conversation._id,
+        message: `Opening guide for "${topic}"...`,
+        intent,
+        action: {
+          type: 'navigate_to_guide',
+          topic,
         },
         sources: [],
       };

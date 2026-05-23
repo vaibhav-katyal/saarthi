@@ -122,6 +122,20 @@ export default function Chat() {
         setTimeout(() => {
           navigate(`/testpad?question=${encodeURIComponent(query)}`);
         }, 500);
+      } else if (response.data.action?.type === 'navigate_to_roadmap') {
+        const topic = response.data.action.topic;
+        console.log(`🗺️ Navigating to roadmap with topic: "${topic}"`);
+        toast.success('Opening roadmap...');
+        setTimeout(() => {
+          navigate(`/roadmap?topic=${encodeURIComponent(topic)}`);
+        }, 500);
+      } else if (response.data.action?.type === 'navigate_to_guide') {
+        const topic = response.data.action.topic;
+        console.log(`📖 Navigating to guide with topic: "${topic}"`);
+        toast.success('Opening guide...');
+        setTimeout(() => {
+          navigate(`/roadmap?topic=${encodeURIComponent(topic)}&tab=guide`);
+        }, 500);
       } else {
         console.log(`📨 No action in response. action:`, response.data.action);
       }

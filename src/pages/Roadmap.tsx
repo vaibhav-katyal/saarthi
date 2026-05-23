@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageWrapper } from "@/components/PageWrapper";
 import { toast } from "@/hooks/use-toast";
 import { Sparkles, Map, BookOpen, Search, Settings, X, AlertCircle, ChevronDown, HelpCircle } from "lucide-react";
@@ -222,6 +223,7 @@ function InterviewQuestionsSection({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Roadmap() {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [generateTopic, setGenerateTopic] = useState("");
   const [currentTopic, setCurrentTopic] = useState("");
@@ -238,6 +240,20 @@ export default function Roadmap() {
     const saved = localStorage.getItem("groq_api_key");
     if (saved) setApiKey(saved);
   }, []);
+
+  // Load topic from URL parameter if present (from agentic mode)
+  useEffect(() => {
+    const topic = searchParams.get('topic');
+    const tab = searchParams.get('tab');
+    if (topic) {
+      setGenerateTopic(decodeURIComponent(topic));
+    }
+    if (tab === 'guide') {
+      setGenerateType('guide');
+    } else if (tab === 'roadmap') {
+      setGenerateType('roadmap');
+    }
+  }, [searchParams]);
 
   const saveApiKey = () => {
     if (!apiKey.trim()) {

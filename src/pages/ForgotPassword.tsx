@@ -1,28 +1,38 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Mail, GraduationCap } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Mail,
+  GraduationCap,
+  ShieldCheck,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "@/lib/api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await response.json();
 
@@ -31,120 +41,330 @@ const ForgotPassword = () => {
       }
 
       setSent(true);
-      toast.success("Reset link sent! Check your email.");
+      toast.success("Reset link sent successfully");
     } catch (error: any) {
-      toast.error(error.message || "An error occurred");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#070B14] text-white font-sans flex overflow-hidden selection:bg-[#00F5FF]/30">
-      {/* LEFT COLUMN - FORM */}
-      <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto flex flex-col relative z-20 px-6 sm:px-12 md:px-20 lg:px-24 bg-[#070B14] shadow-[10px_0_50px_rgba(0,0,0,0.5)]">
-        
-        {/* Top bar with back button */}
-        <div className="py-8 flex items-center justify-between w-full">
+    <div className="min-h-screen bg-black text-white flex overflow-hidden">
+
+      {/* LEFT SIDE */}
+      <div className="relative flex w-full lg:w-1/2 min-h-screen flex-col bg-[#050505] border-r border-white/5 px-5 sm:px-10 lg:px-20">
+
+        {/* animated background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+
+          <motion.div
+            animate={{
+              opacity: [0.4, 0.7, 0.4],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -top-32 -left-32 h-[350px] w-[350px] rounded-full bg-white/[0.03] blur-3xl"
+          />
+
+          <motion.div
+            animate={{
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1, 1.08, 1],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute bottom-0 right-0 h-[260px] w-[260px] rounded-full bg-white/[0.02] blur-3xl"
+          />
+        </div>
+
+        {/* TOP BAR */}
+        <div className="relative z-20 flex items-center justify-between py-5 sm:py-6">
+
           <Link
-            to="/"
-            className="flex items-center gap-2.5 text-muted-foreground hover:text-white transition-colors group"
+            to="/login"
+            className="group flex items-center gap-2 text-zinc-500 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Back to Home</span>
+
+            <span className="text-sm font-medium">
+              Back to Login
+            </span>
           </Link>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00F5FF]/10 lg:hidden group">
-            <GraduationCap className="h-4 w-4 text-[#00F5FF]" />
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl lg:hidden">
+            <GraduationCap className="h-5 w-5 text-white" />
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-center w-full max-w-[420px] mx-auto py-10">
-          
-          <div className="mb-8">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white font-heading mb-2">
-              Forgot Password?
-            </h1>
-            <p className="text-[15px] text-muted-foreground pr-4">
-              Enter your email address and we'll send you a link to reset your password.
-            </p>
-          </div>
+        {/* CENTER CONTENT */}
+        <div className="relative z-20 flex flex-1 items-center justify-center">
 
-          {sent ? (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-6 text-center py-8"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
-                <Mail className="h-8 w-8 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white mb-2">Check your inbox</h2>
-                <p className="text-sm text-muted-foreground">
-                  We've sent a password reset link to <span className="text-[#00F5FF]">{email}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => navigate("/login")}
-                className="mt-4 text-sm text-[#00F5FF] hover:underline"
-              >
-                Back to Login
-              </button>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3.5 text-[15px] text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-[#00F5FF]/50 focus:bg-[#00F5FF]/5 transition-all"
-                  placeholder="Email address"
-                  required
-                />
-              </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.7,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="w-full max-w-[420px]"
+          >
 
-              <button
-                disabled={loading}
-                type="submit"
-                className="mt-2 w-full rounded-xl bg-gradient-to-r from-[#00F5FF] to-[#7B61FF] py-3.5 text-[15px] font-bold text-white shadow-[0_0_20px_rgba(0,245,255,0.2)] hover:shadow-[0_0_30px_rgba(0,245,255,0.4)] hover:-translate-y-0.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:translate-y-0"
-              >
-                {loading ? "Sending..." : "Send Reset Link"}
-              </button>
+            <AnimatePresence mode="wait">
 
-              <p className="text-center text-sm text-muted-foreground mt-4">
-                Remember your password?{" "}
-                <Link to="/login" className="text-[#00F5FF] font-medium hover:underline">
-                  Log in
-                </Link>
-              </p>
-            </form>
-          )}
+              {!sent ? (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+
+                  {/* HEADER */}
+                  <div className="mb-8 sm:mb-10">
+
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: 0.1,
+                        duration: 0.5,
+                        ease: "easeOut",
+                      }}
+                      className="mb-5 inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl"
+                    >
+                      <Mail className="h-6 w-6 text-white" />
+                    </motion.div>
+
+                    <motion.h1
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.15,
+                        duration: 0.6,
+                      }}
+                      className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05] text-white mb-4"
+                    >
+                      Forgot
+                      <br />
+                      Password?
+                    </motion.h1>
+
+                    <motion.p
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.22,
+                        duration: 0.6,
+                      }}
+                      className="max-w-md text-sm sm:text-[15px] leading-relaxed text-zinc-400"
+                    >
+                      Enter your registered email address and we'll send
+                      you a secure password reset link.
+                    </motion.p>
+                  </div>
+
+                  {/* FORM */}
+                  <motion.form
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.28,
+                      duration: 0.6,
+                    }}
+                    onSubmit={handleSubmit}
+                    className="flex flex-col gap-4"
+                  >
+
+                    {/* EMAIL */}
+                    <div className="flex flex-col gap-2">
+
+                      <label className="text-sm font-medium text-zinc-300">
+                        Email Address
+                      </label>
+
+                      <div className="relative">
+
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="Enter your email"
+                          className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-[15px] text-white outline-none backdrop-blur-xl transition-all duration-300 placeholder:text-zinc-500 focus:border-white/20 focus:bg-white/[0.05] focus:scale-[1.01] pr-12"
+                        />
+
+                        <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+                      </div>
+                    </div>
+
+                    {/* BUTTON */}
+                    <motion.button
+                      whileHover={{
+                        scale: 1.015,
+                      }}
+                      whileTap={{
+                        scale: 0.985,
+                      }}
+                      disabled={loading}
+                      type="submit"
+                      className="mt-2 w-full rounded-2xl bg-white py-3.5 text-[15px] font-semibold text-black transition-all duration-300 hover:bg-zinc-200 disabled:opacity-50"
+                    >
+                      {loading
+                        ? "Sending Reset Link..."
+                        : "Send Reset Link"}
+                    </motion.button>
+
+                    {/* LOGIN */}
+                    <p className="mt-4 text-center text-sm text-zinc-500">
+                      Remember your password?{" "}
+                      <Link
+                        to="/login"
+                        className="font-medium text-white transition-colors hover:text-zinc-300"
+                      >
+                        Log in
+                      </Link>
+                    </p>
+                  </motion.form>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="flex flex-col items-center text-center"
+                >
+
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{
+                      delay: 0.1,
+                      duration: 0.5,
+                    }}
+                    className="mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-xl"
+                  >
+                    <ShieldCheck className="h-9 w-9 text-white" />
+                  </motion.div>
+
+                  <motion.h2
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.18,
+                    }}
+                    className="mb-4 text-3xl sm:text-4xl font-bold tracking-tight text-white"
+                  >
+                    Check Your Inbox
+                  </motion.h2>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.24,
+                    }}
+                    className="mb-7 max-w-sm text-sm sm:text-[15px] leading-relaxed text-zinc-400"
+                  >
+                    We've sent a secure password reset link to
+                    <span className="font-medium text-white">
+                      {" "}
+                      {email}
+                    </span>
+                  </motion.p>
+
+                  <motion.button
+                    whileHover={{
+                      scale: 1.015,
+                    }}
+                    whileTap={{
+                      scale: 0.985,
+                    }}
+                    onClick={() => navigate("/login")}
+                    className="w-full rounded-2xl bg-white py-3.5 text-[15px] font-semibold text-black transition-all duration-300 hover:bg-zinc-200"
+                  >
+                    Return to Login
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - VISUALS (Visible on LG and above) */}
-      <div className="hidden lg:flex w-1/2 bg-[#0A0E17] relative items-center justify-center p-12 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.2] mix-blend-soft-light" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0E17] via-transparent to-[#0A0E17] opacity-80 z-10" />
-        <div className="absolute top-1/4 -right-10 w-96 h-96 bg-[#00F5FF]/20 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 -left-10 w-96 h-96 bg-[#7B61FF]/20 blur-[120px] rounded-full pointer-events-none" />
+      {/* RIGHT SIDE */}
+      <div className="relative hidden lg:flex w-1/2 items-center justify-center overflow-hidden bg-[#090909]">
 
-        <div className="relative z-20 flex flex-col items-center text-center">
+        {/* radial lights */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_30%)]" />
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.04),transparent_30%)]" />
+
+        {/* grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+
+        {/* CONTENT */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="relative z-20 max-w-lg px-10 text-center"
+        >
+
           <motion.div
-            animate={{ scale: [1, 1.05, 1], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00F5FF]/20 to-[#7B61FF]/20 backdrop-blur-[40px] shadow-[0_0_80px_rgba(123,97,255,0.4)] mb-8"
-          />
-          <h2 className="text-2xl font-bold text-white mb-2">Reset Your Password</h2>
-          <p className="text-muted-foreground max-w-sm">
-            Don't worry, it happens. We'll help you get back into your account securely.
+            animate={{
+              y: [0, -10, 0],
+              rotate: [0, 2, 0, -2, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="mb-8 flex justify-center"
+          >
+            <div className="flex h-28 w-28 items-center justify-center rounded-[32px] border border-white/10 bg-white/[0.03] backdrop-blur-2xl shadow-2xl">
+              <Mail className="h-10 w-10 text-white" />
+            </div>
+          </motion.div>
+
+          <h2 className="mb-5 text-5xl font-bold tracking-tight leading-[1.05] text-white">
+            Recover Your
+            <br />
+            Account
+          </h2>
+
+          <p className="mx-auto max-w-md text-[15px] leading-relaxed text-zinc-400">
+            Reset your password securely and regain access to your
+            Saarthi workspace in just a few steps.
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
 };
 
 export default ForgotPassword;
-

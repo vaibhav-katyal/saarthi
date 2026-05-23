@@ -18,7 +18,8 @@ router.use(protect);
  */
 router.post('/send', async (req, res) => {
   try {
-    const { conversationId, message } = req.body;
+    const { conversationId, message, agenticMode } = req.body;
+    console.log(`📥 Route /chat/send received: agenticMode=${agenticMode}, message="${message.substring(0, 50)}..."`);
     
     // Extract user ID - handle both _id and id fields
     const userId = req.user?._id?.toString() || req.user?.id?.toString();
@@ -31,7 +32,7 @@ router.post('/send', async (req, res) => {
       return res.status(400).json({ error: 'Message cannot be empty' });
     }
 
-    const result = await sendMessage(userId, conversationId, message);
+    const result = await sendMessage(userId, conversationId, message, agenticMode || false);
     res.json(result);
   } catch (error) {
     console.error('Error sending message:', error);

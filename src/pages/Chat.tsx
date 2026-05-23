@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Trash2, Plus, MessageCircle, ArrowRight } from 'lucide-react';
+import { Loader2, Send, Trash2, Plus, MessageCircle, ArrowRight, Zap } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -11,6 +12,10 @@ interface Message {
   metadata?: {
     sources?: string[];
     intent?: string;
+    action?: {
+      type: string;
+      questionQuery?: string;
+    };
   };
 }
 
@@ -22,12 +27,14 @@ interface Conversation {
 }
 
 export default function Chat() {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
+  const [agenticMode, setAgenticMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch conversations on mount
@@ -86,9 +93,12 @@ export default function Chat() {
       setMessages((prev) => [...prev, userMessage]);
       setInput('');
 
+      console.log(`📤 Sending message with agenticMode=${agenticMode}`);
+
       const response = await api.post('/chat/send', {
         conversationId: currentConversation || 'new',
         message: input,
+        agenticMode,
       });
 
       const aiMessage: Message = {
@@ -98,10 +108,23 @@ export default function Chat() {
         metadata: {
           sources: response.data.sources,
           intent: response.data.intent,
+          action: response.data.action,
         },
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Handle agentic actions
+      if (response.data.action?.type === 'navigate_to_testpad') {
+        const query = response.data.action.questionQuery;
+        console.log(`🎯 Navigating to testpad with query: "${query}"`);
+        toast.success('Opening testpad...');
+        setTimeout(() => {
+          navigate(`/testpad?question=${encodeURIComponent(query)}`);
+        }, 500);
+      } else {
+        console.log(`📨 No action in response. action:`, response.data.action);
+      }
 
       // Update current conversation if it's new
       if (!currentConversation) {
@@ -196,20 +219,36 @@ export default function Chat() {
       <div className="flex-1 flex flex-col bg-gradient-to-br from-background via-background to-violet-950/10">
         {/* Header */}
         <div className="border-b border-white/10 bg-black/40 backdrop-blur-sm px-6 py-4 bg-gradient-to-r from-black/50 to-violet-950/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-lg border border-cyan-500/30">
-              <MessageCircle className="w-5 h-5 text-cyan-400" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-lg border border-cyan-500/30">
+                <MessageCircle className="w-5 h-5 text-cyan-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {currentConversation
+                    ? conversations.find((c) => c._id === currentConversation)?.title || 'Chat'
+                    : 'New Chat'}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Ask me about your studies, performance, or learning materials
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {currentConversation
-                  ? conversations.find((c) => c._id === currentConversation)?.title || 'Chat'
-                  : 'New Chat'}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Ask me about your studies, performance, or learning materials
-              </p>
-            </div>
+            <button
+              onClick={() => {
+                setAgenticMode(!agenticMode);
+                toast.success(`Agentic mode ${!agenticMode ? 'enabled ⚡' : 'disabled ✓'}`);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 border ${
+                agenticMode
+                  ? 'bg-violet-500/20 border-violet-500/50 text-violet-300 hover:bg-violet-500/30'
+                  : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10'
+              }`}
+            >
+              <Zap className="w-4 h-4" />
+              <span className="text-sm font-medium">{agenticMode ? 'Agentic ⚡' : 'Normal'}</span>
+            </button>
           </div>
         </div>
 

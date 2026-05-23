@@ -1,6 +1,7 @@
 const Conversation = require('../models/Conversation');
 const { searchContext } = require('../services/ragService');
 const { getUserStats } = require('../services/userStatsService');
+const TestpadResult = require('../models/TestpadResult');
 const axios = require('axios');
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -61,7 +62,11 @@ const detectIntent = (query) => {
 
   if (
     lowerQuery.includes('question') ||
+    lowerQuery.includes('ques') ||
     lowerQuery.includes('problem') ||
+    lowerQuery.includes('prob') ||
+    lowerQuery.includes('solve') ||
+    lowerQuery.includes('code') ||
     lowerQuery.includes('dsa') ||
     lowerQuery.includes('linked list') ||
     lowerQuery.includes('tree') ||
@@ -124,10 +129,34 @@ Be friendly, concise, and encouraging. Use provided context for accurate answers
 };
 
 /**
+ * Extract question query from user message
+ */
+const extractQuestionQuery = (message) => {
+  const lowerMsg = message.toLowerCase();
+  
+  // Try to extract text after common phrases
+  const phrases = ['question on ', 'question about ', 'problem on ', 'problem with ', 'find ', 'solve ', 'write code for '];
+  
+  for (const phrase of phrases) {
+    const index = lowerMsg.indexOf(phrase);
+    if (index !== -1) {
+      return message.substring(index + phrase.length).trim();
+    }
+  }
+  
+  // If no phrase found, remove question/problem keywords and return the rest
+  let query = message.replace(/^(write|find|solve|i want|i need)\s+/i, '');
+  query = query.replace(/^(question|problem|a|the)\s+/i, '');
+  return query.trim();
+};
+
+/**
  * Send message in conversation (Phase 1)
  */
-const sendMessage = async (userId, conversationId, userMessage) => {
+const sendMessage = async (userId, conversationId, userMessage, agenticMode = false) => {
   try {
+    console.log(`📨 sendMessage called with agenticMode=${agenticMode}, intent will be detected`);
+    
     if (!userId) {
       throw new Error('User ID is required');
     }
@@ -159,6 +188,34 @@ const sendMessage = async (userId, conversationId, userMessage) => {
 
     // Detect intent
     const intent = detectIntent(userMessage);
+    console.log(`🎯 Intent detected: "${intent}" | agenticMode: ${agenticMode} | message: "${userMessage}"`);
+
+    // If agentic mode and question request, return navigation action
+    if (agenticMode && intent === 'question_request') {
+      const questionQuery = extractQuestionQuery(userMessage);
+      console.log(`🤖 AGENTIC MODE TRIGGERED! Query: "${questionQuery}"`);
+      
+      const aiResponse = {
+        role: 'assistant',
+        content: `I found your request! Taking you to create a question about "${questionQuery}"...`,
+        timestamp: new Date(),
+        metadata: { intent },
+      };
+      
+      conversation.messages.push(aiResponse);
+      await conversation.save();
+      
+      return {
+        conversationId: conversation._id,
+        message: `I found your request! Taking you to create a question about "${questionQuery}"...`,
+        intent,
+        action: {
+          type: 'navigate_to_testpad',
+          questionQuery,
+        },
+        sources: [],
+      };
+    }
 
     // Build context for AI from Pinecone
     let context = '';

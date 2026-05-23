@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import confetti from "canvas-confetti";
 import {
   Play,
@@ -66,6 +67,7 @@ const difficultyBg: Record<string, string> = {
 };
 
 export default function Testpad() {
+  const [searchParams] = useSearchParams();
   const [apiKey, setApiKey] = useState("");
   const [showApiSettings, setShowApiSettings] = useState(false);
   const [showApiGuide, setShowApiGuide] = useState(false);
@@ -105,6 +107,14 @@ export default function Testpad() {
   useEffect(() => {
     loadApiKey();
   }, []);
+
+  // Load question from URL parameter if present (from agentic mode)
+  useEffect(() => {
+    const question = searchParams.get('question');
+    if (question) {
+      setTopic(decodeURIComponent(question));
+    }
+  }, [searchParams]);
 
   // Handle left divider resize
   useEffect(() => {

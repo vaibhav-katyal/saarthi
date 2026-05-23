@@ -103,6 +103,7 @@ export default function KnowledgeVault() {
   // Presentation Modals (Snippet view, PDF Summary view)
   const [viewSnippet, setViewSnippet] = useState<VaultItem | null>(null);
   const [viewPdf, setViewPdf] = useState<VaultItem | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchVaultData = async (folderId: string | null) => {
     setLoading(true);
@@ -225,6 +226,7 @@ export default function KnowledgeVault() {
       return;
     }
 
+    setIsUploading(true);
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
@@ -273,6 +275,8 @@ export default function KnowledgeVault() {
       }
     } catch (err) {
       toast({ title: "Failed to add item", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -761,7 +765,7 @@ export default function KnowledgeVault() {
 
               <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-white/10">
                 <button onClick={() => setShowItemModal({ show: false, type: null })} className="rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white hover:bg-white/5 transition-all">Cancel</button>
-                <button onClick={handleCreateItem} className="rounded-xl bg-white/10 border border-white/10 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">Save</button>
+                <button onClick={handleCreateItem} disabled={isUploading} className="rounded-xl bg-white/10 border border-white/10 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/10 disabled:hover:shadow-none">{isUploading ? 'Saving...' : 'Save'}</button>
               </div>
             </motion.div>
           </motion.div>

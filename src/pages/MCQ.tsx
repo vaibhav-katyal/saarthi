@@ -404,14 +404,14 @@ Make sure:
 
         <div className="max-w-4xl mx-auto space-y-4">
           {/* Header Section */}
-          <div className="relative overflow-hidden rounded-[1.5rem] border border-border/50 bg-gradient-to-br from-primary/15 via-transparent to-transparent p-5">
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 backdrop-blur-sm">
-                <Brain className="h-6 w-6 text-primary" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.05] border border-white/[0.08]">
+                <Brain className="h-6 w-6 text-white/60" />
               </div>
               <div>
                 <h2 className="text-xl font-bold tracking-tight">Quiz Builder</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/40">
                   Customize your learning experience with AI-generated questions
                 </p>
               </div>
@@ -419,7 +419,7 @@ Make sure:
           </div>
 
           {/* Main Form Card */}
-          <GlassCard className="space-y-5 border border-border/50 p-5">
+          <GlassCard className="space-y-5 border border-white/[0.06] p-5">
 
             {/* Topic and Subtopic Section */}
             <div className="space-y-4">
@@ -454,18 +454,18 @@ Make sure:
             {/* Configuration Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Questions Card */}
-              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-4 backdrop-blur-sm">
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <BarChart3 className="h-4 w-4 text-primary" />
-                  <h3 className="text-xs font-semibold text-foreground">Questions</h3>
+                  <BarChart3 className="h-4 w-4 text-white/40" />
+                  <h3 className="text-xs font-semibold text-white/70">Questions</h3>
                 </div>
                 <select
                   value={numQuestions}
                   onChange={(e) => setNumQuestions(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-white/[0.03] border border-white/[0.08] text-white/80 font-medium cursor-pointer appearance-none"
                 >
                   {[3, 5, 10, 15, 20].map((num) => (
-                    <option key={num} value={num} style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>
+                    <option key={num} value={num} style={{ backgroundColor: '#0a0a0a', color: '#e5e7eb' }}>
                       {num} Questions
                     </option>
                   ))}
@@ -473,19 +473,19 @@ Make sure:
               </div>
 
               {/* Difficulty Card */}
-              <div className="rounded-xl border border-border/50 bg-gradient-to-br from-secondary/30 to-secondary/10 p-4 backdrop-blur-sm">
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <Zap className="h-4 w-4 text-primary" />
-                  <h3 className="text-xs font-semibold text-foreground">Difficulty</h3>
+                  <Zap className="h-4 w-4 text-white/40" />
+                  <h3 className="text-xs font-semibold text-white/70">Difficulty</h3>
                 </div>
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg bg-background/50 border border-border/50 text-foreground font-medium cursor-pointer appearance-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-white/[0.03] border border-white/[0.08] text-white/80 font-medium cursor-pointer appearance-none"
                 >
-                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Beginner</option>
-                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Intermediate</option>
-                  <option style={{ backgroundColor: '#0f172a', color: '#e5e7eb' }}>Advanced</option>
+                  <option style={{ backgroundColor: '#0a0a0a', color: '#e5e7eb' }}>Beginner</option>
+                  <option style={{ backgroundColor: '#0a0a0a', color: '#e5e7eb' }}>Intermediate</option>
+                  <option style={{ backgroundColor: '#0a0a0a', color: '#e5e7eb' }}>Advanced</option>
                 </select>
               </div>
             </div>
@@ -494,7 +494,7 @@ Make sure:
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowApiSettings(true)}
-                className="px-3 py-2 text-sm rounded-lg bg-secondary/50 text-foreground font-medium hover:bg-secondary transition duration-200 flex items-center gap-2"
+                className="px-3 py-2 text-sm rounded-lg bg-white/[0.05] text-white/70 font-medium hover:bg-white/[0.08] transition duration-200 flex items-center gap-2"
               >
                 <Settings className="h-3.5 w-3.5" />
                 Settings
@@ -502,11 +502,11 @@ Make sure:
               <button
                 onClick={generateMCQs}
                 disabled={generating || !topic.trim()}
-                className="ml-auto px-6 py-2 text-sm rounded-lg bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
+                className="ml-auto px-6 py-2 text-sm rounded-lg bg-white text-black font-semibold hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
               >
                 {generating ? (
                   <>
-                    <span className="animate-spin w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full" />
+                    <span className="animate-spin w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full" />
                     <span>Crafting Questions...</span>
                   </>
                 ) : (
@@ -540,32 +540,32 @@ Make sure:
           {/* Progress Bar */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-foreground">
+              <div className="text-sm font-medium text-white/70">
                 Progress
               </div>
-              <div className="text-sm font-semibold text-primary">
+              <div className="text-sm font-semibold text-white/60">
                 {currentQuestion + 1}/{questions.length}
               </div>
             </div>
-            <div className="h-2 w-full bg-secondary/40 rounded-full overflow-hidden backdrop-blur-sm border border-border/30">
+            <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden border border-white/[0.06]">
               <div
-                className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500 ease-out"
+                className="h-full bg-white/40 transition-all duration-500 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
 
           {/* Question Card */}
-          <GlassCard className="space-y-8 border border-border/50 backdrop-blur-xl">
+          <GlassCard className="space-y-8 border border-white/[0.06]">
             {/* Question Text */}
             <div className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                  <span className="text-sm font-bold text-primary">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.05] border border-white/[0.08]">
+                  <span className="text-sm font-bold text-white/60">
                     {currentQuestion + 1}
                   </span>
                 </div>
-                <h2 className="text-xl font-semibold leading-relaxed text-foreground mt-1">
+                <h2 className="text-xl font-semibold leading-relaxed text-white/90 mt-1">
                   {q.question}
                 </h2>
               </div>
@@ -578,21 +578,21 @@ Make sure:
                 return (
                   <label
                     key={idx}
-                    className={`group relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                    className={`group relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
                       isSelected
-                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
-                        : "border-border/50 bg-secondary/20 hover:border-primary/40 hover:bg-secondary/40"
+                        ? "border-white/20 bg-white/[0.05]"
+                        : "border-white/[0.06] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]"
                     }`}
                   >
                     <div
-                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200 mt-0.5 ${
+                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border transition-all duration-200 mt-0.5 ${
                         isSelected
-                          ? "border-primary bg-primary"
-                          : "border-border/50 group-hover:border-primary/50"
+                          ? "border-white/40 bg-white/20"
+                          : "border-white/[0.1] group-hover:border-white/20"
                       }`}
                     >
                       {isSelected && (
-                        <div className="h-2 w-2 rounded-full bg-primary-foreground" />
+                        <div className="h-2 w-2 rounded-full bg-white" />
                       )}
                     </div>
                     <input
@@ -603,7 +603,7 @@ Make sure:
                       onChange={() => handleAnswerSelect(option)}
                       className="sr-only"
                     />
-                    <span className="flex-1 text-base font-medium text-foreground leading-relaxed pt-0.5">
+                    <span className="flex-1 text-base font-medium text-white/80 leading-relaxed pt-0.5">
                       {option}
                     </span>
                   </label>
@@ -619,8 +619,8 @@ Make sure:
               disabled={currentQuestion === 0}
               className={`px-6 py-2.5 rounded-lg font-medium transition duration-200 flex items-center gap-2 ${
                 currentQuestion === 0
-                  ? "bg-secondary/30 text-muted-foreground cursor-not-allowed"
-                  : "bg-secondary/50 text-foreground hover:bg-secondary/70"
+                  ? "bg-white/[0.03] text-white/30 cursor-not-allowed"
+                  : "bg-white/[0.05] text-white/70 hover:bg-white/[0.08]"
               }`}
             >
               ← Back
@@ -634,8 +634,8 @@ Make sure:
                 disabled={!selectedAnswer}
                 className={`px-8 py-2.5 rounded-lg font-medium transition duration-200 flex items-center gap-2 ${
                   !selectedAnswer
-                    ? "bg-primary/30 text-muted-foreground cursor-not-allowed"
-                    : "bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/30"
+                    ? "bg-white/[0.05] text-white/30 cursor-not-allowed"
+                    : "bg-white text-black hover:bg-white/90"
                 }`}
               >
                 Next <ChevronRight className="h-5 w-5" />
@@ -646,8 +646,8 @@ Make sure:
                 disabled={!selectedAnswer}
                 className={`px-8 py-2.5 rounded-lg font-semibold transition duration-200 flex items-center gap-2 ${
                   !selectedAnswer
-                    ? "bg-green-500/30 text-muted-foreground cursor-not-allowed"
-                    : "bg-gradient-to-r from-green-600 to-green-500 text-white hover:shadow-lg hover:shadow-green-500/30"
+                    ? "bg-white/[0.05] text-white/30 cursor-not-allowed"
+                    : "bg-white text-black hover:bg-white/90"
                 }`}
               >
                 <CheckCircle2 className="h-5 w-5" />
@@ -662,15 +662,22 @@ Make sure:
 
   // Page 3: Results
   if (pageState === "results" && results) {
-    const accuracyColor = 
-      results.score >= 80 ? "text-emerald-400" :
-      results.score >= 60 ? "text-yellow-400" : 
-      "text-orange-400";
+    const scoreBand =
+      results.score >= 80 ? "excellent" : results.score >= 60 ? "good" : "needs_practice";
 
-    const scoreStatus = 
-      results.score >= 80 ? "Excellent!" :
-      results.score >= 60 ? "Good Effort" : 
+    const scoreColors = {
+      excellent: { text: "text-green-400", pillBg: "bg-green-500/10", pillBorder: "border-green-500/20" },
+      good: { text: "text-yellow-400", pillBg: "bg-yellow-500/10", pillBorder: "border-yellow-500/20" },
+      needs_practice: { text: "text-red-400", pillBg: "bg-red-500/10", pillBorder: "border-red-500/20" },
+    } as const;
+
+    const accuracyColor = scoreColors[scoreBand].text;
+
+    const scoreStatus =
+      scoreBand === "excellent" ? "Excellent!" :
+      scoreBand === "good" ? "Good Effort" :
       "Keep Practicing";
+
 
     return (
       <PageWrapper
@@ -681,9 +688,9 @@ Make sure:
       >
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Score Card */}
-          <div className="relative overflow-hidden rounded-2xl border border-border/50">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
-            <GlassCard className="relative space-y-8 backdrop-blur-xl">
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-transparent" />
+            <GlassCard className="relative space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Main Score */}
                 <div className="flex flex-col items-center justify-center space-y-4 py-8 px-6">
@@ -696,7 +703,7 @@ Make sure:
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="8"
-                        className="text-secondary/40"
+                        className="text-white/[0.08]"
                       />
                       <circle
                         cx="50"
@@ -706,7 +713,7 @@ Make sure:
                         stroke="currentColor"
                         strokeWidth="8"
                         strokeDasharray={`${(results.score / 100) * 282.74} 282.74`}
-                        className={`${accuracyColor} transition-all duration-1000`}
+                        className="text-white/40 transition-all duration-1000"
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -719,17 +726,19 @@ Make sure:
                     <p className={`text-lg font-semibold ${accuracyColor}`}>
                       {scoreStatus}
                     </p>
+
                   </div>
+
                 </div>
 
                 {/* Stats */}
                 <div className="flex items-center justify-center">
                   <div className="space-y-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-emerald-400 mb-2">
+                      <div className="text-center">
+                      <div className="text-3xl font-bold text-green-400 mb-2">
                         {results.correctAnswers}
                       </div>
-                      <p className="text-sm text-muted-foreground font-medium">
+                      <p className="text-sm text-white/40 font-medium">
                         Correct Answers
                       </p>
                     </div>
@@ -737,7 +746,7 @@ Make sure:
                       <div className="text-3xl font-bold text-red-400 mb-2">
                         {results.totalQuestions - results.correctAnswers}
                       </div>
-                      <p className="text-sm text-muted-foreground font-medium">
+                      <p className="text-sm text-white/40 font-medium">
                         Incorrect Answers
                       </p>
                     </div>
@@ -747,19 +756,19 @@ Make sure:
                 {/* Summary */}
                 <div className="flex items-center">
                   <div className="space-y-4 w-full">
-                    <div className="rounded-lg bg-secondary/30 p-4 backdrop-blur-sm border border-border/30">
-                      <p className="text-xs text-muted-foreground font-medium mb-2">
+                    <div className="rounded-lg bg-white/[0.03] p-4 border border-white/[0.06]">
+                      <p className="text-xs text-white/40 font-medium mb-2">
                         TOTAL QUESTIONS
                       </p>
-                      <p className="text-2xl font-bold text-foreground">
+                      <p className="text-2xl font-bold text-white/80">
                         {results.totalQuestions}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-secondary/30 p-4 backdrop-blur-sm border border-border/30">
-                      <p className="text-xs text-muted-foreground font-medium mb-2">
+                    <div className="rounded-lg bg-white/[0.03] p-4 border border-white/[0.06]">
+                      <p className="text-xs text-white/40 font-medium mb-2">
                         ACCURACY RATE
                       </p>
-                      <p className="text-2xl font-bold text-foreground">
+                      <p className="text-2xl font-bold text-white/80">
                         {Math.round((results.correctAnswers / results.totalQuestions) * 100)}%
                       </p>
                     </div>
@@ -772,44 +781,44 @@ Make sure:
           {/* Detailed Results */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-6">
-              <BarChart3 className="h-6 w-6 text-primary" />
+              <BarChart3 className="h-6 w-6 text-white/40" />
               <h3 className="text-xl font-bold tracking-tight">Answer Review</h3>
             </div>
 
             {results.results.map((result, idx) => (
               <div
                 key={idx}
-                className="group relative overflow-hidden rounded-xl border border-border/50 backdrop-blur-sm transition-all duration-200 hover:border-border/80"
+                className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] transition-all duration-200 hover:border-white/[0.1]"
               >
                 <div
                   className={`absolute left-0 top-0 bottom-0 w-1 transition-all ${
                     result.isCorrect
-                      ? "bg-gradient-to-b from-emerald-500 to-emerald-400"
-                      : "bg-gradient-to-b from-red-500 to-red-400"
+                      ? "bg-white/40"
+                      : "bg-white/20"
                   }`}
                 />
                 <GlassCard className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 mt-1">
                       {result.isCorrect ? (
-                        <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                        <CheckCircle2 className="h-6 w-6 text-green-400" />
                       ) : (
                         <XCircle className="h-6 w-6 text-red-400" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-foreground mb-4">
+                      <h4 className="font-semibold text-white/80 mb-4">
                         {result.question}
                       </h4>
 
                       <div className="space-y-3">
                         {/* Your Answer */}
-                        <div className="rounded-lg bg-secondary/40 p-3 border border-border/40">
-                          <p className="text-xs font-semibold text-muted-foreground mb-1.5">
-                            YOUR ANSWER
+                        <div className="rounded-lg bg-white/[0.03] p-3 border border-white/[0.06]">
+                          <p className="text-xs font-semibold text-[#7B61FF] mb-1.5">
+                            your answer
                           </p>
                           <p className={`text-sm font-medium ${
-                            result.isCorrect ? "text-emerald-400" : "text-red-400"
+                            result.isCorrect ? "text-white/70" : "text-white/50"
                           }`}>
                             {result.userAnswer}
                           </p>
@@ -817,23 +826,23 @@ Make sure:
 
                         {/* Correct Answer (if wrong) */}
                         {!result.isCorrect && (
-                          <div className="rounded-lg bg-emerald-500/10 p-3 border border-emerald-500/20">
-                            <p className="text-xs font-semibold text-emerald-400 mb-1.5">
+                          <div className="rounded-lg bg-white/[0.03] p-3 border border-white/[0.06]">
+                            <p className="text-xs font-semibold text-white/40 mb-1.5">
                               CORRECT ANSWER
                             </p>
-                            <p className="text-sm font-medium text-emerald-400">
+                            <p className="text-sm font-medium text-white/60">
                               {result.correctAnswer}
                             </p>
                           </div>
                         )}
 
                         {/* Explanation */}
-                        <div className="rounded-lg bg-blue-500/10 p-4 border border-blue-500/20 space-y-2">
-                          <p className="flex items-center gap-2 text-xs font-semibold text-blue-400">
+                        <div className="rounded-lg bg-white/[0.02] p-4 border border-white/[0.06] space-y-2">
+                          <p className="flex items-center gap-2 text-xs font-semibold text-[#7B61FF]">
                             <Zap className="h-3.5 w-3.5" />
-                            EXPLANATION
+                            ai explanation
                           </p>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
+                          <p className="text-sm text-white/40 leading-relaxed">
                             {result.explanation}
                           </p>
                         </div>
@@ -848,7 +857,7 @@ Make sure:
           {/* Action Button */}
           <button
             onClick={resetQuiz}
-            className="w-full px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold hover:shadow-lg hover:shadow-primary/30 transition duration-200 flex items-center justify-center gap-2 mt-8"
+            className="w-full px-8 py-3 rounded-xl bg-white text-black font-semibold hover:bg-white/90 transition duration-200 flex items-center justify-center gap-2 mt-8"
           >
             <RotateCcw className="h-5 w-5" />
             Try Another Quiz

@@ -312,16 +312,15 @@ export default function KnowledgeVault() {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#02040A] min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
-      {/* Cinematic Background Layer */}
-      <div className="sticky top-0 left-0 w-full h-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-screen" />
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#00F5FF]/20 blur-[180px] mix-blend-screen" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#7B61FF]/20 blur-[180px] mix-blend-screen" />
-          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/15 blur-[150px] mix-blend-screen" />
-        </div>
+      <div className="flex-1 overflow-y-auto scrollbar-thin bg-black min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+      {/* Subtle Grid Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
+        }} />
       </div>
+
 
       {/* API Guide Modal */}
       <ApiGuideModal isOpen={showApiGuide} onClose={() => setShowApiGuide(false)} />
@@ -633,8 +632,8 @@ export default function KnowledgeVault() {
             </motion.div>
           )}
         </AnimatePresence>
-        <button className="w-14 h-14 rounded-full bg-gradient-to-r from-[#00F5FF] to-[#7B61FF] text-white shadow-[0_0_30px_rgba(0,245,255,0.5)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
-          <Plus className="w-7 h-7" />
+        <button className="w-14 h-14 rounded-full bg-gradient-to-r from-white/10 to-white/5 text-white shadow-[0_0_30px_rgba(255,255,255,0.08)] border border-white/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+          <Plus className="w-7 h-7 text-white" />
         </button>
       </div>
 

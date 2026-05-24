@@ -7,18 +7,17 @@ import {
     Brain,
     Code2,
     Swords,
-    TrendingUp,
     Clock,
     Activity,
     Sparkles,
     CalendarDays,
     FileText,
     BarChart3,
-    LayoutDashboard,
     CheckCircle2,
-    Zap,
     Trophy,
-    Flame,
+    ArrowUpRight,
+    ChevronRight,
+    Target,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { API_BASE_URL } from "@/lib/api";
@@ -61,7 +60,6 @@ const Dashboard = () => {
 
     const [attendancePercent, setAttendancePercent] = useState<number | string>("...");
     const [skipClasses, setSkipClasses] = useState<number | string>("...");
-    const [dayStreak, setDayStreak] = useState<number | string>("0");
     const [duelWins, setDuelWins] = useState<number | string>("0");
 
     useEffect(() => {
@@ -178,301 +176,225 @@ const Dashboard = () => {
         {
             label: "Problems Solved",
             value: submissionsCount.toString(),
-            change: "+12% this week",
+            change: skipClasses.toString(),
             icon: Code2,
-            trend: "up",
         },
         {
             label: "Attendance",
             value: attendancePercent.toString(),
-            change: skipClasses.toString(),
+            change: "overall",
             icon: Activity,
-            trend: "up",
-        },
-        {
-            label: "Weekly Productivity",
-            value: "87%",
-            change: "+5% from last week",
-            icon: Zap,
-            trend: "up",
-        },
-        {
-            label: "Day Streak",
-            value: weeklySummary.loading ? "..." : String(weeklySummary.activeDays),
-            change: "days in a row",
-            icon: Flame,
-            trend: "neutral",
         },
         {
             label: "Code Duel Wins",
             value: duelWins.toString(),
             change: "victories",
             icon: Trophy,
-            trend: "up",
         },
     ];
 
-    const initialActivities = recentActivity.slice(0, 7);
-    const remainingActivities = recentActivity.slice(7);
-
     return (
-        <div className="flex-1 overflow-y-auto scrollbar-thin bg-black min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
-            {/* Subtle Grid Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 opacity-[0.03]" style={{
-                    backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
-                    backgroundSize: '60px 60px'
-                }} />
-            </div>
+        <div className="flex-1 overflow-y-auto bg-black min-h-screen text-white font-sans relative">
+            <div className="max-w-[1400px] mx-auto px-6 py-8 relative z-10">
 
-            <div className="max-w-7xl mx-auto px-6 py-6 md:py-8 relative z-10 space-y-8">
-
-                {/* Header - Same Style */}
+                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="space-y-3"
+                    className="mb-8"
                 >
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-white/50 mb-2">
-                        <LayoutDashboard className="h-3 w-3" />
-                        Dashboard
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-heading">
+                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
                         {greeting},{" "}
-                        <span className="text-white">
+                        <span className="text-white/90">
                             {firstName}
                         </span>
-                        .
                     </h1>
-                    <p className="text-sm text-white/40 max-w-xl leading-relaxed">
+                    <p className="text-sm text-white/40">
                         Track your academic journey and stay productive.
                     </p>
                 </motion.div>
 
-                {/* Stats Cards Row - 5 Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {/* Stats Cards Row */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+                >
                     {statsCards.map((stat, i) => (
-                        <motion.div
+                        <div
                             key={stat.label}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: 0.05 * i }}
-                            className="group rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-300"
+                            className="bg-black border border-white/10 rounded-2xl p-5 hover:border-white/15 transition-colors duration-200"
                         >
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center border border-white/[0.08]">
-                                    <stat.icon className="h-4 w-4 text-white/60" />
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                                    <stat.icon className="h-5 w-5 text-white/60" />
                                 </div>
-                                {stat.trend === "up" && (
-                                    <TrendingUp className="h-3.5 w-3.5 text-emerald-400/60" />
-                                )}
+                                <ArrowUpRight className="h-4 w-4 text-white/30" />
                             </div>
-                            <p className="text-2xl font-bold text-white tracking-tight mb-0.5">
+                            <p className="text-3xl font-bold text-white tracking-tight mb-1">
                                 {stat.value}
                             </p>
-                            <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-1">{stat.label}</p>
-                            <p className="text-[10px] text-white/30">{stat.change}</p>
-                        </motion.div>
+                            <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-0.5">{stat.label}</p>
+                            <p className="text-xs text-white/30">{stat.change}</p>
+                        </div>
                     ))}
-                </div>
+                </motion.div>
 
-                {/* Weekly Summary - Horizontal Analytics Format */}
+                {/* Main Content Section - Split Layout */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                    className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+                >
+                    {/* Recent Activity - Left (2/3 width) */}
+                    <div className="lg:col-span-2 bg-black border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <Clock className="h-4 w-4 text-white/40" />
+                                <h2 className="text-sm font-semibold text-white/80 tracking-tight">Recent Activity</h2>
+                            </div>
+                            <span className="text-[11px] font-medium text-white/30 uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+                                {recentActivity.length} Total
+                            </span>
+                        </div>
+
+                        <div className="overflow-y-auto max-h-[448px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            <div className="space-y-1">
+                                {recentActivity.length > 0 ? (
+                                    recentActivity.map((item, i) => {
+                                        const IconComponent = getIcon(item.icon);
+                                        return (
+                                            <div
+                                                key={i}
+                                                className="flex items-center gap-4 rounded-xl px-4 py-3 hover:bg-white/[0.03] transition-colors group cursor-default border border-transparent hover:border-white/5"
+                                            >
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 border border-white/10 group-hover:bg-white/8 group-hover:border-white/15 transition-colors">
+                                                    <IconComponent className="h-4 w-4 text-white/50 group-hover:text-white/70 transition-colors" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-white/80 truncate">
+                                                        {item.action}
+                                                    </p>
+                                                    <p className="text-xs text-white/40 truncate mt-0.5">
+                                                        {item.subject}
+                                                    </p>
+                                                </div>
+                                                <div className="text-xs text-white/30 font-medium shrink-0">
+                                                    {item.time}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <Activity className="h-10 w-10 text-white/10 mb-3" />
+                                        <p className="text-xs font-medium text-white/30 uppercase tracking-widest">No recent activity</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Weekly Summary - Right (1/3 width) */}
+                    <div className="lg:col-span-1 bg-black border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <BarChart3 className="h-4 w-4 text-white/40" />
+                            <h2 className="text-sm font-semibold text-white/80 tracking-tight">Weekly Summary</h2>
+                        </div>
+
+                        {weeklySummary.loading ? (
+                            <div className="flex items-center justify-center py-10">
+                                <div className="animate-spin rounded-full h-8 w-8 border border-white/10 border-t-white/20" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-3">
+                                {/* Problems Solved */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Code2 className="h-3 w-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Problems Solved</p>
+                                    </div>
+                                    <p className="text-xl font-bold text-white tracking-tight">{weeklySummary.problemsSolved}</p>
+                                </div>
+
+                                {/* MCQs Attempted */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Brain className="h-3 w-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">MCQs Attempted</p>
+                                    </div>
+                                    <p className="text-xl font-bold text-white tracking-tight">{weeklySummary.mcqsAttempted}</p>
+                                </div>
+
+                                {/* Accuracy */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Target className="h-3 w-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Accuracy</p>
+                                    </div>
+                                    <p className="text-xl font-bold text-white tracking-tight">{weeklySummary.accuracy}%</p>
+                                </div>
+
+                                {/* Active Days */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <CalendarDays className="h-3 w-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Active Days</p>
+                                    </div>
+                                    <p className="text-xl font-bold text-white tracking-tight">{weeklySummary.activeDays}<span className="text-sm text-white/30">/7</span></p>
+                                </div>
+
+                                {/* Best Day */}
+                                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Sparkles className="h-3 w-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Best Day</p>
+                                    </div>
+                                    <p className="text-lg font-bold text-white tracking-tight truncate">
+                                        {weeklySummary.bestDay === "N/A" ? "—" : weeklySummary.bestDay}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+
+                {/* Modules Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 }}
-                    className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-5"
                 >
-                    <div className="flex items-center gap-2 mb-5">
-                        <BarChart3 className="h-4 w-4 text-white/40" />
-                        <h2 className="text-sm font-medium text-white/80 tracking-tight">Weekly Summary</h2>
-                    </div>
-
-                    {weeklySummary.loading ? (
-                        <div className="flex items-center justify-center py-6">
-                            <div className="animate-spin rounded-full h-8 w-8 border border-white/10 border-t-white/20" />
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                            {/* Problems Solved */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Problems Solved</p>
-                                <p className="text-3xl font-bold text-white tracking-tight">{weeklySummary.problemsSolved}</p>
-                                <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full bg-gradient-to-r from-white/20 to-white/40"
-                                        style={{ width: `${Math.min((Number(weeklySummary.problemsSolved) / 50) * 100, 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* MCQs Attempted */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider">MCQs Attempted</p>
-                                <p className="text-3xl font-bold text-white tracking-tight">{weeklySummary.mcqsAttempted}</p>
-                                <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full bg-gradient-to-r from-white/20 to-white/40"
-                                        style={{ width: `${Math.min((Number(weeklySummary.mcqsAttempted) / 30) * 100, 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Accuracy */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Accuracy</p>
-                                <p className="text-3xl font-bold text-emerald-400 tracking-tight">{weeklySummary.accuracy}%</p>
-                                <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full bg-gradient-to-r from-emerald-400/30 to-emerald-400/50"
-                                        style={{ width: `${Math.min(Number(weeklySummary.accuracy), 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Active Days */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Active Days</p>
-                                <p className="text-3xl font-bold text-white tracking-tight">{weeklySummary.activeDays}<span className="text-sm text-white/30">/7</span></p>
-                                <div className="flex gap-1">
-                                    {[...Array(7)].map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className={`h-1 flex-1 rounded-full ${i < Number(weeklySummary.activeDays) ? 'bg-white/40' : 'bg-white/[0.05]'}`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Best Day */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Best Day</p>
-                                <p className="text-lg font-bold text-white tracking-tight truncate">
-                                    {weeklySummary.bestDay === "N/A" ? "—" : weeklySummary.bestDay}
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    <CalendarDays className="h-3 w-3 text-white/30" />
-                                    <span className="text-[10px] text-white/30">this week</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* Recent Activity with Scroll */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.4 }}
-                    className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-5"
-                >
-                    <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-white/40" />
-                            <h2 className="text-sm font-medium text-white/80 tracking-tight">Recent Activity</h2>
-                        </div>
-                        <span className="text-[10px] font-medium text-white/30 uppercase tracking-widest px-2 py-1 rounded-full bg-white/[0.03] border border-white/[0.06]">
-                            {recentActivity.length} Total
-                        </span>
-                    </div>
-
-                    {/* Initial 7 activities - no scroll */}
-                    <div className="space-y-1 mb-2">
-                        {initialActivities.length > 0 ? (
-                            initialActivities.map((item, i) => {
-                                const IconComponent = getIcon(item.icon);
-                                return (
-                                    <div
-                                        key={i}
-                                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/[0.03] transition-colors group cursor-default"
-                                    >
-                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] border border-white/[0.06] group-hover:bg-white/[0.08] transition-colors">
-                                            <IconComponent className="h-3.5 w-3.5 text-white/50 group-hover:text-white/70 transition-colors" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-white/80 truncate">
-                                                {item.action}
-                                            </p>
-                                            <p className="text-[11px] text-white/30 truncate">
-                                                {item.subject}
-                                            </p>
-                                        </div>
-                                        <div className="text-[10px] text-white/30 font-medium shrink-0">
-                                            {item.time}
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8">
-                                <Activity className="h-8 w-8 text-white/10 mb-3" />
-                                <p className="text-[11px] font-medium text-white/30 uppercase tracking-widest">No recent activity</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Remaining activities with vertical scroll */}
-                    {remainingActivities.length > 0 && (
-                        <div className="overflow-y-auto max-h-[280px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pt-2 border-t border-white/[0.04]">
-                            <div className="space-y-1">
-                                {remainingActivities.map((item, i) => {
-                                    const IconComponent = getIcon(item.icon);
-                                    return (
-                                        <div
-                                            key={i + 7}
-                                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-white/[0.03] transition-colors group cursor-default"
-                                        >
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] border border-white/[0.06] group-hover:bg-white/[0.08] transition-colors">
-                                                <IconComponent className="h-3.5 w-3.5 text-white/50 group-hover:text-white/70 transition-colors" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-white/80 truncate">
-                                                    {item.action}
-                                                </p>
-                                                <p className="text-[11px] text-white/30 truncate">
-                                                    {item.subject}
-                                                </p>
-                                            </div>
-                                            <div className="text-[10px] text-white/30 font-medium shrink-0">
-                                                {item.time}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* Platform Quick Access - Minimal */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.5 }}
-                >
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-3 mb-5">
                         <Sparkles className="h-4 w-4 text-white/30" />
-                        <h2 className="text-sm font-medium text-white/50 tracking-tight">
-                            Quick Access
+                        <h2 className="text-sm font-semibold text-white/50 tracking-tight">
+                            Modules
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                         {[
-                            { title: "Knowledge Vault", path: "/vault", icon: BookOpen },
-                            { title: "AI Roadmap", path: "/roadmap", icon: Map },
-                            { title: "MCQ Generator", path: "/mcq", icon: Brain },
-                            { title: "Testpad", path: "/testpad", icon: Code2 },
-                            { title: "Code Duel", path: "/duel", icon: Swords },
-                            { title: "Leave Manager", path: "/leave", icon: CalendarDays },
+                            { title: "Knowledge Vault", path: "/vault", icon: BookOpen, desc: "Store & access materials" },
+                            { title: "AI Roadmap", path: "/roadmap", icon: Map, desc: "Personalized learning path" },
+                            { title: "MCQ Generator", path: "/mcq", icon: Brain, desc: "Generate practice tests" },
+                            { title: "Testpad", path: "/testpad", icon: Code2, desc: "Track problem solving" },
+                            { title: "Code Duel", path: "/duel", icon: Swords, desc: "Compete & win" },
+                            { title: "Leave Manager", path: "/leave", icon: CalendarDays, desc: "Manage attendance" },
                         ].map((item) => (
                             <Link key={item.path} to={item.path} className="block group">
-                                <div className="flex items-center gap-2 rounded-lg bg-white/[0.02] border border-white/[0.06] p-3 hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-200">
-                                    <item.icon className="h-4 w-4 text-white/40 group-hover:text-white/60 transition-colors" />
-                                    <span className="text-xs font-medium text-white/50 group-hover:text-white/70 transition-colors truncate">
-                                        {item.title.split(' ')[0]}
-                                    </span>
+                                <div className="bg-black border border-white/10 rounded-2xl p-5 h-full hover:border-white/15 hover:bg-white/[0.02] transition-all duration-200">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 mb-4 group-hover:bg-white/8 group-hover:border-white/15 transition-colors">
+                                        <item.icon className="h-5 w-5 text-white/50 group-hover:text-white/70 transition-colors" />
+                                    </div>
+                                    <h3 className="text-sm font-semibold text-white/80 mb-1 tracking-tight">{item.title}</h3>
+                                    <p className="text-xs text-white/40 mb-4 leading-relaxed">{item.desc}</p>
+                                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-white/30 group-hover:text-white/50 transition-colors">
+                                        <span>OPEN</span>
+                                        <ChevronRight className="h-3 w-3" />
+                                    </div>
                                 </div>
                             </Link>
                         ))}

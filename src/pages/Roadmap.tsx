@@ -160,8 +160,9 @@ function InterviewQuestionItem({
   };
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden transition-all duration-200 hover:border-primary/30 hover:shadow-sm">
-      <button
+        <div className="rounded-xl border border-border overflow-hidden transition-all duration-200 hover:border-[#10B981]/30 hover:shadow-sm">
+      	  <button
+
         onClick={toggle}
         className="w-full flex items-center justify-between gap-4 px-5 py-4 bg-card hover:bg-muted/40 transition-colors text-left"
       >
@@ -179,7 +180,7 @@ function InterviewQuestionItem({
               Generating answer…
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground leading-relaxed">{answer}</p>
+            <p className="text-sm text-white/60 leading-relaxed">{answer}</p>
           )}
         </div>
       )}
@@ -534,35 +535,34 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
         {!generatedGuide && !selectedRoadmapPdf ? (
           <>
             <div className="mx-auto w-full max-w-3xl flex flex-col items-center justify-center text-center pt-0 pb-2 px-4 relative z-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary shadow-[0_0_20px_rgba(0,245,255,0.15)] mb-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-wider text-white/60 mb-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <Sparkles className="h-3 w-3" />
                 AI Learning Engine
               </div>
               
               <div className="space-y-1 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
-                <h1 className="text-2xl font-extrabold tracking-tight sm:text-4xl text-foreground font-heading">
-                  What can I help you <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">?</span>
+                <h1 className="text-2xl font-bold tracking-tight sm:text-4xl text-white font-heading">
+                  What can I help you <span className="text-white">?</span>
                 </h1>
-                <p className="text-muted-foreground text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+                <p className="text-white/40 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
                   Enter any topic to instantly generate a structured roadmap or a comprehensive study guide.
                 </p>
               </div>
 
               <div className="w-full mt-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                <div className="relative rounded-[1.5rem] border border-white/5 bg-background/40 p-4 md:p-5 backdrop-blur-xl shadow-2xl overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 mix-blend-overlay pointer-events-none" />
-                  
+                <div className="relative rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 md:p-5 shadow-2xl overflow-hidden group">
+
                   <div className="relative z-10 space-y-3">
-                    <div className="flex bg-muted/40 p-1 rounded-[1rem] border border-border/40 relative">
+                    <div className="flex bg-white/[0.03] p-1 rounded-lg border border-white/[0.06] relative">
                       <button
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${generateType === "roadmap" ? "bg-background shadow-md text-foreground scale-[0.98]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium rounded-md transition-all duration-300 ${generateType === "roadmap" ? "bg-white/[0.08] text-white scale-[0.98]" : "text-white/40 hover:text-white/60 hover:bg-white/[0.05]"}`}
                         onClick={() => setGenerateType("roadmap")}
                       >
                         <Map className="w-3.5 h-3.5" />
                         Roadmap
                       </button>
                       <button
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${generateType === "guide" ? "bg-background shadow-md text-foreground scale-[0.98]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium rounded-md transition-all duration-300 ${generateType === "guide" ? "bg-white/[0.08] text-white scale-[0.98]" : "text-white/40 hover:text-white/60 hover:bg-white/[0.05]"}`}
                         onClick={() => setGenerateType("guide")}
                       >
                         <BookOpen className="w-3.5 h-3.5" />
@@ -571,11 +571,11 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                     </div>
 
                     <div className="text-left space-y-1 mt-3 relative">
-                      <label className="text-xs font-semibold text-muted-foreground/80 px-1 ml-1 hover:cursor-pointer" htmlFor="topic-input">
+                      <label className="text-xs font-medium text-white/40 px-1 ml-1 hover:cursor-pointer" htmlFor="topic-input">
                         Learning Topic
                       </label>
                       <div className="relative group/input">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within/input:text-primary transition-colors duration-300" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within/input:text-white/50 transition-colors duration-300" />
                         <input
                           id="topic-input"
                           type="text"
@@ -583,7 +583,7 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                           value={generateTopic}
                           onChange={(e) => setGenerateTopic(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                          className="w-full rounded-xl border border-border/50 bg-black/40 pl-11 pr-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
+                          className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] pl-11 pr-4 py-3 text-sm text-white/80 outline-none placeholder:text-white/20 focus:border-white/20 transition-all"
                         />
                       </div>
                     </div>
@@ -591,13 +591,12 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                     <button
                       onClick={handleGenerate}
                       disabled={isGenerating || !generateTopic.trim()}
-                      className="relative overflow-hidden w-full group/btn rounded-xl bg-gradient-to-r from-primary to-accent p-0.5 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed mt-4"
+                      className="w-full group/btn rounded-xl bg-white text-black p-0.5 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed mt-4"
                     >
-                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out z-10" />
-                      <div className="w-full py-3 bg-gradient-to-r from-primary to-accent flex items-center justify-center rounded-[10px] z-20 relative px-4 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(0,245,255,0.3)] group-hover/btn:shadow-[0_0_40px_rgba(123,97,255,0.5)]">
+                      <div className="w-full py-3 bg-white flex items-center justify-center rounded-[10px] z-20 relative px-4 text-sm font-semibold text-black">
                         {isGenerating ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                            <div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
                             Building {generateType}...
                           </div>
                         ) : (
@@ -612,20 +611,20 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                     {generateType === "guide" && (
                       <div className="flex items-center justify-between px-1 pt-1">
                         {apiKey ? (
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-green-400/70">
                             <span className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500/60 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500/80"></span>
                             </span>
-                            API Key Connected
+                            <span className="text-green-400">API Key Connected</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-white/40 bg-white/5 px-2 py-1 rounded border border-white/[0.06]">
                             <AlertCircle className="h-3 w-3" />
                             Configure API key
                           </div>
                         )}
-                        <button onClick={() => setShowApiSettings(true)} className="text-xs font-medium flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors bg-white/5 border border-white/5 hover:border-white/10 px-2 py-1 rounded-md text-white">
+                        <button onClick={() => setShowApiSettings(true)} className="text-xs font-medium flex items-center gap-1.5 text-white/40 hover:text-white/60 transition-colors bg-white/[0.03] border border-white/[0.06] hover:border-white/10 px-2 py-1 rounded-md">
                           <Settings className="h-3 w-3" />
                           Settings
                         </button>
@@ -638,40 +637,40 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
 
             {/* Library */}
             {!isLibraryExpanded ? (
-              <div className="border-t border-border pt-6 flex justify-center pb-0">
+              <div className="border-t border-white/[0.06] pt-6 flex justify-center pb-0">
                 <button
                   onClick={() => setIsLibraryExpanded(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border rounded-xl text-sm font-medium transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-white/[0.03] text-white/70 hover:bg-white/[0.05] border border-white/[0.06] rounded-xl text-sm font-medium transition-colors"
                 >
                   <BookOpen className="w-4 h-4" />
                   Explore Library
                 </button>
               </div>
             ) : (
-              <div className="border-t border-border pt-6 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+              <div className="border-t border-white/[0.06] pt-6 space-y-6 animate-in fade-in slide-in-from-bottom-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <h2 className="text-xl font-semibold tracking-tight">Explore Library</h2>
-                    <p className="text-xs text-muted-foreground">Discover professionally curated learning paths.</p>
+                    <p className="text-xs text-white/40">Discover professionally curated learning paths.</p>
                   </div>
                   <div className="relative w-full sm:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                     <input
                       type="text"
                       placeholder="Search library..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full rounded-full border border-border bg-card pl-9 pr-4 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-sm"
+                      className="w-full rounded-full border border-white/[0.08] bg-white/[0.03] pl-9 pr-4 py-2 text-sm outline-none placeholder:text-white/30 focus:border-white/20 transition-all"
                     />
                   </div>
                 </div>
 
                 {filteredRoles.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Role-Based Paths</h3>
+                    <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider px-1">Role-Based Paths</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {filteredRoles.map((role) => (
-                        <button key={role} onClick={() => handleCardClick(role)} className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm">
+                        <button key={role} onClick={() => handleCardClick(role)} className="flex items-center text-left rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3.5 text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.1] transition-colors">
                           {role}
                         </button>
                       ))}
@@ -681,10 +680,10 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
 
                 {/* {filteredSkills.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Skill-Based Paths</h3>
+                    <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider px-1">Skill-Based Paths</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {filteredSkills.map((skill) => (
-                        <button key={skill} onClick={() => handleCardClick(skill)} className="flex items-center text-left rounded-xl border border-border bg-card px-4 py-3.5 text-sm font-medium hover:border-primary/40 hover:bg-muted/50 transition-colors shadow-sm">
+                        <button key={skill} onClick={() => handleCardClick(skill)} className="flex items-center text-left rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3.5 text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.1] transition-colors">
                           {skill}
                         </button>
                       ))}
@@ -693,7 +692,7 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                 )} */}
 
                 {filteredRoles.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border">
+                  <div className="text-center py-12 text-white/30 bg-white/[0.02] rounded-xl border border-dashed border-white/[0.06]">
                     <p>No roadmaps or guides found for "{search}"</p>
                   </div>
                 )}
@@ -705,7 +704,7 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
             {!selectedRoadmapPdf && (
               <button
                 onClick={() => { setGeneratedGuide(""); setSelectedRoadmapPdf(""); }}
-                className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground bg-muted/50 hover:text-foreground hover:bg-muted rounded-xl transition-all border border-transparent hover:border-border w-fit"
+                className="group flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/40 bg-white/[0.03] hover:text-white/70 hover:bg-white/[0.05] rounded-xl transition-all border border-white/[0.06] hover:border-white/[0.1] w-fit"
               >
                 <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 Close Guide

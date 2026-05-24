@@ -207,50 +207,48 @@ export default function LeaveManager() {
   };
 
   const getStatusColors = (status: string) => {
-    if (status === 'safe') return { bg: 'bg-emerald-400', text: 'text-emerald-400', glow: 'shadow-[0_0_15px_rgba(52,211,153,0.4)]', container: 'bg-emerald-400/10 border-emerald-400/20' };
-    if (status === 'warning') return { bg: 'bg-yellow-400', text: 'text-yellow-400', glow: 'shadow-[0_0_15px_rgba(250,204,21,0.4)]', container: 'bg-yellow-400/10 border-yellow-400/20' };
-    return { bg: 'bg-red-500', text: 'text-red-400', glow: 'shadow-[0_0_15px_rgba(239,68,68,0.4)]', container: 'bg-red-500/10 border-red-500/20' };
+    if (status === 'safe') return { bg: 'bg-white/40', text: 'text-white/80', glow: '', container: 'bg-white/[0.05] border-white/[0.08]' };
+    if (status === 'warning') return { bg: 'bg-white/30', text: 'text-white/60', glow: '', container: 'bg-white/[0.03] border-white/[0.06]' };
+    return { bg: 'bg-white/20', text: 'text-white/50', glow: '', container: 'bg-white/[0.02] border-white/[0.05]' };
   };
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#02040A] min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
-      {/* Cinematic Background Layer */}
-      <div className="sticky top-0 left-0 w-full h-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-full h-screen overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-screen" />
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#00F5FF]/20 blur-[180px] mix-blend-screen" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#7B61FF]/20 blur-[180px] mix-blend-screen" />
-          <div className="absolute top-[40%] right-[20%] w-[30%] h-[30%] rounded-full bg-pink-500/15 blur-[150px] mix-blend-screen" />
-        </div>
+    <div className="flex-1 overflow-y-auto scrollbar-thin bg-black min-h-screen text-white font-sans relative pb-10 selection:bg-white/20">
+      {/* Subtle Grid Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+          backgroundSize: '48px 48px'
+        }} />
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-4 md:py-6 relative z-10 space-y-6">
 
         {/* Header & Toggle */}
-        <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary shadow-[0_0_20px_rgba(0,245,255,0.15)] mb-1">
+        <div className="text-center space-y-4 mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white/60 mb-1">
             <CalendarCheck className="h-3 w-3" />
             Smart Attendance
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white font-heading">
-            Leave <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60">Manager</span>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white font-heading">
+            Leave <span className="text-white">Manager</span>
           </h1>
-          <p className="text-muted-foreground text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-white/40 text-sm max-w-xl mx-auto leading-relaxed">
             Quickly calculate secure skips or track your subjects long-term.
           </p>
 
           <div className="flex justify-center mt-6">
-            <div className="bg-black/50 p-1 rounded-2xl border border-white/5 flex gap-1 inline-flex">
+            <div className="bg-white/[0.02] p-1 rounded-xl border border-white/[0.06] flex gap-1 inline-flex">
               <button
                 onClick={() => setViewMode("calculator")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${viewMode === 'calculator' ? 'bg-white/10 text-white shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${viewMode === 'calculator' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60 hover:bg-white/[0.05]'}`}
               >
                 <Calculator className="w-4 h-4" />
                 Quick Calculator
               </button>
               <button
                 onClick={() => setViewMode("dashboard")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${viewMode === 'dashboard' ? 'bg-white/10 text-white shadow-sm' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${viewMode === 'dashboard' ? 'bg-white/[0.08] text-white' : 'text-white/40 hover:text-white/60 hover:bg-white/[0.05]'}`}
               >
                 <LayoutGrid className="w-4 h-4" />
                 Saved Courses
@@ -262,52 +260,48 @@ export default function LeaveManager() {
         {/* View Routing */}
         {viewMode === "calculator" ? (
           /* QUICK CALCULATOR MODE */
-          <div className="w-full max-w-4xl mx-auto relative glass-panel p-5 md:p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 mix-blend-overlay pointer-events-none" />
+          <div className="w-full max-w-4xl mx-auto relative rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6 animate-in fade-in zoom-in-95 duration-500">
 
-            <div className="relative z-10 grid md:grid-cols-[1fr_1.5fr] gap-6 md:gap-8">
+            <div className="grid md:grid-cols-[1fr_1.5fr] gap-6 md:gap-8">
 
               {/* Calculator Inputs */}
-              <div className="space-y-4 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 pb-5 md:pb-0 md:pr-6">
+              <div className="space-y-4 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/[0.06] pb-5 md:pb-0 md:pr-6">
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-muted-foreground/80 px-1 ml-1">Lectures Delivered</label>
+                    <label className="text-sm font-medium text-white/50 px-1 ml-1">Lectures Delivered</label>
                     <input
                       type="number"
                       value={calcDelivered}
                       onChange={e => setCalcDelivered(e.target.value === "" ? "" : Number(e.target.value).toString())}
-                      className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-white/20 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-muted-foreground/80 px-1 ml-1">Lectures Attended</label>
+                    <label className="text-sm font-medium text-white/50 px-1 ml-1">Lectures Attended</label>
                     <input
                       type="number"
                       value={calcAttended}
                       onChange={e => setCalcAttended(e.target.value === "" ? "" : Number(e.target.value).toString())}
-                      className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-white/20 transition-all"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-muted-foreground/80 px-1 ml-1">Required %</label>
+                    <label className="text-sm font-medium text-white/50 px-1 ml-1">Required %</label>
                     <input
                       type="number"
                       value={calcRequired}
                       onChange={e => setCalcRequired(e.target.value === "" ? "" : Number(e.target.value).toString())}
-                      className="w-full rounded-2xl border border-border/50 bg-black/40 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/40 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all shadow-inner"
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-white/20 transition-all"
                     />
                   </div>
                 </div>
 
                 <button
                   onClick={handleCalculate}
-                  className="relative overflow-hidden w-full group/btn rounded-2xl bg-gradient-to-r from-primary to-accent p-0.5 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2 h-[48px]"
+                  className="w-full rounded-xl bg-white text-black font-semibold hover:bg-white/90 transition-all mt-2 h-[48px] flex items-center justify-center gap-2"
                 >
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out z-10" />
-                  <div className="w-full h-full bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-2 rounded-[14px] z-20 relative px-4 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(0,245,255,0.3)] group-hover/btn:shadow-[0_0_40px_rgba(123,97,255,0.5)]">
-                    <Calculator className="w-4 h-4" />
-                    Calculate
-                  </div>
+                  <Calculator className="w-4 h-4" />
+                  Calculate
                 </button>
               </div>
 
@@ -316,24 +310,27 @@ export default function LeaveManager() {
 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-white/5 shadow-lg ${getStatusColors(quickStats.status).container} ${getStatusColors(quickStats.status).text}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-white/[0.06] shadow-lg ${getStatusColors(quickStats.status).container} ${getStatusColors(quickStats.status).text}`}>
                       <StatusIcon status={quickStats.status} className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className={`text-xl font-bold tracking-tight mb-0.5 ${getStatusColors(quickStats.status).text}`}>
-                        {quickStats.status === 'safe' ? "You're safe! 🎉" : quickStats.status === 'warning' ? "Warning Zone" : "Critical bounds!"}
+                        {quickStats.status === 'safe' ? "You're safe!" : quickStats.status === 'warning' ? "Warning Zone" : "Critical bounds!"}
                       </h3>
-                      <p className="text-muted-foreground text-[13px]">
+                      <p className={`text-[13px] ${getStatusColors(quickStats.status).text}`}>
                         {quickStats.status === 'safe' ? "You have room to take breaks." : quickStats.status === 'warning' ? "Careful, close to requirement." : "You need to attend more lectures."}
                       </p>
+
                     </div>
+
+
                   </div>
 
                   <div className="text-left sm:text-right">
-                    <div className="text-3xl font-extrabold text-white tracking-tight leading-none mb-1">
+                    <div className={`text-3xl font-bold tracking-tight leading-none mb-1 ${quickStats.status === 'safe' ? 'text-green-400' : quickStats.status === 'warning' ? 'text-orange-400' : 'text-red-400'}`}>
                       {quickStats.formattedPercent}%
                     </div>
-                    <div className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">
+                    <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider">
                       Current
                     </div>
                   </div>
@@ -341,7 +338,7 @@ export default function LeaveManager() {
 
                 {/* Progress Bar */}
                 <div className="space-y-2">
-                  <div className="w-full h-3 bg-black/40 rounded-full overflow-hidden flex items-center relative border border-white/5 shadow-inner">
+                  <div className="w-full h-3 bg-white/[0.05] rounded-full overflow-hidden flex items-center relative border border-white/[0.06]">
                     <div
                       className={`absolute left-0 top-0 bottom-0 transition-all duration-1000 ease-out rounded-full ${getStatusColors(quickStats.status).bg} ${getStatusColors(quickStats.status).glow}`}
                       style={{ width: `${Math.min(100, quickStats.currentPercent)}%` }}
@@ -353,7 +350,7 @@ export default function LeaveManager() {
                     />
                   </div>
 
-                  <div className="flex justify-between items-center text-[10px] text-muted-foreground font-semibold uppercase tracking-wider relative h-4 px-1">
+                  <div className="flex justify-between items-center text-[10px] text-white/40 font-medium uppercase tracking-wider relative h-4 px-1">
                     <span className="absolute left-0">0%</span>
                     <span className="absolute text-white font-bold" style={{ left: `${quickStats.required}%`, transform: 'translateX(-50%)' }}>
                       {quickStats.required}% required
@@ -364,20 +361,20 @@ export default function LeaveManager() {
 
                 {/* Highlight Stats */}
                 <div className="grid grid-cols-2 gap-3 mt-1">
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-3 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors group">
-                    <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center mb-1.5 group-hover:bg-primary/20 transition-colors">
-                      <TrendingDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:bg-white/[0.05] transition-colors group">
+                    <div className="w-8 h-8 bg-white/[0.05] rounded-full flex items-center justify-center mb-1.5 group-hover:bg-white/10 transition-colors">
+                      <TrendingDown className="w-4 h-4 text-white/40 group-hover:text-white/60 transition-colors" />
                     </div>
-                    <div className="text-2xl font-extrabold text-white tracking-tight mb-0.5">{quickStats.skip}</div>
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Safe Skips</div>
+                    <div className={`text-2xl font-bold tracking-tight mb-0.5 ${quickStats.status === 'safe' ? 'text-green-400' : 'text-white'}`}>{quickStats.skip}</div>
+                    <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider">Safe Skips</div>
                   </div>
 
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-3 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors group">
-                    <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center mb-1.5 group-hover:bg-accent/20 transition-colors">
-                      <TrendingUp className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
+                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:bg-white/[0.05] transition-colors group">
+                    <div className="w-8 h-8 bg-white/[0.05] rounded-full flex items-center justify-center mb-1.5 group-hover:bg-white/10 transition-colors">
+                      <TrendingUp className="w-4 h-4 text-white/40 group-hover:text-white/60 transition-colors" />
                     </div>
-                    <div className="text-2xl font-extrabold text-white tracking-tight mb-0.5">{quickStats.recover}</div>
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                    <div className={`text-2xl font-bold tracking-tight mb-0.5 ${quickStats.status === 'critical' ? 'text-red-400' : 'text-white'}`}>{quickStats.recover}</div>
+                    <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
                       Extra Needed
                     </div>
                   </div>
@@ -390,17 +387,17 @@ export default function LeaveManager() {
           /* DASHBOARD MODE */
           <div className="w-full animate-in fade-in zoom-in-95 duration-500">
             {courses.length === 0 && !isAddingCourse ? (
-              <div className="flex flex-col items-center justify-center bg-background/20 backdrop-blur-sm border border-white/5 rounded-[2rem] p-12 text-center shadow-xl">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center bg-white/[0.02] border border-white/[0.06] rounded-xl p-12 text-center">
+                <div className="w-16 h-16 bg-white/[0.05] rounded-full flex items-center justify-center mb-4 text-white/30">
                   <BookOpen className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">No Courses Yet</h3>
-                <p className="text-muted-foreground text-sm max-w-sm mb-6">
+                <h3 className="text-xl font-bold mb-2 text-white/80">No Courses Yet</h3>
+                <p className="text-white/40 text-sm max-w-sm mb-6">
                   Add your first course to start tracking your attendance over the semester.
                 </p>
                 <button
                   onClick={() => setIsAddingCourse(true)}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(0,245,255,0.3)] flex items-center gap-2"
+                  className="bg-white hover:bg-white/90 text-black font-bold px-6 py-2.5 rounded-xl transition-all flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Create Course
@@ -410,11 +407,11 @@ export default function LeaveManager() {
               <div className="space-y-6">
 
                 <div className="flex justify-between items-center px-2">
-                  <h2 className="text-xl font-bold tracking-tight">Your Courses</h2>
+                  <h2 className="text-xl font-bold tracking-tight text-white/80">Your Courses</h2>
                   {!isAddingCourse && (
                     <button
                       onClick={() => setIsAddingCourse(true)}
-                      className="bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm flex items-center gap-2 border border-white/5"
+                      className="bg-white/[0.05] hover:bg-white/[0.1] text-white font-medium px-4 py-2 rounded-lg transition-all text-sm flex items-center gap-2 border border-white/[0.06]"
                     >
                       <Plus className="w-4 h-4" />
                       Add Course
@@ -423,41 +420,38 @@ export default function LeaveManager() {
                 </div>
 
                 {isAddingCourse && (
-                  <div className="glass-panel p-6 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="relative z-10">
-                      <div className="flex justify-between items-center mb-5">
-                        <h3 className="text-lg font-bold">Create New Course</h3>
-                        <button onClick={() => setIsAddingCourse(false)} className="text-muted-foreground hover:text-white"><X className="w-5 h-5" /></button>
-                      </div>
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
+                    <div className="flex justify-between items-center mb-5">
+                      <h3 className="text-lg font-bold text-white/80">Create New Course</h3>
+                      <button onClick={() => setIsAddingCourse(false)} className="text-white/40 hover:text-white/60"><X className="w-5 h-5" /></button>
+                    </div>
 
-                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                        <div className="space-y-1.5 lg:col-span-2">
-                          <label className="text-xs font-semibold text-muted-foreground uppercase">Course Name</label>
-                          <input
-                            value={newCourse.name}
-                            onChange={e => setNewCourse({ ...newCourse, name: e.target.value })}
-                            placeholder="e.g. Operating Systems"
-                            className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs font-semibold text-muted-foreground uppercase">Required %</label>
-                          <input
-                            type="number"
-                            value={newCourse.requiredAttendance === 0 ? "" : newCourse.requiredAttendance.toString()}
-                            onChange={e => setNewCourse({ ...newCourse, requiredAttendance: e.target.value === "" ? 0 : Number(e.target.value) })}
-                            placeholder="0"
-                            className="w-full rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
-                          />
-                        </div>
-                        <button
-                          onClick={handleAddCourse}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl py-2.5 px-4 transition-all"
-                        >
-                          Save Course
-                        </button>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                      <div className="space-y-1.5 lg:col-span-2">
+                        <label className="text-xs font-medium text-white/40 uppercase">Course Name</label>
+                        <input
+                          value={newCourse.name}
+                          onChange={e => setNewCourse({ ...newCourse, name: e.target.value })}
+                          placeholder="e.g. Operating Systems"
+                          className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-white/20"
+                        />
                       </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-white/40 uppercase">Required %</label>
+                        <input
+                          type="number"
+                          value={newCourse.requiredAttendance === 0 ? "" : newCourse.requiredAttendance.toString()}
+                          onChange={e => setNewCourse({ ...newCourse, requiredAttendance: e.target.value === "" ? 0 : Number(e.target.value) })}
+                          placeholder="0"
+                          className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none focus:border-white/20"
+                        />
+                      </div>
+                      <button
+                        onClick={handleAddCourse}
+                        className="bg-white hover:bg-white/90 text-black font-bold rounded-xl py-2.5 px-4 transition-all"
+                      >
+                        Save Course
+                      </button>
                     </div>
                   </div>
                 )}
@@ -468,16 +462,16 @@ export default function LeaveManager() {
                     const colors = getStatusColors(stats.status);
 
                     return (
-                      <div key={course.id || course._id} className="glass-panel p-5 relative group">
+                      <div key={course.id || course._id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 relative group">
 
                         {/* Status Glow */}
                         <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-[80px] opacity-20 pointer-events-none ${colors.bg}`} />
 
                         <div className="flex justify-between items-start mb-4 relative z-10">
                           <div>
-                            <h3 className="text-lg font-bold text-white mb-1 truncate max-w-[200px]">{course.name}</h3>
+                            <h3 className="text-lg font-bold text-white/80 mb-1 truncate max-w-[200px]">{course.name}</h3>
                             <div className="flex gap-2 text-xs font-medium">
-                              <span className="bg-white/5 py-1 px-2 rounded-md border border-white/5 text-muted-foreground">Req: {course.requiredAttendance}%</span>
+                              <span className="bg-white/[0.05] py-1 px-2 rounded-md border border-white/[0.06] text-white/40">Req: {course.requiredAttendance}%</span>
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -485,64 +479,71 @@ export default function LeaveManager() {
                               <button
                                 onClick={() => handleSaveCourse((course.id || course._id) as string)}
                                 disabled={isSaving[(course.id || course._id) as string]}
-                                className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 bg-white/10 hover:bg-white/15 text-white/80 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium mr-1 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <Save className="w-3.5 h-3.5" /> {isSaving[(course.id || course._id) as string] ? "Saving..." : "Save"}
                               </button>
                             )}
-                            <button onClick={() => deleteCourse((course.id || course._id) as string)} className="p-2 bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400 rounded-lg transition-colors">
+                            <button onClick={() => deleteCourse((course.id || course._id) as string)} className="p-2 bg-white/[0.05] hover:bg-white/10 text-white/40 hover:text-white/60 rounded-lg transition-colors">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-5 relative z-10">
-                          <div className="bg-black/40 rounded-xl p-3 border border-white/5">
-                            <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1 block">Delivered</label>
+                          <div className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06]">
+                            <label className="text-[10px] text-white/40 uppercase font-medium tracking-wider mb-1 block">Delivered</label>
                             <div className="flex items-center gap-2">
-                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: Math.max(0, course.delivered - 1) })} className="bg-white/5 p-1 rounded hover:bg-white/10">-</button>
+                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: Math.max(0, course.delivered - 1) })} className="bg-white/[0.05] p-1 rounded hover:bg-white/10">-</button>
                               <input
                                 type="number"
                                 value={course.delivered === 0 ? "" : course.delivered.toString()}
                                 onChange={e => handleUpdateCourse((course.id || course._id) as string, { delivered: e.target.value === "" ? 0 : Number(e.target.value) })}
                                 placeholder="0"
-                                className="w-full bg-transparent text-center font-bold text-lg outline-none"
+                                className="w-full bg-transparent text-center font-bold text-lg outline-none text-white/80"
                               />
-                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: course.delivered + 1 })} className="bg-white/5 p-1 rounded hover:bg-white/10">+</button>
+                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { delivered: course.delivered + 1 })} className="bg-white/[0.05] p-1 rounded hover:bg-white/10">+</button>
                             </div>
                           </div>
-                          <div className="bg-black/40 rounded-xl p-3 border border-white/5">
-                            <label className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1 block">Attended</label>
+                          <div className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06]">
+                            <label className="text-[10px] text-white/40 uppercase font-medium tracking-wider mb-1 block">Attended</label>
                             <div className="flex items-center gap-2">
-                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: Math.max(0, course.attended - 1) })} className="bg-white/5 p-1 rounded hover:bg-white/10">-</button>
+                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: Math.max(0, course.attended - 1) })} className="bg-white/[0.05] p-1 rounded hover:bg-white/10">-</button>
                               <input
                                 type="number"
                                 value={course.attended === 0 ? "" : course.attended.toString()}
                                 onChange={e => handleUpdateCourse((course.id || course._id) as string, { attended: e.target.value === "" ? 0 : Number(e.target.value) })}
                                 placeholder="0"
-                                className="w-full bg-transparent text-center font-bold text-lg outline-none"
+                                className="w-full bg-transparent text-center font-bold text-lg outline-none text-white/80"
                               />
-                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: course.attended + 1 })} className="bg-white/5 p-1 rounded hover:bg-white/10">+</button>
+                              <button onClick={() => handleUpdateCourse((course.id || course._id) as string, { attended: course.attended + 1 })} className="bg-white/[0.05] p-1 rounded hover:bg-white/10">+</button>
                             </div>
                           </div>
                         </div>
 
-                        <div className="space-y-4 relative z-10 border-t border-white/10 pt-5 mt-2">
+                        <div className="space-y-4 relative z-10 border-t border-white/[0.06] pt-5 mt-2">
                           <div className="flex justify-between items-center">
-                            <div className="text-sm font-semibold text-white/90">Current Attendance</div>
-                            <div className="text-xl font-extrabold">{stats.formattedPercent}%</div>
+                            <div className="text-sm font-medium text-white/70">Current Attendance</div>
+                            <div className="text-xl font-bold text-white/80">{stats.formattedPercent}%</div>
                           </div>
 
-                          <div className="w-full h-2.5 bg-black/50 rounded-full overflow-hidden relative border border-white/5">
+                          <div className="w-full h-2.5 bg-white/[0.05] rounded-full overflow-hidden relative border border-white/[0.06]">
                             <div className={`absolute top-0 bottom-0 left-0 rounded-full transition-all duration-700 ease-out ${colors.bg}`} style={{ width: `${Math.min(100, stats.currentPercent)}%` }} />
                             <div className="absolute top-0 bottom-0 w-[2px] bg-white z-10 shadow-[0_0_8px_rgba(255,255,255,0.8)]" style={{ left: `${course.requiredAttendance}%` }} />
                           </div>
 
                           <div className={`rounded-xl p-4 mt-2 border ${colors.container}`}>
-                            <h4 className={`text-base font-extrabold mb-1 tracking-tight ${colors.text}`}>
-                              {stats.status === 'safe' && "Holiday Mode 🌴"}
-                              {stats.status === 'warning' && "Caution Zone ⚠️"}
-                              {stats.status === 'critical' && "Recovery Mode 🚨"}
+                            <h4 className={`text-base font-bold mb-1 tracking-tight ${colors.text}`}>
+                              {stats.status === 'safe' && (
+                                <span className="text-green-400">Holiday Mode 🌴</span>
+                              )}
+                              {stats.status === 'warning' && (
+                                <span className="text-orange-400">Caution Zone ⚠️</span>
+                              )}
+                              {stats.status === 'critical' && (
+                                <span className="text-red-400">Recovery Mode 🚨</span>
+                              )}
+
                             </h4>
                             <p className="text-sm text-white/80">
                               {stats.status === 'safe' && <>You can safely skip <strong className={`font-bold ${colors.text}`}>{stats.skip} more classes</strong></>}

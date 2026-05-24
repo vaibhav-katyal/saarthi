@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Loader2,
@@ -47,7 +48,7 @@ interface Conversation {
 
 export default function Chat() {
   const navigate = useNavigate();
-  
+  const { user } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
@@ -213,49 +214,9 @@ export default function Chat() {
     if (nextState) {
       setAgenticPulse(true);
       setTimeout(() => setAgenticPulse(false), 800);
-      toast.success('Agentic mode activated ⚡', {
-        description: 'Deep reasoning and complex action orchestration enabled.',
-        style: { background: '#09090b', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.15)' }
-      });
-    } else {
-      toast.success('Switched to Normal mode');
     }
   };
 
-  const getGreetingInfo = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      return {
-        text: 'Morning, Master',
-        icon: (
-          <Sparkles 
-            className="w-7 h-7 text-orange-400 drop-shadow-[0_0_8px_rgba(242,122,84,0.4)] animate-pulse" 
-            style={{ color: '#F27A54' }} 
-          />
-        )
-      };
-    } else if (hour < 18) {
-      return {
-        text: 'Afternoon, Master',
-        icon: (
-          <Sparkles 
-            className="w-7 h-7 text-orange-400 drop-shadow-[0_0_8px_rgba(242,122,84,0.4)] animate-pulse" 
-            style={{ color: '#F27A54' }} 
-          />
-        )
-      };
-    } else {
-      return {
-        text: 'Evening, Master',
-        icon: (
-          <Sparkles 
-            className="w-7 h-7 text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.4)] animate-pulse" 
-            style={{ color: '#818CF8' }} 
-          />
-        )
-      };
-    }
-  };
 
   const renderInputBar = () => {
     return (
@@ -527,11 +488,10 @@ export default function Chat() {
               <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-[calc(100vh-5rem)]">
                 <div className="w-full max-w-2xl flex flex-col items-center select-none">
                   
-                  {/* Time-based Greeting Title with Sunset Coral/Indigo Sparkle */}
+                  {/* Greeting Title - Plain elegant white text */}
                   <div className="flex items-center gap-3.5 mb-8 justify-center">
-                    {getGreetingInfo().icon}
                     <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white/95 leading-none">
-                      {getGreetingInfo().text}
+                      How can Saarthi help today?
                     </h1>
                   </div>
 

@@ -568,10 +568,10 @@ export default function Chat() {
               <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-[calc(100vh-5rem)]">
                 <div className="w-full max-w-2xl flex flex-col items-center select-none">
                   
-                  {/* Greeting Title - Plain elegant white text */}
+                  {/* Greeting Title - Plain elegant white text with shimmering Saarthi */}
                   <div className="flex items-center gap-3.5 mb-8 justify-center">
-                    <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white/95 leading-none">
-                      How can Saarthi help today?
+                    <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white/90 leading-none">
+                      How can <span className="bg-gradient-to-r from-white/70 via-white to-white/70 bg-[length:200%_auto] animate-[shimmer-sweep_3s_linear_infinite] bg-clip-text text-transparent">Saarthi</span> help today?
                     </h1>
                   </div>
 

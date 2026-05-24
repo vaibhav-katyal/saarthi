@@ -16,6 +16,7 @@ import {
   ChevronRight,
   MessageSquare
 } from 'lucide-react';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
@@ -47,7 +48,7 @@ interface Conversation {
 
 export default function Chat() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
@@ -213,43 +214,47 @@ export default function Chat() {
     if (nextState) {
       setAgenticPulse(true);
       setTimeout(() => setAgenticPulse(false), 800);
+      toast.success('Agentic mode activated ⚡', {
+        description: 'Deep reasoning and complex action orchestration enabled.',
+        style: { background: '#09090b', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.15)' }
+      });
+    } else {
+      toast.success('Switched to Normal mode');
     }
   };
 
-  const getGreetingElement = () => {
+  const getGreetingInfo = () => {
     const hour = new Date().getHours();
-    const firstName = user?.name ? user.name.split(' ')[0] : 'Master';
-    
     if (hour < 12) {
-      return (
-        <div className="relative flex flex-col items-center select-none">
-          {/* Soft ambient aura directly behind text */}
-          <div className="absolute -inset-10 w-[240px] h-[100px] bg-amber-500/[0.05] blur-[80px] rounded-full -z-10 pointer-events-none animate-pulse" />
-          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-300 to-amber-100 drop-shadow-[0_4px_18px_rgba(251,191,36,0.15)] leading-tight">
-            Morning, {firstName}
-          </h1>
-        </div>
-      );
+      return {
+        text: 'Morning, Master',
+        icon: (
+          <Sparkles 
+            className="w-7 h-7 text-orange-400 drop-shadow-[0_0_8px_rgba(242,122,84,0.4)] animate-pulse" 
+            style={{ color: '#F27A54' }} 
+          />
+        )
+      };
     } else if (hour < 18) {
-      return (
-        <div className="relative flex flex-col items-center select-none">
-          {/* Soft ambient aura directly behind text */}
-          <div className="absolute -inset-10 w-[260px] h-[100px] bg-orange-500/[0.04] blur-[90px] rounded-full -z-10 pointer-events-none animate-pulse" />
-          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-peach-300 to-amber-200 drop-shadow-[0_4px_18px_rgba(251,146,60,0.15)] leading-tight">
-            Afternoon, {firstName}
-          </h1>
-        </div>
-      );
+      return {
+        text: 'Afternoon, Master',
+        icon: (
+          <Sparkles 
+            className="w-7 h-7 text-orange-400 drop-shadow-[0_0_8px_rgba(242,122,84,0.4)] animate-pulse" 
+            style={{ color: '#F27A54' }} 
+          />
+        )
+      };
     } else {
-      return (
-        <div className="relative flex flex-col items-center select-none">
-          {/* Soft ambient aura directly behind text */}
-          <div className="absolute -inset-10 w-[260px] h-[100px] bg-indigo-500/[0.06] blur-[90px] rounded-full -z-10 pointer-events-none animate-pulse" />
-          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-indigo-400 to-cyan-300 drop-shadow-[0_4px_18px_rgba(129,140,248,0.15)] leading-tight">
-            Evening, {firstName}
-          </h1>
-        </div>
-      );
+      return {
+        text: 'Evening, Master',
+        icon: (
+          <Sparkles 
+            className="w-7 h-7 text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.4)] animate-pulse" 
+            style={{ color: '#818CF8' }} 
+          />
+        )
+      };
     }
   };
 
@@ -361,26 +366,17 @@ export default function Chat() {
   return (
     <div className="flex-1 h-screen bg-[#030303] text-white overflow-hidden relative font-sans">
       {/* Grayscale Background Overlay & Soft Spotlight */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 select-none">
-        {/* Dot Grid */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.015]"
           style={{
             backgroundImage: `radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)`,
             backgroundSize: '32px 32px',
           }}
         />
-        {/* Grainy noise texture for rich cinematic depth */}
-        <div 
-          className="absolute inset-0 opacity-[0.07] mix-blend-screen"
-          style={{
-            backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')`,
-          }}
-        />
-        {/* Soft, professional radial spotlights */}
-        <div className="absolute top-[-10%] left-[20%] w-[50vw] h-[40vh] bg-[#00F5FF]/[0.015] blur-[150px] rounded-full mix-blend-screen" />
-        <div className="absolute top-[30%] left-[30%] w-[40vw] h-[30vh] bg-[#7B61FF]/[0.01] blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-10%] right-[10%] w-[50vw] h-[40vh] bg-white/[0.015] blur-[140px] rounded-full mix-blend-screen" />
+        {/* Subtle radial spotlights to make it feel expensive */}
+        <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[70vw] h-[40vh] bg-white/[0.015] blur-[150px] rounded-full" />
+        <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[60vw] h-[30vh] bg-white/[0.02] blur-[120px] rounded-full" />
       </div>
 
       {/* Screen-space agentic pulse ripple */}
@@ -532,9 +528,12 @@ export default function Chat() {
               <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-[calc(100vh-5rem)]">
                 <div className="w-full max-w-2xl flex flex-col items-center select-none">
                   
-                  {/* Time-based Greeting Title with ambient aura glow and premium gradient */}
-                  <div className="mb-8 justify-center flex animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
-                    {getGreetingElement()}
+                  {/* Time-based Greeting Title with Sunset Coral/Indigo Sparkle */}
+                  <div className="flex items-center gap-3.5 mb-8 justify-center">
+                    {getGreetingInfo().icon}
+                    <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white/95 leading-none">
+                      {getGreetingInfo().text}
+                    </h1>
                   </div>
 
                   {/* Centered Inline Input Box */}

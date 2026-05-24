@@ -20,12 +20,21 @@ import {
   LogOut,
   Swords,
   MessageCircle,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { ApiSettingsModal } from "./ApiSettingsModal";
+import { toast } from "sonner";
 
 const navItems = [
-  { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Knowledge Vault", path: "/vault", icon: BookOpen },
   { title: "AI Roadmap", path: "/roadmap", icon: Map },
   { title: "MCQ Generator", path: "/mcq", icon: Brain },
@@ -48,6 +57,19 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [groqApiKey, setGroqApiKey] = useState("");
+
+  const handleOpenSettings = () => {
+    const saved = localStorage.getItem("groq_api_key") || "";
+    setGroqApiKey(saved);
+    setShowSettingsModal(true);
+  };
+
+  const handleSaveSettings = () => {
+    localStorage.setItem("groq_api_key", groqApiKey);
+    toast.success("Groq API key saved successfully!");
+  };
 
   const initials = user?.name ? getInitials(user.name) : "?";
 
@@ -148,64 +170,97 @@ export function AppSidebar() {
         {/* User Profile Section */}
         {user && (
           <div className="p-2">
-            {collapsed ? (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center justify-center p-1.5 cursor-default">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="w-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+                  {collapsed ? (
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center justify-center p-1.5 hover:bg-secondary rounded-lg transition-colors">
+                            {user.avatar ? (
+                              <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover border border-white/10" />
+                            ) : (
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-[11px] font-bold text-foreground">
+                                {initials}
+                              </div>
+                            )}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          sideOffset={10}
+                          className="font-medium"
+                        >
+                          <p className="font-semibold">{user.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-3 rounded-lg px-2.5 py-2.5 hover:bg-secondary/60 transition-colors"
+                    >
                       {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full object-cover border border-white/10" />
+                        <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover border border-white/10 shrink-0" />
                       ) : (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-[11px] font-bold text-foreground">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-xs font-bold text-foreground">
                           {initials}
                         </div>
                       )}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    sideOffset={10}
-                    className="font-medium"
-                  >
-                    <p className="font-semibold">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center gap-3 rounded-lg px-2.5 py-2.5"
-              >
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover border border-white/10 shrink-0" />
-                ) : (
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5FF]/30 to-[#7B61FF]/30 border border-white/10 text-xs font-bold text-foreground">
-                    {initials}
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {user.name}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {user.email}
-                  </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
-                <button
-                  onClick={logout}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
-                  title="Logout"
-                  aria-label="Logout"
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="right"
+                align="end"
+                sideOffset={12}
+                className="w-52 bg-background/95 backdrop-blur-md border border-border/80 shadow-2xl p-1.5 rounded-xl z-[100]"
+              >
+                <div className="px-2.5 py-2 border-b border-border/50 mb-1.5">
+                  <p className="text-xs font-semibold text-foreground truncate">{user.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                </div>
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/dashboard"
+                    className="flex w-full items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-foreground hover:bg-secondary cursor-pointer focus:bg-secondary outline-none transition-colors"
+                  >
+                    <LayoutDashboard className="h-4 w-4 text-[#00F5FF]" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleOpenSettings}
+                  className="flex w-full items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-foreground hover:bg-secondary cursor-pointer focus:bg-secondary outline-none transition-colors"
                 >
-                  <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              </motion.div>
-            )}
+                  <Settings className="h-4 w-4 text-[#7B61FF]" />
+                  <span>Setting</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border/50 my-1.5" />
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="flex w-full items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 cursor-pointer focus:bg-destructive/10 outline-none transition-colors"
+                >
+                  <LogOut className="h-4 w-4 text-destructive" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
@@ -226,6 +281,13 @@ export function AppSidebar() {
           </button>
         </div>
       </div>
+      <ApiSettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        apiKey={groqApiKey}
+        onApiKeyChange={setGroqApiKey}
+        onSave={handleSaveSettings}
+      />
     </motion.aside>
   );
 }

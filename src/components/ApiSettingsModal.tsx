@@ -30,14 +30,14 @@ export function ApiSettingsModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <GlassCard className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <GlassCard className="w-full max-w-md overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-foreground">
               API Configuration
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Configure your APIs for problem generation and code execution
+              Configure your Groq API for problem generation
             </p>
           </div>
           <button
@@ -48,9 +48,9 @@ export function ApiSettingsModal({
           </button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Groq API Key */}
-          <div className="border-b border-border/50 pb-6">
+          <div>
             <div className="mb-3">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
                 <span className="h-2 w-2 rounded-full bg-green-400"></span>
@@ -62,7 +62,7 @@ export function ApiSettingsModal({
                   href="https://console.groq.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:underline font-medium"
                 >
                   Get free key →
                 </a>
@@ -90,36 +90,17 @@ export function ApiSettingsModal({
                 </button>
               )}
             </div>
-          </div>
 
-          {/* Judge0 API Info */}
-          <div>
-            <div className="mb-3">
-              <label className="text-sm font-semibold text-foreground flex items-center gap-2 mb-2">
-                <span className="h-2 w-2 rounded-full bg-blue-400"></span>
-                Judge0 API Key
-              </label>
-              <p className="text-xs text-muted-foreground mb-3">
-                Used to execute code and run tests.{" "}
-                <a
-                  href="https://rapidapi.com/judge0-official/api/judge0-ce"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  Get free key on RapidAPI →
-                </a>
-              </p>
-            </div>
-
-            <div className="bg-muted/50 border border-border/50 rounded-lg p-4">
+            <div className="bg-muted/50 border border-border/50 rounded-lg p-4 mt-4">
               <p className="text-xs text-muted-foreground mb-2">
-                <strong>Steps:</strong>
+                <strong>How to get a free Groq API Key:</strong>
               </p>
-              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Visit RapidAPI and subscribe to Judge0 (free tier)</li>
-                <li>Copy your X-RapidAPI-Key from dashboard</li>
-                <li>Add it to your .env.local file</li>
+              <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
+                <li>Visit the <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">Groq Console</a></li>
+                <li>Sign up or log in to your account</li>
+                <li>Navigate to **API Keys** in the sidebar</li>
+                <li>Click **Create API Key**, name it, and copy it</li>
+                <li>Paste the key above and save the configuration</li>
               </ol>
             </div>
           </div>

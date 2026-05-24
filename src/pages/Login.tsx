@@ -86,7 +86,7 @@ const Login = () => {
           : "Login successful!"
       );
 
-      navigate("/dashboard");
+      navigate("/vault");
     } catch (error: any) {
       toast.error(error.message || "An error occurred");
     } finally {
@@ -141,7 +141,7 @@ const Login = () => {
 
       toast.success("Google login successful!");
 
-      navigate("/dashboard");
+      navigate("/vault");
     } catch (error: any) {
       toast.error(
         error.message || "Google login failed"

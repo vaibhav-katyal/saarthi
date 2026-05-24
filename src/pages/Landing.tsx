@@ -220,7 +220,7 @@ const Landing = () => {
                   style={{ opacity: initialElementsOpacity, y: initialElementsY }}
                 >
                   <Link
-                    to="/dashboard"
+                    to="/vault"
                     className="group relative inline-flex h-16 md:h-20 items-center justify-center gap-3 rounded-full border border-white/20 bg-black hover:bg-white/10 px-10 text-lg md:text-xl font-bold text-white transition-all hover:scale-105"
                   >
                     Start Your Journey

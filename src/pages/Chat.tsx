@@ -1,9 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Trash2, Plus, MessageCircle, ArrowRight, Zap } from 'lucide-react';
-import api from '@/lib/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Loader2,
+  Send,
+  Trash2,
+  Plus,
+  FileText,
+  History,
+  X,
+  Sparkles,
+  Mic,
+  ArrowRight,
+  ChevronRight,
+  MessageSquare
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -15,6 +29,10 @@ interface Message {
     action?: {
       type: string;
       questionQuery?: string;
+      topic?: string;
+      subtopic?: string;
+      level?: string;
+      numQuestions?: number;
     };
   };
 }
@@ -28,6 +46,8 @@ interface Conversation {
 
 export default function Chat() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -35,19 +55,29 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [agenticMode, setAgenticMode] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [agenticPulse, setAgenticPulse] = useState(false);
 
-  // Fetch conversations on mount
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   useEffect(() => {
     fetchConversations();
   }, []);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, loading]);
+
+  // Auto-resize input textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
+    }
+  }, [input]);
 
   const fetchConversations = async () => {
     try {
@@ -67,6 +97,7 @@ export default function Chat() {
       const response = await api.get(`/chat/conversation/${conversationId}`);
       setMessages(response.data.messages || []);
       setCurrentConversation(conversationId);
+      setHistoryOpen(false);
     } catch (error) {
       console.error('Error fetching conversation:', error);
       toast.error('Failed to load conversation');
@@ -77,6 +108,7 @@ export default function Chat() {
     setMessages([]);
     setCurrentConversation(null);
     setInput('');
+    setHistoryOpen(false);
   };
 
   const sendMessage = async () => {
@@ -84,6 +116,7 @@ export default function Chat() {
 
     try {
       setLoading(true);
+
       const userMessage: Message = {
         role: 'user',
         content: input,
@@ -92,8 +125,6 @@ export default function Chat() {
 
       setMessages((prev) => [...prev, userMessage]);
       setInput('');
-
-      console.log(`📤 Sending message with agenticMode=${agenticMode}`);
 
       const response = await api.post('/chat/send', {
         conversationId: currentConversation || 'new',
@@ -114,31 +145,26 @@ export default function Chat() {
 
       setMessages((prev) => [...prev, aiMessage]);
 
-      // Handle agentic actions
       if (response.data.action?.type === 'navigate_to_testpad') {
         const query = response.data.action.questionQuery;
-        console.log(`🎯 Navigating to testpad with query: "${query}"`);
         toast.success('Opening testpad...');
         setTimeout(() => {
           navigate(`/testpad?question=${encodeURIComponent(query)}`);
         }, 500);
       } else if (response.data.action?.type === 'navigate_to_roadmap') {
         const topic = response.data.action.topic;
-        console.log(`🗺️ Navigating to roadmap with topic: "${topic}"`);
         toast.success('Opening roadmap...');
         setTimeout(() => {
           navigate(`/roadmap?topic=${encodeURIComponent(topic)}`);
         }, 500);
       } else if (response.data.action?.type === 'navigate_to_guide') {
         const topic = response.data.action.topic;
-        console.log(`📖 Navigating to guide with topic: "${topic}"`);
         toast.success('Opening guide...');
         setTimeout(() => {
           navigate(`/roadmap?topic=${encodeURIComponent(topic)}&tab=guide`);
         }, 500);
       } else if (response.data.action?.type === 'navigate_to_mcq') {
         const { topic, subtopic, level, numQuestions } = response.data.action;
-        console.log(`❓ Navigating to MCQ with topic: "${topic}"`);
         toast.success('Opening MCQ...');
         const params = new URLSearchParams({
           topic: topic || '',
@@ -149,11 +175,8 @@ export default function Chat() {
         setTimeout(() => {
           navigate(`/mcq?${params.toString()}`);
         }, 500);
-      } else {
-        console.log(`📨 No action in response. action:`, response.data.action);
       }
 
-      // Update current conversation if it's new
       if (!currentConversation) {
         setCurrentConversation(response.data.conversationId);
         fetchConversations();
@@ -161,7 +184,6 @@ export default function Chat() {
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
-      // Remove the user message if sending failed
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setLoading(false);
@@ -171,7 +193,9 @@ export default function Chat() {
   const deleteConversation = async (conversationId: string) => {
     try {
       await api.delete(`/chat/conversation/${conversationId}`);
-      setConversations((prev) => prev.filter((c) => c._id !== conversationId));
+      setConversations((prev) =>
+        prev.filter((c) => c._id !== conversationId)
+      );
       if (currentConversation === conversationId) {
         startNewChat();
       }
@@ -182,204 +206,478 @@ export default function Chat() {
     }
   };
 
-  return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar - Conversations List */}
-      <div className="w-64 border-r border-white/10 bg-black/40 backdrop-blur-md flex flex-col">
-        <div className="p-4 border-b border-white/10 bg-gradient-to-r from-cyan-500/10 to-violet-500/10">
-          <button
-            onClick={startNewChat}
-            className="w-full bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-background font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 group"
-          >
-            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-            New Chat
-          </button>
-        </div>
+  const handleToggleAgentic = () => {
+    const nextState = !agenticMode;
+    setAgenticMode(nextState);
+    if (nextState) {
+      setAgenticPulse(true);
+      setTimeout(() => setAgenticPulse(false), 800);
+    }
+  };
 
-        <ScrollArea className="flex-1 px-3 py-4">
-          {loadingConversations ? (
-            <div className="flex items-center justify-center h-32">
-              <Loader2 className="w-6 h-6 animate-spin text-cyan-500/50" />
-            </div>
-          ) : conversations.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No conversations yet</p>
+  const getGreetingElement = () => {
+    const hour = new Date().getHours();
+    const firstName = user?.name ? user.name.split(' ')[0] : 'Master';
+    
+    if (hour < 12) {
+      return (
+        <div className="relative flex flex-col items-center select-none">
+          {/* Soft ambient aura directly behind text */}
+          <div className="absolute -inset-10 w-[240px] h-[100px] bg-amber-500/[0.05] blur-[80px] rounded-full -z-10 pointer-events-none animate-pulse" />
+          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-orange-300 to-amber-100 drop-shadow-[0_4px_18px_rgba(251,191,36,0.15)] leading-tight">
+            Morning, {firstName}
+          </h1>
+        </div>
+      );
+    } else if (hour < 18) {
+      return (
+        <div className="relative flex flex-col items-center select-none">
+          {/* Soft ambient aura directly behind text */}
+          <div className="absolute -inset-10 w-[260px] h-[100px] bg-orange-500/[0.04] blur-[90px] rounded-full -z-10 pointer-events-none animate-pulse" />
+          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-peach-300 to-amber-200 drop-shadow-[0_4px_18px_rgba(251,146,60,0.15)] leading-tight">
+            Afternoon, {firstName}
+          </h1>
+        </div>
+      );
+    } else {
+      return (
+        <div className="relative flex flex-col items-center select-none">
+          {/* Soft ambient aura directly behind text */}
+          <div className="absolute -inset-10 w-[260px] h-[100px] bg-indigo-500/[0.06] blur-[90px] rounded-full -z-10 pointer-events-none animate-pulse" />
+          <h1 className="text-5xl md:text-6xl font-serif font-medium tracking-tight text-center bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-indigo-400 to-cyan-300 drop-shadow-[0_4px_18px_rgba(129,140,248,0.15)] leading-tight">
+            Evening, {firstName}
+          </h1>
+        </div>
+      );
+    }
+  };
+
+  const renderInputBar = () => {
+    return (
+      <div className="relative group">
+        {/* Outer Glow Backdrops */}
+        <AnimatePresence initial={false}>
+          {agenticMode ? (
+            /* Radiant neon gradient side glows when Agentic Mode is active */
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute -inset-1 rounded-[22px] bg-gradient-to-r from-cyan-500/25 via-violet-500/10 to-cyan-500/25 blur-[12px] opacity-90 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse pointer-events-none"
+            />
           ) : (
-            <div className="space-y-2">
-              {conversations.map((conv) => (
-                <div
-                  key={conv._id}
-                  className={`p-3 rounded-lg cursor-pointer transition-all duration-300 flex items-start justify-between group backdrop-blur-sm border ${
-                    currentConversation === conv._id
-                      ? 'bg-cyan-500/20 border-cyan-500/30 text-cyan-100'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-foreground'
+            /* Minimal clean white/gray side glow in standard mode */
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute -inset-[1px] rounded-[22px] bg-gradient-to-r from-white/10 via-white/5 to-white/10 blur-[4px] opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Central Input Card Container */}
+        <div className={`relative bg-black/90 border rounded-[20px] transition-all duration-300 ${
+          agenticMode 
+            ? 'border-cyan-500/20 shadow-[0_0_25px_rgba(6,182,212,0.06)]' 
+            : 'border-white/[0.08] shadow-[0_10px_35px_rgba(0,0,0,0.8)]'
+        }`}>
+          
+          {/* Horizontal flex for expanding textarea & button elements */}
+          <div className="p-3 md:p-3.5 flex flex-col gap-3">
+            
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder="Ask Saarthi anything..."
+              disabled={loading}
+              className="w-full bg-transparent outline-none resize-none text-[13.5px] md:text-[14px] text-white placeholder:text-white/25 px-2 py-1 leading-relaxed max-h-40 min-h-[24px]"
+            />
+
+            {/* Actions Row at the bottom of the input box */}
+            <div className="flex items-center justify-between border-t border-white/[0.03] pt-2 px-1">
+              
+              {/* Left: mode switch button */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleToggleAgentic}
+                  className={`h-8 px-3.5 rounded-[12px] text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all duration-300 flex items-center gap-1.5 ${
+                    agenticMode
+                      ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
+                      : 'bg-white/[0.02] border-white/[0.06] text-white/50 hover:bg-white/[0.04] hover:text-white/80'
                   }`}
                 >
-                  <div
-                    className="flex-1 min-w-0"
-                    onClick={() => fetchConversation(conv._id)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                      <p className="text-sm font-medium truncate">{conv.title}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(conv.updatedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteConversation(conv._id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 ml-2 p-1.5 hover:bg-red-500/20 rounded transition-all duration-300 hover:border hover:border-red-500/30"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                  </button>
-                </div>
-              ))}
+                  <Sparkles className={`w-3.5 h-3.5 ${agenticMode ? 'animate-pulse' : ''}`} />
+                  <span>{agenticMode ? 'Agentic Mode' : 'Normal Mode'}</span>
+                </button>
+              </div>
+
+              {/* Right: Audio input and Send button */}
+              <div className="flex items-center gap-2">
+                <button
+                  className="w-8 h-8 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] flex items-center justify-center transition-all duration-200 text-white/50 hover:text-white"
+                  title="Voice Input"
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={sendMessage}
+                  disabled={loading || !input.trim()}
+                  className={`h-8 px-3.5 rounded-[12px] font-semibold text-[11px] uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-1.5 shadow-sm ${
+                    agenticMode
+                      ? 'bg-cyan-400 text-black hover:bg-cyan-300 disabled:bg-white/10 disabled:text-white/30'
+                      : 'bg-white text-black hover:bg-white/90 disabled:bg-white/10 disabled:text-white/30'
+                  }`}
+                >
+                  {loading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Send</span>
+                      <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </button>
+              </div>
+
             </div>
-          )}
-        </ScrollArea>
+          </div>
+
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex-1 h-screen bg-[#030303] text-white overflow-hidden relative font-sans">
+      {/* Grayscale Background Overlay & Soft Spotlight */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 select-none">
+        {/* Dot Grid */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)`,
+            backgroundSize: '32px 32px',
+          }}
+        />
+        {/* Grainy noise texture for rich cinematic depth */}
+        <div 
+          className="absolute inset-0 opacity-[0.07] mix-blend-screen"
+          style={{
+            backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')`,
+          }}
+        />
+        {/* Soft, professional radial spotlights */}
+        <div className="absolute top-[-10%] left-[20%] w-[50vw] h-[40vh] bg-[#00F5FF]/[0.015] blur-[150px] rounded-full mix-blend-screen" />
+        <div className="absolute top-[30%] left-[30%] w-[40vw] h-[30vh] bg-[#7B61FF]/[0.01] blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[50vw] h-[40vh] bg-white/[0.015] blur-[140px] rounded-full mix-blend-screen" />
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-gradient-to-br from-background via-background to-violet-950/10">
-        {/* Header */}
-        <div className="border-b border-white/10 bg-black/40 backdrop-blur-sm px-6 py-4 bg-gradient-to-r from-black/50 to-violet-950/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-lg border border-cyan-500/30">
-                <MessageCircle className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {currentConversation
-                    ? conversations.find((c) => c._id === currentConversation)?.title || 'Chat'
-                    : 'New Chat'}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Ask me about your studies, performance, or learning materials
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setAgenticMode(!agenticMode);
-                toast.success(`Agentic mode ${!agenticMode ? 'enabled ⚡' : 'disabled ✓'}`);
-              }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 border ${
-                agenticMode
-                  ? 'bg-violet-500/20 border-violet-500/50 text-violet-300 hover:bg-violet-500/30'
-                  : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10'
-              }`}
-            >
-              <Zap className="w-4 h-4" />
-              <span className="text-sm font-medium">{agenticMode ? 'Agentic ⚡' : 'Normal'}</span>
-            </button>
-          </div>
-        </div>
+      {/* Screen-space agentic pulse ripple */}
+      <AnimatePresence>
+        {agenticPulse && (
+          <motion.div
+            initial={{ opacity: 0.6, scale: 0.96 }}
+            animate={{ opacity: 0, scale: 1.04 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="fixed inset-0 pointer-events-none z-50 border-[2px] border-cyan-500/40 rounded-none shadow-[inset_0_0_80px_rgba(6,182,212,0.2)]"
+          />
+        )}
+      </AnimatePresence>
 
-        {/* Messages Area */}
-        <ScrollArea ref={scrollRef} className="flex-1 px-6 py-4">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center max-w-md">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-cyan-500/30">
-                  <MessageCircle className="w-8 h-8 text-cyan-400" />
+      <div className="relative z-10 h-full flex flex-col">
+        {/* Top Header */}
+        <header className="h-20 flex items-center justify-between px-6 md:px-10 border-b border-white/[0.04] bg-black/40 backdrop-blur-md">
+          {/* New Chat Button on Left */}
+          <button
+            onClick={startNewChat}
+            className="h-9 px-4 rounded-[14px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] text-xs font-medium text-white/80 transition-all duration-200 flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            New Chat
+          </button>
+
+          {/* History Button on Right */}
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="h-9 w-9 rounded-[14px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] flex items-center justify-center transition-all duration-200 relative text-white/80"
+            title="Chat History"
+          >
+            <History className="w-4 h-4" />
+            {conversations.length > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            )}
+          </button>
+        </header>
+
+        {/* Sliding History Drawer */}
+        <AnimatePresence>
+          {historyOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setHistoryOpen(false)}
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 pointer-events-auto"
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                className="fixed top-0 right-0 w-80 md:w-96 h-full bg-[#0a0a0a] border-l border-white/[0.08] backdrop-blur-2xl z-50 flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.8)] pointer-events-auto"
+              >
+                {/* Header */}
+                <div className="p-6 border-b border-white/[0.06] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <History className="w-4 h-4 text-white/60" />
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/80">Chat History</h3>
+                  </div>
+                  <button
+                    onClick={() => setHistoryOpen(false)}
+                    className="p-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] transition-all"
+                  >
+                    <X className="w-4 h-4 text-white/60" />
+                  </button>
                 </div>
-                <h2 className="text-xl font-semibold text-foreground mb-2">Start a Conversation</h2>
-                <p className="text-muted-foreground">
-                  Ask me about your uploaded materials, performance stats, or DSA concepts
-                </p>
+
+                {/* List Container */}
+                <ScrollArea className="flex-1 p-4">
+                  {loadingConversations ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-5 h-5 animate-spin text-white/40" />
+                    </div>
+                  ) : conversations.length === 0 ? (
+                    <div className="text-center py-12 px-4">
+                      <MessageSquare className="w-8 h-8 mx-auto text-white/10 mb-3" />
+                      <p className="text-xs text-white/40">No conversations yet.</p>
+                      <p className="text-[11px] text-white/20 mt-1">Start chatting to record your history.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {conversations.map((conv) => (
+                        <div
+                          key={conv._id}
+                          onClick={() => fetchConversation(conv._id)}
+                          className={`group flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-all duration-200 ${
+                            currentConversation === conv._id
+                              ? 'bg-white/[0.05] border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.02)]'
+                              : 'bg-white/[0.01] hover:bg-white/[0.03] border-white/[0.03] hover:border-white/[0.06]'
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0 pr-3">
+                            <p className={`text-xs font-medium truncate ${
+                              currentConversation === conv._id ? 'text-white' : 'text-white/70 group-hover:text-white'
+                            }`}>
+                              {conv.title || 'Untitled Chat'}
+                            </p>
+                            <p className="text-[10px] text-white/30 mt-1">
+                              {new Date(conv.updatedAt).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteConversation(conv._id);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] p-1.5 rounded-lg text-white/40 hover:text-red-400 transition-all duration-200"
+                            title="Delete Conversation"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+
+                {/* Footer */}
+                <div className="p-4 border-t border-white/[0.06]">
+                  <button
+                    onClick={startNewChat}
+                    className="w-full h-10 rounded-xl bg-white text-black hover:bg-white/90 font-medium text-xs tracking-wide transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    New Session
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Chat Area */}
+        <ScrollArea ref={scrollRef} className="flex-1 w-full relative">
+          <div className="min-h-full flex flex-col justify-between">
+            {messages.length === 0 ? (
+              /* Empty Hero State - Redesigned to align greeting, chatbox, and suggestions */
+              <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-[calc(100vh-5rem)]">
+                <div className="w-full max-w-2xl flex flex-col items-center select-none">
+                  
+                  {/* Time-based Greeting Title with ambient aura glow and premium gradient */}
+                  <div className="mb-8 justify-center flex animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
+                    {getGreetingElement()}
+                  </div>
+
+                  {/* Centered Inline Input Box */}
+                  <div className="w-full mb-6 text-left">
+                    {renderInputBar()}
+                  </div>
+
+                  {/* Suggestions list directly under the chatbox in the center */}
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    {[
+                      'Check my attendance',
+                      'Summarize uploaded notes',
+                      'Generate DSA roadmap',
+                      'Analyze coding performance',
+                      'Find weak subjects',
+                    ].map((item) => (
+                      <button
+                        key={item}
+                        onClick={() => setInput(item)}
+                        className="px-4 py-2 rounded-xl bg-white/[0.015] hover:bg-white/[0.04] border border-white/[0.04] hover:border-white/[0.08] text-xs text-white/60 hover:text-white transition-all duration-200 shadow-sm"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-4 pb-4">
-              {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+            ) : (
+              /* Messages Populated State */
+              <div className="max-w-3xl mx-auto w-full px-6 py-12 space-y-8 flex-1">
+                {messages.map((msg, idx) => (
                   <div
-                    className={`max-w-2xl px-5 py-3.5 rounded-2xl backdrop-blur-sm transition-all duration-300 ${
-                      msg.role === 'user'
-                        ? 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-background rounded-br-none shadow-lg shadow-cyan-500/20 ml-12'
-                        : 'bg-white/10 border border-white/20 text-foreground rounded-bl-none hover:bg-white/15 mr-12'
+                    key={idx}
+                    className={`flex ${
+                      msg.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-
-                    {msg.metadata?.sources && msg.metadata.sources.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-current/20">
-                        <p className="text-xs font-semibold mb-2 opacity-75 flex items-center gap-1">
-                          <span>📚 Sources</span>
-                        </p>
-                        <div className="space-y-1.5">
-                          {msg.metadata.sources.map((source, sidx) => (
-                            <div key={sidx} className="flex items-start gap-2 text-xs opacity-75 bg-black/20 px-2 py-1 rounded">
-                              <span className="flex-shrink-0 mt-0.5">📄</span>
-                              <span>{source}</span>
-                            </div>
-                          ))}
-                        </div>
+                    <div
+                      className={`max-w-[85%] md:max-w-[80%] rounded-2xl p-5 border transition-all ${
+                        msg.role === 'user'
+                          ? 'bg-[#121212] text-white border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
+                          : 'bg-white/[0.02] border-white/[0.04] backdrop-blur-xl shadow-sm'
+                      }`}
+                    >
+                      {/* Avatar Indicator inside bubbles */}
+                      <div className="flex items-center gap-2 mb-2 select-none">
+                        <span className={`text-[10px] uppercase tracking-[0.2em] font-semibold ${
+                          msg.role === 'user' ? 'text-white/40' : 'text-cyan-400'
+                        }`}>
+                          {msg.role === 'user' ? 'You' : 'Saarthi AI'}
+                        </span>
                       </div>
-                    )}
 
-                    {msg.metadata?.intent && (
-                      <p className="text-xs opacity-60 mt-2 flex items-center gap-1">
-                        <span className="inline-block w-1 h-1 bg-current/40 rounded-full"></span>
-                        {msg.metadata.intent.replace(/_/g, ' ').toLowerCase()}
+                      <p
+                        className={`whitespace-pre-wrap leading-relaxed text-[13.5px] font-normal tracking-wide md:text-[14px] ${
+                          msg.role === 'user' ? 'text-white/90' : 'text-white/80'
+                        }`}
+                      >
+                        {msg.content}
                       </p>
-                    )}
-                  </div>
-                </div>
-              ))}
 
-              {loading && (
-                <div className="flex justify-start">
-                  <div className="bg-white/10 border border-white/20 text-foreground px-5 py-3.5 rounded-2xl rounded-bl-none backdrop-blur-sm">
-                    <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                      {/* Sources Section */}
+                      {msg.metadata?.sources && msg.metadata.sources.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-white/[0.04]">
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-2">
+                            References
+                          </p>
+
+                          <div className="flex flex-wrap gap-2">
+                            {msg.metadata.sources.map((source, sidx) => (
+                              <div
+                                key={sidx}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-all"
+                              >
+                                <FileText className="w-3 h-3 text-white/40" />
+                                <span className="text-[11px] text-white/60">
+                                  {source}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                ))}
+
+                {/* Loading Bubble */}
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="bg-white/[0.02] border border-white/[0.04] backdrop-blur-xl rounded-2xl p-5 max-w-[80%] shadow-sm">
+                      {agenticMode ? (
+                        /* Beautiful Agentic Mode Thinking Waveform Animation */
+                        <div className="flex flex-col gap-3 py-1 select-none">
+                          <div className="flex items-center gap-2 text-cyan-400">
+                            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-medium animate-pulse">Saarthi Agent is calculating...</span>
+                          </div>
+                          
+                          <div className="flex items-end gap-1 h-7 pl-1">
+                            {[...Array(6)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                animate={{
+                                  height: [10, 26, 10],
+                                }}
+                                transition={{
+                                  duration: 1.1,
+                                  repeat: Infinity,
+                                  delay: i * 0.15,
+                                  ease: "easeInOut"
+                                }}
+                                className="w-1 rounded-full bg-gradient-to-t from-cyan-400 via-indigo-500 to-violet-500"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        /* Clean Standard Mode Spinner */
+                        <div className="flex items-center gap-2.5 text-white/50 py-1.5 select-none">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-white/45" />
+                          <span className="text-xs tracking-wider font-light">Saarthi is typing...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Vacant padding spacer so scroll covers bottom float */}
+            {messages.length > 0 && <div className="h-32 w-full flex-shrink-0" />}
+          </div>
         </ScrollArea>
 
-        {/* Input Area */}
-        <div className="border-t border-white/10 bg-black/40 backdrop-blur-sm px-6 py-4 bg-gradient-to-t from-black/50 to-transparent">
-          <div className="flex gap-3 items-end">
-            <div className="flex-1 relative">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder="Type your message... (Shift+Enter for new line)"
-                className="w-full min-h-12 max-h-32 p-3.5 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/30 text-foreground placeholder-muted-foreground resize-none transition-all duration-300 disabled:bg-white/5 disabled:cursor-not-allowed"
-                disabled={loading}
-              />
+        {/* Floating Centered Chat Input Box - Rendered only when active messages exist */}
+        {messages.length > 0 && (
+          <div className="absolute bottom-6 left-0 right-0 z-30 pointer-events-none px-6">
+            <div className="max-w-2xl mx-auto w-full pointer-events-auto">
+              {renderInputBar()}
             </div>
-            <button
-              onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 disabled:from-cyan-500/50 disabled:to-violet-500/50 text-background font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/30"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  <span className="hidden sm:inline">Send</span>
-                </>
-              )}
-            </button>
           </div>
-        </div>
+        )}
+
       </div>
     </div>
   );

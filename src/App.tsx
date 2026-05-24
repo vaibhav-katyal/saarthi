@@ -54,12 +54,7 @@ function AppLayout() {
     }
 
     if (isAuthenticated) {
-      return (
-        <div className="flex h-screen w-full overflow-hidden bg-background">
-          <AppSidebar />
-          <Dashboard />
-        </div>
-      );
+      return <Navigate to="/vault" replace />;
     }
 
     return <Landing />;

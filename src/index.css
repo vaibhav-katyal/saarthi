@@ -157,3 +157,29 @@
     border-radius: 3px;
   }
 }
+
+/* Shimmer text animation for agentic loading state */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgba(160, 160, 170, 0.5) 0%,
+    rgba(180, 180, 190, 0.6) 30%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(180, 180, 190, 0.6) 70%,
+    rgba(160, 160, 170, 0.5) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-sweep 2.2s ease-in-out infinite;
+}

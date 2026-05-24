@@ -54,7 +54,7 @@ function AppLayout() {
     }
 
     if (isAuthenticated) {
-      return <Navigate to="/vault" replace />;
+      return <Navigate to="/chat" replace />;
     }
 
     return <Landing />;

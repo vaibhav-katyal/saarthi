@@ -35,12 +35,12 @@ import { ApiSettingsModal } from "./ApiSettingsModal";
 import { toast } from "sonner";
 
 const navItems = [
+  { title: "Saarthi AI", path: "/chat", icon: MessageCircle },
   { title: "Knowledge Vault", path: "/vault", icon: BookOpen },
   { title: "AI Roadmap", path: "/roadmap", icon: Map },
   { title: "MCQ Generator", path: "/mcq", icon: Brain },
   { title: "Testpad", path: "/testpad", icon: Code2 },
   { title: "Code Duel", path: "/duel", icon: Swords },
-  { title: "Saarthi AI", path: "/chat", icon: MessageCircle },
   { title: "Leave Manager", path: "/leave", icon: Calculator },
 ];
 

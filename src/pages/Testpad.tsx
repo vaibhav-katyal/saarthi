@@ -618,7 +618,7 @@ ENFORCED RULES:
   if (!problem) {
     return (
       <PageWrapper
-        title="Testpad"
+        title="Testpad Pro"
         subtitle="Generate and solve coding problems powered by AI"
         icon={<Code2 className="h-3 w-3" />}
         badge="Practice"

@@ -311,7 +311,7 @@ const Landing = () => {
                        <MessageSquare className="w-3.5 h-3.5" /> Intelligence
                     </div>
                     <h3 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 text-white leading-[1.1] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">Saarthi AI</h3>
-                    <p className="text-neutral-400 text-lg md:text-xl font-medium leading-relaxed max-w-md mb-8">Your always-on AI companion. Debug your code, brainstorm ideas, or break down complex concepts with an intelligent assistant built specifically for academics.</p>
+                    <p className="text-neutral-400 text-lg md:text-xl font-medium leading-relaxed max-w-md mb-8">An intelligent academic companion that understands your notes, PDFs, code snippets, and activity to deliver personalized, context-aware assistance instantly.</p>
                     
                     <ul className="flex flex-col gap-4 mb-4">
                         <li className="flex items-center gap-3 text-white/80 font-medium text-sm md:text-base">

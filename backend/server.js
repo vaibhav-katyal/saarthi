@@ -45,8 +45,8 @@ io.on('connection', (socket) => {
 
   // Create Room
   socket.on('create-room', (user) => {
-    console.log('=== BACKEND: CREATE-ROOM ===');
-    console.log('User creating room:', user);
+    // console.log('=== BACKEND: CREATE-ROOM ===');
+    // console.log('User creating room:', user);
     
     // Generate a simple 4 digit room code for easy sharing
     const roomId = Math.floor(1000 + Math.random() * 9000).toString();
@@ -60,23 +60,23 @@ io.on('connection', (socket) => {
       timerStartTime: null,
     };
 
-    console.log('Room created:', roomId, 'with player:', { id: user.id, name: user.name });
+    // console.log('Room created:', roomId, 'with player:', { id: user.id, name: user.name });
     socket.emit('room-created', { roomId, room: rooms[roomId] });
   });
 
   // Join Room
   socket.on('join-room', ({ roomId, user }) => {
-    console.log('=== BACKEND: JOIN-ROOM ===');
-    console.log('User joining room:', roomId, 'user:', user);
-    console.log('Room exists?', !!rooms[roomId]);
+    // console.log('=== BACKEND: JOIN-ROOM ===');
+    // console.log('User joining room:', roomId, 'user:', user);
+    // console.log('Room exists?', !!rooms[roomId]);
     
     if (!rooms[roomId]) {
-      console.log('Room not found, emitting error');
+      // console.log('Room not found, emitting error');
       return socket.emit('error', { message: 'Room not found' });
     }
     
     if (rooms[roomId].players.length >= 2) {
-      console.log('Room is full');
+      // console.log('Room is full');
       return socket.emit('error', { message: 'Room is full' });
     }
 
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
     const isAlreadyIn = rooms[roomId].players.find(p => p.id === user.id);
     if (!isAlreadyIn) {
       rooms[roomId].players.push(user);
-      console.log('Player added to room. Room now has:', rooms[roomId].players.map(p => ({ id: p.id, name: p.name })));
+      // console.log('Player added to room. Room now has:', rooms[roomId].players.map(p => ({ id: p.id, name: p.name })));
     } else {
       console.log('Player already in room');
     }
@@ -99,14 +99,14 @@ io.on('connection', (socket) => {
   // Sync Problem
   socket.on('sync-problem', ({ roomId, problem }) => {
     console.log('=== BACKEND: SYNC-PROBLEM EVENT ===');
-    console.log('roomId:', roomId);
-    console.log('room exists?', !!rooms[roomId]);
-    console.log('problem title:', problem?.title);
-    console.log('problem difficulty:', problem?.difficulty);
+    // console.log('roomId:', roomId);
+    //console.log('room exists?', !!rooms[roomId]);
+    // console.log('problem title:', problem?.title);
+    // console.log('problem difficulty:', problem?.difficulty);
     
     if (rooms[roomId]) {
       rooms[roomId].problem = problem;
-      console.log('Problem stored in room, now broadcasting problem-synced event');
+      // console.log('Problem stored in room, now broadcasting problem-synced event');
       io.to(roomId).emit('problem-synced', { problem });
       console.log('problem-synced event emitted to room');
     } else {
@@ -133,12 +133,12 @@ io.on('connection', (socket) => {
   // Win
   socket.on('duel-win', ({ roomId, user }) => {
     console.log('=== BACKEND: DUEL-WIN EVENT ===');
-    console.log('roomId:', roomId);
-    console.log('winner user:', user);
-    console.log('room exists?', !!rooms[roomId]);
-    console.log('room status:', rooms[roomId]?.status);
-    console.log('room players:', rooms[roomId]?.players?.map(p => ({ id: p.id, name: p.name })));
-    console.log('room problem:', rooms[roomId]?.problem?.title);
+    // console.log('roomId:', roomId);
+    // console.log('winner user:', user);
+    // console.log('room exists?', !!rooms[roomId]);
+    // console.log('room status:', rooms[roomId]?.status);
+    // console.log('room players:', rooms[roomId]?.players?.map(p => ({ id: p.id, name: p.name })));
+    // console.log('room problem:', rooms[roomId]?.problem?.title);
     
     if (rooms[roomId] && rooms[roomId].status === 'active') {
       rooms[roomId].status = 'finished';

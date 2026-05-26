@@ -25,6 +25,13 @@ import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// Type declaration for Speech Recognition API
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+    SpeechRecognition: any;
+  }
+}
 
 interface Message {
   role: 'user' | 'assistant';
@@ -154,14 +161,105 @@ export default function Chat() {
   const [agenticMode, setAgenticMode] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('Processing your request...');
+  const [isRecording, setIsRecording] = useState(false);
 
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     fetchConversations();
+  }, []);
+
+  // Initialize Web Speech API
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognitionAPI = window.webkitSpeechRecognition || window.SpeechRecognition;
+    
+    if (!SpeechRecognitionAPI) {
+      console.warn('Speech Recognition API not supported in this browser');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        // console.log('🎤 Speech recognition started');
+        setIsRecording(true);
+      };
+
+      recognition.onend = () => {
+        // console.log('🎤 Speech recognition ended');
+        setIsRecording(false);
+      };
+
+      recognition.onresult = (event: any) => {
+        // console.log('🎤 Result event:', event);
+        
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript || '';
+          // console.log(`Result ${i}: "${transcript}" (Final: ${event.results[i].isFinal})`);
+          
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        // console.log('📝 Final text:', finalTranscript, 'Interim:', interimTranscript);
+
+        if (finalTranscript.trim().length > 0) {
+          const trimmedText = finalTranscript.trim();
+          // console.log('✅ Adding to input:', trimmedText);
+          setInput((prev) => {
+            const newText = prev ? prev + ' ' + trimmedText : trimmedText;
+            // console.log('🔤 New input value:', newText);
+            return newText;
+          });
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('❌ Speech recognition error:', event.error);
+        setIsRecording(false);
+        
+        let errorMessage = 'Voice input error';
+        if (event.error === 'no-speech') {
+          errorMessage = 'No speech detected. Please speak louder or check your microphone.';
+        } else if (event.error === 'network') {
+          errorMessage = 'Network error. Check your internet connection.';
+        } else if (event.error === 'not-allowed') {
+          errorMessage = 'Microphone access denied. Please allow microphone access.';
+        }
+        
+        toast.error(errorMessage);
+      };
+
+      recognitionRef.current = recognition;
+    } catch (error) {
+      console.error('Failed to initialize speech recognition:', error);
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.warn('Error aborting recognition:', e);
+        }
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -308,6 +406,29 @@ export default function Chat() {
     setAgenticMode(!agenticMode);
   };
 
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      toast.error('Speech recognition not supported in your browser');
+      return;
+    }
+
+    try {
+      if (isRecording) {
+        // console.log('🛑 Stopping voice input');
+        recognitionRef.current.stop();
+      } else {
+        // console.log('▶️ Starting voice input');
+        recognitionRef.current.abort(); // Reset state
+        recognitionRef.current.start();
+      }
+    } catch (error: any) {
+      console.error('Voice input error:', error);
+      if (error.name !== 'InvalidStateError') {
+        toast.error(`Voice error: ${error.message || error}`);
+      }
+    }
+  };
+
 
   const renderInputBar = () => {
     return (
@@ -380,10 +501,50 @@ export default function Chat() {
               {/* Right: Audio input and Send button */}
               <div className="flex items-center gap-2">
                 <button
-                  className="w-8 h-8 rounded-[12px] bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] flex items-center justify-center transition-all duration-200 text-white/50 hover:text-white"
-                  title="Voice Input"
+                  onClick={toggleVoiceInput}
+                  className={`w-8 h-8 flex items-center justify-center transition-all duration-300 ${
+                    isRecording
+                      ? 'bg-white text-black rounded-full shadow-[0_0_15px_rgba(255,255,255,0.45)] scale-105 border border-white'
+                      : 'bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] text-white/50 hover:text-white rounded-[12px]'
+                  }`}
+                  title={isRecording ? 'Stop recording' : 'Start voice input'}
+                  disabled={loading}
                 >
-                  <Mic className="w-3.5 h-3.5" />
+                  {isRecording ? (
+                    <div className="flex items-center justify-center gap-[3px] h-4 w-5">
+                      <motion.div
+                        className="w-[2px] bg-black rounded-full"
+                        animate={{ height: ["4px", "12px", "4px"] }}
+                        transition={{
+                          duration: 0.7,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      <motion.div
+                        className="w-[2px] bg-black rounded-full"
+                        animate={{ height: ["4px", "16px", "4px"] }}
+                        transition={{
+                          duration: 0.7,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.15,
+                        }}
+                      />
+                      <motion.div
+                        className="w-[2px] bg-black rounded-full"
+                        animate={{ height: ["4px", "10px", "4px"] }}
+                        transition={{
+                          duration: 0.7,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.3,
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <Mic className="w-3.5 h-3.5" />
+                  )}
                 </button>
 
                 <button

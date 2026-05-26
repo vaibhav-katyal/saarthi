@@ -7,7 +7,16 @@
 export async function generateAISummary(content: string): Promise<string> {
   if (!content) return "";
 
-  const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+  // Priority: localStorage first (user settings), then environment variable
+  let groqKey = "";
+  
+  if (typeof window !== 'undefined') {
+    groqKey = localStorage.getItem("groq_api_key") || "";
+  }
+  
+  if (!groqKey) {
+    groqKey = import.meta.env.VITE_GROQ_API_KEY || "";
+  }
   
   if (!groqKey) {
     console.warn("Groq API key not configured");
@@ -24,6 +33,12 @@ export async function generateAISummary(content: string): Promise<string> {
 
 async function generateGroqSummary(content: string, apiKey: string): Promise<string> {
   try {
+    // Validate API key format
+    if (!apiKey.startsWith("gsk_")) {
+      console.error("Invalid Groq API key format. Key should start with 'gsk_'");
+      return "(Invalid API key format)";
+    }
+
     const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -50,7 +65,16 @@ async function generateGroqSummary(content: string, apiKey: string): Promise<str
     const data = await resp.json();
     
     if (!resp.ok) {
-      console.error("Groq API error:", data);
+      console.error("Groq API error:", {
+        status: resp.status,
+        statusText: resp.statusText,
+        error: data
+      });
+      
+      if (resp.status === 401) {
+        return "(API key is invalid or expired - please update in settings)";
+      }
+      
       return "(Summary generation unavailable - check your API key)";
     }
     

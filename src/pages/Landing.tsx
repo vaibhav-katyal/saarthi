@@ -310,7 +310,7 @@ const Landing = () => {
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-emerald-500 text-xs font-bold mb-8 shadow-sm uppercase tracking-widest w-max">
                        <MessageSquare className="w-3.5 h-3.5" /> Intelligence
                     </div>
-                    <h3 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 text-white leading-[1.1] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">Saarthi Chat</h3>
+                    <h3 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 text-white leading-[1.1] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">Saarthi AI</h3>
                     <p className="text-neutral-400 text-lg md:text-xl font-medium leading-relaxed max-w-md mb-8">Your always-on AI companion. Debug your code, brainstorm ideas, or break down complex concepts with an intelligent assistant built specifically for academics.</p>
                     
                     <ul className="flex flex-col gap-4 mb-4">

@@ -570,6 +570,7 @@ Ensure the guide is practical, actionable, and reads naturally. Use professional
                       </button>
                     </div>
 
+                    
                     <div className="text-left space-y-1 mt-3 relative">
                       <label className="text-xs font-medium text-white/40 px-1 ml-1 hover:cursor-pointer" htmlFor="topic-input">
                         Learning Topic

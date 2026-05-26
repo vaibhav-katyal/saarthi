@@ -392,10 +392,10 @@ export default function KnowledgeVault() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="mb-8 space-y-3"
         >
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neutral-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] mb-1">
+            {/* <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neutral-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] mb-1">
                 <Database className="h-3 w-3 text-[#7B61FF]" />
                 Resources
-            </div>
+            </div> */}
             <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white font-heading">
                 Knowledge{" "}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/60">

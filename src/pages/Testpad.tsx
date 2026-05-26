@@ -633,6 +633,7 @@ ENFORCED RULES:
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">
                   Groq API Configuration
+                  
                 </h2>
                 <button
                   onClick={() => setShowApiSettings(false)}

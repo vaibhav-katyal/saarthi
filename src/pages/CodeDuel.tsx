@@ -80,7 +80,7 @@ const CodeDuel = () => {
         user = { id: guestId, name: "Guest User" };
     }
     
-    console.log('Current user:', user);
+    // console.log('Current user:', user);
 
     // AI Generation State
     const [apiKey, setApiKey] = useState("");

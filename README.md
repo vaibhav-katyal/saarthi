@@ -45,6 +45,20 @@ Whether understanding a difficult concept, organizing study material, tracking a
 
 ---
 
+## Contributors
+
+Saarthi was built by a team that believes every student deserves access to exceptional guidance.
+
+**[Vishesh Jha](https://github.com/Visheshjha11)** ·
+**[Vaibhav Katyal](https://github.com/vaibhav-katyal)** ·
+**[Madhav Gautam](https://github.com/madhavgautam25)** ·
+**[Medhansh Garg](https://github.com/medhansh-garg)**
+
+United by a common mission: making personalized educational support accessible at scale.
+
+---
+
+
 ## Core Features
 
 * AI-powered educational assistant
